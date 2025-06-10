@@ -60,7 +60,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
           <Select
             value={formData.type}
             onValueChange={(value: "income" | "expense") =>
-              setFormData({ ...formData, type: value, category: "" })
+              setFormData({ ...formData, type: value })
             }
           >
             <SelectTrigger>
@@ -140,7 +140,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
         <Button type="button" variant="outline" onClick={onSuccess}>
           Cancel
         </Button>
-        <Button type="submit">Add ITransaction</Button>
+        <Button type="submit">Add Transaction</Button>
       </div>
     </form>
   );

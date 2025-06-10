@@ -10,18 +10,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { signInAction } from "./actions/sigin-in";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/components/contexts/user-context";
-import axios from "axios";
 
 export function SignInForm() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
@@ -33,28 +31,15 @@ export function SignInForm() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    const res = await signInAction(formData.email, formData.password);
 
-    setIsLoading(false);
-  };
-  const createUser = async (email: string) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/users`,
-        {
-          email,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
+      await signInAction(formData.email, formData.password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
@@ -136,13 +121,15 @@ export function SignInForm() {
       </Button>
 
       <div className="flex justify-center gap-2">
-        <span className="text-sm text-gray-600 cursor-pointer" onClick={async() => await createUser("test@gmail.com")}>Don't have an account? </span>
-        <p
+        <span className="text-sm text-gray-600 cursor-pointer">
+          Don't have an account?{" "}
+        </span>
+        <button
           className="text-sm font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer"
           onClick={() => router.push("/auth/signup")}
         >
           Sign up
-        </p>
+        </button>
       </div>
     </form>
   );

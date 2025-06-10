@@ -1,3 +1,4 @@
+"use server";
 import { signUp } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -8,7 +9,7 @@ export async function signUpAction(
 ) {
   const res = await signUp(email, password, name);
   if (!res.success) {
-    return res.error;
+    redirect("/auth/signup");
   }
 
   redirect("/");

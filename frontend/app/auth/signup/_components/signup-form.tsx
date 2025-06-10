@@ -11,16 +11,21 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { signUpAction } from "./actions/sigin-up";
 import { useRouter } from "next/navigation";
 
+interface IFormData {
+  email: string;
+  password: string;
+  name: string;
+}
 export function SignUpForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<IFormData>({
     email: "",
     password: "",
     name: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
@@ -32,9 +37,15 @@ export function SignUpForm() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    await signUpAction(formData.email, formData.password, formData.name);
 
-    setIsLoading(false);
+    try {
+      await signUpAction(formData.email, formData.password, formData.name);
+      // Handle success (maybe redirect or show success message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,12 +143,12 @@ export function SignUpForm() {
 
       <div className="flex justify-center gap-2">
         <span className="text-sm text-gray-600">Already have an account? </span>
-        <p
+        <button
           className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
           onClick={() => router.push("/auth/signin")}
         >
           Sign in
-        </p>
+        </button>
       </div>
     </form>
   );

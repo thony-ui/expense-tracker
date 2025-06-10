@@ -8,6 +8,7 @@ import { CategoryChart } from "../charts/category-chart";
 import { useUser } from "@/components/contexts/user-context";
 
 export function DashboardOverview() {
+  // TODO: Replace with real data fetching logic. For now we use useUser to check if the data obtained from the user is loading.
   const { isLoading } = useUser();
   if (isLoading) {
     return (
