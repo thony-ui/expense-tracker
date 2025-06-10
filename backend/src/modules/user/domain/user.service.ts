@@ -1,35 +1,22 @@
 import supabase from "../../../lib/supabase-client";
+import { IUserService, User } from "./user.interface";
+import { UserRepository } from "./user.repository";
 
-export const postUserToDatabase = async ({
-  id,
-  email,
-  name,
-}: {
-  id: string;
-  email: string;
-  name: string;
-}) => {
-  const { data, error } = await supabase
-    .from("users")
-    .insert({
+export class UserService implements IUserService {
+  constructor(private userRepository: UserRepository) {}
+  postUserToDatabase = async ({ id, email, name }: User) => {
+    const data = await this.userRepository.postUserToDatabase({
       id,
       email,
       name,
-    })
-    .select();
+    });
 
-  if (error) {
-    throw new Error(`Error inserting user: ${error.message}`);
-  }
+    return data;
+  };
 
-  return data;
-};
-
-export const getUserFromDataBase = async ({ id }: { id: string }) => {
-  const { data, error } = await supabase.from("users").select("*").eq("id", id);
-  if (error) {
-    throw new Error(`Error fetching user: ${error.message}`);
-  }
-  // get the only user from the data array
-  return data[0];
-};
+  getUserFromDataBase = async ({ id }: { id: string }) => {
+    const data = await this.userRepository.getUserFromDataBase({ id });
+    // get the only user from the data array
+    return data[0];
+  };
+}

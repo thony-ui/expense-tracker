@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 
+require("dotenv").config();
+
 const secretKey = process.env.SECRET_KEY!;
 
 export const authenticateUser = async (
