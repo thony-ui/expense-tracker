@@ -37,6 +37,17 @@ describe("User Service", () => {
       id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     });
   });
+  it("should throw an error if postUserToDatabase fails", async () => {
+    const error = new Error("Database error");
+    (userRepository.postUserToDatabase as jest.Mock).mockRejectedValue(error);
+    await expect(
+      userService.postUserToDatabase({
+        id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        email: "a@gmail.com",
+        name: "Alice",
+      })
+    ).rejects.toThrow("Database error");
+  });
 });
 
 describe("User Controller", () => {
@@ -100,5 +111,15 @@ describe("User Controller", () => {
     expect(response.json).toHaveBeenCalledWith({
       message: "User retrieved from database",
     });
+  });
+  it("should handle errors in postUser", async () => {
+    const error = new Error("Service error");
+    (userService.postUserToDatabase as jest.Mock).mockRejectedValue(error);
+    await userController.postUser(
+      request as Request,
+      response as Response,
+      nextFunction
+    );
+    expect(nextFunction).toHaveBeenCalledWith(error);
   });
 });
