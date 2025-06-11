@@ -4,12 +4,17 @@ import cors from "cors"; // Add this import
 import { defineUserRoutes } from "./modules/user";
 import { Server } from "http";
 
+require("dotenv").config(); // Load environment variables from .env file
+
 const app = express();
 
 // Configure CORS properly
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // Add your frontend URLs
+    origin: [
+      process.env.ALLOWED_ORIGIN_DEVELOPMENT!,
+      process.env.ALLOWED_ORIGIN_PRODUCTION!,
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
