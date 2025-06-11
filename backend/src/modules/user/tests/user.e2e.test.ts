@@ -1,10 +1,9 @@
 import request from "supertest";
 import { generateTestJWT } from "../../../utils/test/generate-jwt";
+import { app, server } from "../../../index";
 
 require("dotenv").config(); // Load environment variables from .env file
 process.env.PORT = "9999";
-
-import { app, server } from "../../..";
 
 describe("User routes", () => {
   afterAll((done) => {
