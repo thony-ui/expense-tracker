@@ -2,6 +2,7 @@ import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors"; // Add this import
 import { defineUserRoutes } from "./modules/user";
+import { Server } from "http";
 
 const app = express();
 
@@ -18,7 +19,10 @@ app.use(
 app.use(bodyParser.json());
 
 defineUserRoutes(app);
+let server: Server;
 
-app.listen(8000, () => {
+server = app.listen(8000, () => {
   console.log("Backend server is running on http://localhost:8000");
 });
+
+export { app, server };
