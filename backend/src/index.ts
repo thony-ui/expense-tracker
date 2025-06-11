@@ -12,8 +12,8 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "https://linked-expense-tracker.vercel.app",
+      process.env.ALLOWED_ORIGIN_DEVELOPMENT!,
+      process.env.ALLOWED_ORIGIN_PRODUCTION!,
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

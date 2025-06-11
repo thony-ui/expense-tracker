@@ -11,7 +11,7 @@ export async function signUp(email: string, password: string, name: string) {
     password,
   });
 
-  if (error) {
+  if (error || !data.user) {
     return {
       success: false,
       error: error?.message || "Failed to sign up",
