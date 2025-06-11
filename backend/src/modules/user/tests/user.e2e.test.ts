@@ -1,5 +1,9 @@
 import request from "supertest";
 import { generateTestJWT } from "../../../utils/test/generate-jwt";
+
+require("dotenv").config(); // Load environment variables from .env file
+process.env.PORT = "9999";
+
 import { app, server } from "../../..";
 
 describe("User routes", () => {
@@ -9,7 +13,7 @@ describe("User routes", () => {
   });
 
   it("should fetch a user if authenticated", async () => {
-    const token = generateTestJWT("ff7e3cd8-0491-479d-b1c8-f5cccfe024c9");
+    const token = generateTestJWT("bea08fc5-ab2d-4f15-a103-ce6cda6f39db");
 
     const res = await request(app)
       .get("/v1/users/")
@@ -17,9 +21,9 @@ describe("User routes", () => {
 
     expect(res.body).toEqual(
       expect.objectContaining({
-        id: "ff7e3cd8-0491-479d-b1c8-f5cccfe024c9",
-        name: "sdfasfasdfsfsfdsfsa",
-        email: "a@gmail.com",
+        id: "bea08fc5-ab2d-4f15-a103-ce6cda6f39db",
+        name: "test",
+        email: "test@gmail.com",
       })
     );
     expect(res.statusCode).toBe(200);

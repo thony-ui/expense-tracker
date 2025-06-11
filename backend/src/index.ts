@@ -12,7 +12,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      process.env.ALLOWED_ORIGIN_DEVELOPMENT!,
+      process.env.ALLOWRD_ORIGIN_DEVELOPMENT!, // Development origin
       process.env.ALLOWED_ORIGIN_PRODUCTION!,
     ],
     credentials: true,
@@ -24,10 +24,12 @@ app.use(
 app.use(bodyParser.json());
 
 defineUserRoutes(app);
+
+const port = process.env.PORT || 8000;
 let server: Server;
 
-server = app.listen(8000, () => {
-  console.log("Backend server is running on http://localhost:8000");
+server = app.listen(port, () => {
+  console.log("Backend server is running!");
 });
 
 export { app, server };
