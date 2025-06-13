@@ -2,7 +2,7 @@
 
 import { StatsCards } from "./stats-cards";
 import { RecentTransactions } from "./recent-transactions";
-import { mockStats, mockTransactions } from "@/lib/mock-data";
+import { mockStats } from "@/lib/mock-data";
 import { IncomeExpenseChart } from "../charts/income-expense-chart";
 import { CategoryChart } from "../charts/category-chart";
 import { useUser } from "@/components/contexts/user-context";
