@@ -40,7 +40,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const transaction: ITransaction = {
+    const transaction: Omit<ITransaction, "id"> = {
       name: formData.name,
       amount: Number.parseFloat(formData.amount),
       description: formData.description,

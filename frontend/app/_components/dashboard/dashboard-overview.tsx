@@ -35,7 +35,7 @@ export function DashboardOverview() {
         <CategoryChart />
       </div>
 
-      <RecentTransactions transactions={mockTransactions} />
+      <RecentTransactions />
     </div>
   );
 }

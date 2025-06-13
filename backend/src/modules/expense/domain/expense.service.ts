@@ -26,4 +26,14 @@ export class ExpenseService implements IExpenseService {
       date,
     });
   };
+
+  getExpensesFromDatabase = async (userId: string) => {
+    logger.info(
+      `ExpenseService: getExpensesFromDatabase called for userId: ${userId}`
+    );
+    const expenses = await this.expenseRepository.getExpensesFromDatabase(
+      userId
+    );
+    return expenses;
+  };
 }

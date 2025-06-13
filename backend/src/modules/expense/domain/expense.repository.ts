@@ -21,4 +21,20 @@ export class ExpenseRepository implements IExpenseService {
     }
     logger.info(`ExpenseRepository: addExpenseToDatabase success: ${data}`);
   };
+
+  getExpensesFromDatabase = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("expenses")
+      .select("type, amount, name, description, category, date, id")
+      .eq("userId", userId)
+      .order("date", { ascending: true });
+
+    if (error) {
+      logger.error(`ExpenseRepository: getExpenses error: ${error}`);
+      throw new Error("Error fetching expenses from database");
+    }
+
+    logger.info(`ExpenseRepository: getExpenses success: ${data}`);
+    return data;
+  };
 }

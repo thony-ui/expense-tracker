@@ -2,12 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { ITransaction } from "@/lib/types";
+import { useGetTransactions } from "@/app/queries/use-get-transactions";
 
-interface RecentTransactionsProps {
-  transactions: ITransaction[];
-}
+export function RecentTransactions() {
+  const { data: transactions = [] } = useGetTransactions();
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <Card>
       <CardHeader>

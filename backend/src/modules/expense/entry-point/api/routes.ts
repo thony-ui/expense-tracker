@@ -11,6 +11,7 @@ export function defineExpenseRoutes(expressApp: Application) {
   const expenseController = new ExpenseController(expenseService);
 
   expenseRouter.post("/", expenseController.postExpense);
+  expenseRouter.get("/", expenseController.getExpenses);
 
   expressApp.use("/v1/expenses", authenticateUser, expenseRouter);
 }

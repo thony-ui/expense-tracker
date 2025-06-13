@@ -31,3 +31,26 @@ export function validatePostExpense(data: unknown): TPostExpenseValidator {
     throw error; // rethrow unexpected errors
   }
 }
+
+const getExpensesValidator = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+});
+type TGetExpensesValidator = z.infer<typeof getExpensesValidator>;
+export function validateGetExpenses(data: unknown): TGetExpensesValidator {
+  try {
+    const parsed = getExpensesValidator.parse(data);
+    return parsed;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error(
+        `ExpenseValidator: validateGetExpenses error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      throw new Error(
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+      );
+    }
+    throw error; // rethrow unexpected errors
+  }
+}

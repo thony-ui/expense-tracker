@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ExpenseService } from "./expense.service";
 import logger from "../../../logger";
-import { validatePostExpense } from "./expense.validator";
+import { validateGetExpenses, validatePostExpense } from "./expense.validator";
 
 export class ExpenseController {
   constructor(private expenseService: ExpenseService) {}
@@ -38,6 +38,23 @@ export class ExpenseController {
         date,
       });
       res.status(201).send({ message: "Expense added successfully" });
+    } catch (error) {
+      next(error);
+    }
+  };
+  getExpenses = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    try {
+      const { userId: id } = validateGetExpenses({ userId });
+      logger.info(
+        `ExpenseController: getExpenses called for userId: ${userId}`
+      );
+      const expenses = await this.expenseService.getExpensesFromDatabase(id);
+      res.status(200).send(expenses);
     } catch (error) {
       next(error);
     }

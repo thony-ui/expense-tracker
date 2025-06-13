@@ -7,6 +7,15 @@ export interface IExpense {
   category: string;
   date: string;
 }
+
+export interface IGetExpenses {
+  type: string;
+  amount: number;
+  name: string;
+  description: string;
+  category: string;
+  date: string;
+}
 export interface IExpenseService {
   addExpenseToDatabase: ({
     userId,
@@ -16,13 +25,7 @@ export interface IExpenseService {
     description,
     category,
     date,
-  }: {
-    userId: string;
-    type: string;
-    amount: number;
-    name: string;
-    description: string;
-    category: string;
-    date: string;
-  }) => Promise<void>;
+  }: IExpense) => Promise<void>;
+
+  getExpensesFromDatabase: (userId: string) => Promise<IGetExpenses[]>;
 }

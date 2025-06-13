@@ -7,8 +7,8 @@ const baseUrl = "/v1/expenses";
 export function usePostExpense() {
   return useMutation({
     mutationKey: [baseUrl],
-    mutationFn: async (payload: ITransaction) => {
-      const response = await axiosInstance.post<ITransaction>(baseUrl, payload);
+    mutationFn: async (payload: Omit<ITransaction, "id">) => {
+      const response = await axiosInstance.post(baseUrl, payload);
       return response.data;
     },
   });
