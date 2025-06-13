@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { AddTransactionForm } from "./add-transaction-form";
+import { toast } from "react-toastify";
 
 export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,12 @@ export function AddTransactionDialog() {
         <DialogHeader>
           <DialogTitle>Add New Transaction</DialogTitle>
         </DialogHeader>
-        <AddTransactionForm onSuccess={() => setOpen(false)} />
+        <AddTransactionForm
+          onSuccess={() => {
+            setOpen(false);
+            toast("Transaction added successfully!", { type: "success" });
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

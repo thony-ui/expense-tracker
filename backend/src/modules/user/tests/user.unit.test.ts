@@ -2,9 +2,16 @@ import type { Request, Response, NextFunction } from "express";
 import { UserController } from "../domain/user.controller";
 import { UserRepository } from "../domain/user.repository";
 import { UserService } from "../domain/user.service";
-import { User } from "../domain/user.interface";
+import { IUser } from "../domain/user.interface";
 
-describe("User Service", () => {
+jest.mock("../../../logger", () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+}));
+
+describe("IUser Service", () => {
   let userService: UserService;
   let userRepository: UserRepository;
   beforeEach(() => {
@@ -22,7 +29,7 @@ describe("User Service", () => {
     expect(userRepository.postUserToDatabase).toHaveBeenCalledWith(user);
   });
   it("should get user from database", async () => {
-    const user: User = {
+    const user: IUser = {
       id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       email: "a@gmail.com",
       name: "Alice",
@@ -59,7 +66,7 @@ describe("User Service", () => {
   });
 });
 
-describe("User Controller", () => {
+describe("IUser Controller", () => {
   let userController: UserController;
   let userService: UserService;
   let request: Partial<Request>;

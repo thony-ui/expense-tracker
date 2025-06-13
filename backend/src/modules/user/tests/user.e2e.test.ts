@@ -1,9 +1,16 @@
+require("dotenv").config();
+process.env.PORT = "9999";
+
 import request from "supertest";
 import { generateTestJWT } from "../../../utils/test/generate-jwt";
 import { app, server } from "../../../index";
 
-require("dotenv").config(); // Load environment variables from .env file
-process.env.PORT = "9999";
+jest.mock("../../../logger", () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+}));
 
 describe("User routes", () => {
   afterAll((done) => {

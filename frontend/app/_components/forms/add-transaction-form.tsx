@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
-import { generateId } from "@/lib/utils";
 import type { ITransaction } from "@/lib/types";
+import { usePostExpense } from "@/app/mutations/use-post-expense";
 
 interface AddTransactionFormProps {
   onSuccess: () => void;
@@ -24,6 +24,7 @@ interface AddTransactionFormProps {
 
 export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
   const [formData, setFormData] = useState({
+    name: "",
     amount: "",
     description: "",
     category: "",
@@ -31,14 +32,16 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
     type: "expense" as "income" | "expense",
   });
 
+  const { mutateAsync: postExpense } = usePostExpense();
+
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const transaction: ITransaction = {
-      id: generateId(),
+      name: formData.name,
       amount: Number.parseFloat(formData.amount),
       description: formData.description,
       category: formData.category,
@@ -46,9 +49,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
       type: formData.type,
     };
 
-    // Here you would typically save to your backend/state management
-    console.log("New transaction:", transaction);
-
+    await postExpense(transaction);
     onSuccess();
   };
 
@@ -72,6 +73,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
             </SelectContent>
           </Select>
         </div>
+
         <div>
           <Label htmlFor="amount">Amount</Label>
           <Input
@@ -87,7 +89,17 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
           />
         </div>
       </div>
-
+      <div>
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          type="text"
+          placeholder="Name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
+      </div>
       <div>
         <Label htmlFor="category">Category</Label>
         <Select
