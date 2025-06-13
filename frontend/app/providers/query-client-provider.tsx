@@ -7,10 +7,18 @@ interface IProps {
   children: ReactNode;
 }
 
-const ReactQueryProvider = ({ children }: IProps) => {
-  const client = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+const ReactQueryProvider = ({ children }: IProps) => {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 };
 
 export default ReactQueryProvider;

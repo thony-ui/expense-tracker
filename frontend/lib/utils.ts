@@ -19,7 +19,3 @@ export function formatDate(date: string): string {
     day: "numeric",
   }).format(new Date(date));
 }
-
-export function generateId(): string {
-  return Math.random().toString(36).slice(2, 9);
-}
