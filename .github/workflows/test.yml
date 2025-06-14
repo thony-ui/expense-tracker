@@ -39,7 +39,10 @@ jobs:
           NODE_ENV: production
 
       - name: Test server startup
-        run: npm run start
+        run: |
+          npm run start &
+          sleep 5
+          kill $!
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
