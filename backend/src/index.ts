@@ -4,6 +4,7 @@ import cors from "cors"; // Add this import
 import { defineUserRoutes } from "./modules/user";
 import { Server } from "http";
 import { defineExpenseRoutes } from "./modules/expense";
+import { defineChatRoutes } from "./modules/chat";
 
 require("dotenv").config(); // Load environment variables from .env file
 
@@ -26,6 +27,7 @@ app.use(bodyParser.json());
 
 defineUserRoutes(app);
 defineExpenseRoutes(app);
+defineChatRoutes(app);
 
 const port = process.env.PORT || 8000;
 let server: Server;
