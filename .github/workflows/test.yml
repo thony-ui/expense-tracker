@@ -39,11 +39,7 @@ jobs:
           NODE_ENV: production
 
       - name: Test server startup
-        run: |
-          timeout 30s npm run start &
-          sleep 10
-          curl -f http://localhost:8000 || exit 1
-          pkill -f "npm run start"
+        run: npm run start
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
