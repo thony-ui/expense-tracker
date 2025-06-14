@@ -1,0 +1,40 @@
+import { ChatService } from "./chat.service";
+
+import { NextFunction, Request, Response } from "express";
+import { validateGetPrompt } from "./chat.validator";
+import { sendChunkToClient } from "../../../utils/send-chunk";
+import logger from "../../../logger";
+
+export class ChatController {
+  constructor(private chatService: ChatService) {}
+
+  getResponseFromLLM = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { prompt } = validateGetPrompt(req.body);
+      logger.info(
+        `ChatController: getResponseFromLLM called with prompt: ${prompt}`
+      );
+      res.writeHead(200, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+      const $stream = await this.chatService.getResponseFromLLM(prompt);
+      if (!$stream) {
+        throw new Error("No response stream from LLM");
+      }
+      logger.info(
+        `ChatController: Successfully received response stream for prompt: ${prompt}`
+      );
+      await sendChunkToClient($stream, res);
+      res.end();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
