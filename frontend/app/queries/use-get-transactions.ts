@@ -13,7 +13,6 @@ export function useGetTransactions(options?: TTransactionOptions) {
   return useQuery({
     queryKey: [baseUrl, options?.transactionType],
     queryFn: async () => {
-      console.log(options?.transactionType);
       const response = await axiosInstance.get<ITransaction[]>(baseUrl, {
         params: {
           transactionType: options?.transactionType ?? undefined,
