@@ -48,12 +48,19 @@ export class ExpenseController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
+    const { transactionType } = req.query;
     try {
-      const { userId: id } = validateGetExpenses({ userId });
+      const { userId: id, transactionType: type } = validateGetExpenses({
+        userId,
+        transactionType,
+      });
       logger.info(
-        `ExpenseController: getExpenses called for userId: ${userId}`
+        `ExpenseController: getExpenses called for userId: ${userId} and transactionType: ${type}`
       );
-      const expenses = await this.expenseService.getExpensesFromDatabase(id);
+      const expenses = await this.expenseService.getExpensesFromDatabase(
+        id,
+        type
+      );
       res.status(200).send(expenses);
     } catch (error) {
       next(error);

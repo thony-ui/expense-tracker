@@ -5,11 +5,20 @@ import { queryClient } from "../providers/query-client-provider";
 
 const baseUrl = "/v1/expenses";
 
-export function useGetTransactions() {
+interface TTransactionOptions {
+  transactionType?: string;
+}
+
+export function useGetTransactions(options?: TTransactionOptions) {
   return useQuery({
-    queryKey: [baseUrl],
+    queryKey: [baseUrl, options?.transactionType],
     queryFn: async () => {
-      const response = await axiosInstance.get<ITransaction[]>(baseUrl);
+      console.log(options?.transactionType);
+      const response = await axiosInstance.get<ITransaction[]>(baseUrl, {
+        params: {
+          transactionType: options?.transactionType ?? undefined,
+        },
+      });
       return response.data;
     },
   });

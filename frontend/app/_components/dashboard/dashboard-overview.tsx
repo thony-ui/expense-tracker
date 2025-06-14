@@ -2,7 +2,6 @@
 
 import { StatsCards } from "./stats-cards";
 import { RecentTransactions } from "./recent-transactions";
-import { mockStats } from "@/lib/mock-data";
 import { IncomeExpenseChart } from "../charts/income-expense-chart";
 import { CategoryChart } from "../charts/category-chart";
 import { useUser } from "@/components/contexts/user-context";
@@ -27,7 +26,7 @@ export function DashboardOverview() {
         </p>
       </div>
 
-      <StatsCards stats={mockStats} />
+      <StatsCards />
 
       {/* Reliable Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -22,12 +22,21 @@ export class ExpenseRepository implements IExpenseService {
     logger.info(`ExpenseRepository: addExpenseToDatabase success: ${data}`);
   };
 
-  getExpensesFromDatabase = async (userId: string) => {
-    const { data, error } = await supabase
+  getExpensesFromDatabase = async (
+    userId: string,
+    transactionType?: string
+  ) => {
+    let query = supabase
       .from("expenses")
       .select("type, amount, name, description, category, date, id")
-      .eq("userId", userId)
-      .order("date", { ascending: true });
+      .eq("userId", userId);
+
+    // Add conditional filter for transactionType
+    if (transactionType) {
+      query = query.eq("type", transactionType);
+    }
+
+    const { data, error } = await query.order("date", { ascending: true });
 
     if (error) {
       logger.error(`ExpenseRepository: getExpenses error: ${error}`);

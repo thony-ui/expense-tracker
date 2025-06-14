@@ -34,6 +34,7 @@ export function validatePostExpense(data: unknown): TPostExpenseValidator {
 
 const getExpensesValidator = z.object({
   userId: z.string().uuid("Invalid user ID format"),
+  transactionType: z.string().optional(),
 });
 type TGetExpensesValidator = z.infer<typeof getExpensesValidator>;
 export function validateGetExpenses(data: unknown): TGetExpensesValidator {
