@@ -12,6 +12,14 @@ jest.mock("../../../logger", () => ({
   debug: jest.fn(),
 }));
 
+beforeAll(() => {
+  jest.spyOn(console, "log").mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe("User routes", () => {
   afterAll((done) => {
     // Close server after tests

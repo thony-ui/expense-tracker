@@ -11,6 +11,14 @@ jest.mock("../../../logger", () => ({
   debug: jest.fn(),
 }));
 
+beforeAll(() => {
+  jest.spyOn(console, "log").mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe("IUser Service", () => {
   let userService: UserService;
   let userRepository: UserRepository;

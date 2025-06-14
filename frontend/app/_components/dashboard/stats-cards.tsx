@@ -6,17 +6,41 @@ import {
   CreditCardIcon,
 } from "@heroicons/react/24/outline";
 import { formatCurrency } from "@/lib/utils";
-import { IDashboardStats } from "@/lib/types";
+import { ITransaction } from "@/lib/types";
+import { useGetTransactions } from "@/app/queries/use-get-transactions";
+import { useMemo } from "react";
 
-interface IStatsCardsProps {
-  stats: IDashboardStats;
+function sumTransactions(transactions: ITransaction[]) {
+  return transactions.reduce(
+    (total, transaction) => total + transaction.amount,
+    0
+  );
 }
 
-export function StatsCards({ stats }: IStatsCardsProps) {
+export function StatsCards() {
+  const { data: expenseTransactions = [] } = useGetTransactions({
+    transactionType: "expense",
+  });
+  const { data: incomeTransactions = [] } = useGetTransactions({
+    transactionType: "income",
+  });
+
+  const stats = useMemo(
+    () => ({
+      totalIncome: sumTransactions(incomeTransactions),
+      totalExpenses: sumTransactions(expenseTransactions),
+      transactionCount: expenseTransactions.length + incomeTransactions.length,
+      totalBalance:
+        sumTransactions(incomeTransactions) -
+        sumTransactions(expenseTransactions),
+    }),
+    [incomeTransactions, expenseTransactions]
+  );
+
   const cards = [
     {
       title: "Total Balance",
-      value: stats.balance,
+      value: stats.totalBalance,
       icon: WalletIcon,
       color: "text-green-600",
       bgColor: "bg-green-50",

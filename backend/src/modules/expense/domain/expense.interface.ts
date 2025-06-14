@@ -27,5 +27,8 @@ export interface IExpenseService {
     date,
   }: IExpense) => Promise<void>;
 
-  getExpensesFromDatabase: (userId: string) => Promise<IGetExpenses[]>;
+  getExpensesFromDatabase: (
+    userId: string,
+    transactionType?: string
+  ) => Promise<IGetExpenses[]>;
 }

@@ -11,6 +11,14 @@ jest.mock("../../../logger", () => ({
   debug: jest.fn(),
 }));
 
+beforeAll(() => {
+  jest.spyOn(console, "log").mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe("Expense Service", () => {
   it("should add an expense to the database", async () => {
     const mockExpenseRepository = {
@@ -78,7 +86,8 @@ describe("Expense Service", () => {
     const expenses = await expenseService.getExpensesFromDatabase(userId);
 
     expect(mockExpenseRepository.getExpensesFromDatabase).toHaveBeenCalledWith(
-      userId
+      userId,
+      undefined
     );
     expect(expenses).toEqual([
       {
@@ -126,6 +135,7 @@ describe("Expense Controller", () => {
         category: "Dining",
         date: "2023-10-01",
       },
+      query: {},
     } as Partial<Request>;
 
     const res = {
@@ -171,6 +181,7 @@ describe("Expense Controller", () => {
         category: "Dining",
         date: "2023-10-01",
       },
+      query: {},
     } as Partial<Request>;
 
     const res = {
@@ -202,6 +213,7 @@ describe("Expense Controller", () => {
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
       body: {},
+      query: {},
     } as Partial<Request>;
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -210,7 +222,8 @@ describe("Expense Controller", () => {
     const next = jest.fn();
     await expenseController.getExpenses(req as Request, res as Response, next);
     expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
-      "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      undefined
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([
@@ -223,5 +236,81 @@ describe("Expense Controller", () => {
         date: "2023-10-01",
       },
     ]);
+  });
+  it("should filter expenses by transaction type", async () => {
+    const mockExpenseService = {
+      getExpensesFromDatabase: jest.fn().mockResolvedValue([
+        {
+          type: "Food",
+          amount: 50,
+          name: "Lunch",
+          description: "Lunch at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      ]),
+    } as unknown as ExpenseService;
+
+    const expenseController = new ExpenseController(mockExpenseService);
+
+    const req = {
+      user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
+      body: {},
+      query: { transactionType: "Food" },
+    } as Partial<Request>;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    } as Partial<Response>;
+
+    const next = jest.fn();
+
+    await expenseController.getExpenses(req as Request, res as Response, next);
+
+    expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
+      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "Food"
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith([
+      {
+        type: "Food",
+        amount: 50,
+        name: "Lunch",
+        description: "Lunch at a restaurant",
+        category: "Dining",
+        date: "2023-10-01",
+      },
+    ]);
+  });
+  it("should return an empty array if the transation type does not match", async () => {
+    const mockExpenseService = {
+      getExpensesFromDatabase: jest.fn().mockResolvedValue([]),
+    } as unknown as ExpenseService;
+
+    const expenseController = new ExpenseController(mockExpenseService);
+
+    const req = {
+      user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
+      body: {},
+      query: { transactionType: "NonExistentType" },
+    } as Partial<Request>;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    } as Partial<Response>;
+
+    const next = jest.fn();
+
+    await expenseController.getExpenses(req as Request, res as Response, next);
+
+    expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
+      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "NonExistentType"
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith([]);
   });
 });
