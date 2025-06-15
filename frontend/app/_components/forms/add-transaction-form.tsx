@@ -144,6 +144,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
           type="date"
           value={formData.date}
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          style={{ width: "100%", maxWidth: "100%" }}
           required
         />
       </div>

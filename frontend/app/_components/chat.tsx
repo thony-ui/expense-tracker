@@ -75,7 +75,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating Chat Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-3 right-3 z-50">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
