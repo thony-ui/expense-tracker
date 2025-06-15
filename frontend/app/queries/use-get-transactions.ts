@@ -3,7 +3,7 @@ import { ITransaction } from "@/lib/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "../providers/query-client-provider";
 
-const baseUrl = "/v1/expenses";
+const baseUrl = "/v1/transactions";
 
 interface TTransactionOptions {
   transactionType?: string;

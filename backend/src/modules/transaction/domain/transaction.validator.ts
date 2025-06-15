@@ -1,7 +1,7 @@
 import * as z from "zod";
 import logger from "../../../logger";
 
-const postExpenseValidator = z.object({
+const postTransactionValidator = z.object({
   userId: z.string().uuid("Invalid user ID format"),
   type: z.string().min(2).max(100),
   amount: z.number().min(0),
@@ -11,16 +11,18 @@ const postExpenseValidator = z.object({
   date: z.string(),
 });
 
-type TPostExpenseValidator = z.infer<typeof postExpenseValidator>;
+type TPostTransactionValidator = z.infer<typeof postTransactionValidator>;
 
-export function validatePostExpense(data: unknown): TPostExpenseValidator {
+export function validatePostTransaction(
+  data: unknown
+): TPostTransactionValidator {
   try {
-    const parsed = postExpenseValidator.parse(data);
+    const parsed = postTransactionValidator.parse(data);
     return parsed;
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.error(
-        `ExpenseValidator: validatePostExpense error: ${error.errors
+        `TransactionValidator: validatePostTransaction error: ${error.errors
           .map((e) => e.message)
           .join(", ")}`
       );
@@ -32,19 +34,21 @@ export function validatePostExpense(data: unknown): TPostExpenseValidator {
   }
 }
 
-const getExpensesValidator = z.object({
+const getTransactionsValidator = z.object({
   userId: z.string().uuid("Invalid user ID format"),
   transactionType: z.string().optional(),
 });
-type TGetExpensesValidator = z.infer<typeof getExpensesValidator>;
-export function validateGetExpenses(data: unknown): TGetExpensesValidator {
+type TGetTransactionsValidator = z.infer<typeof getTransactionsValidator>;
+export function validateGetTransactions(
+  data: unknown
+): TGetTransactionsValidator {
   try {
-    const parsed = getExpensesValidator.parse(data);
+    const parsed = getTransactionsValidator.parse(data);
     return parsed;
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.error(
-        `ExpenseValidator: validateGetExpenses error: ${error.errors
+        `TransactionValidator: validateGetTransactions error: ${error.errors
           .map((e) => e.message)
           .join(", ")}`
       );

@@ -1,8 +1,8 @@
-import { ExpenseController } from "../domain/expense.controller";
-import { IExpense } from "../domain/expense.interface";
-import { ExpenseRepository } from "../domain/expense.repository";
-import { ExpenseService } from "../domain/expense.service";
 import type { Request, Response, NextFunction } from "express";
+import { TransactionController } from "../domain/transaction.controller";
+import { ITransaction } from "../domain/transaction.interface";
+import { TransactionRepository } from "../domain/transaction.repository";
+import { TransactionService } from "../domain/transaction.service";
 
 jest.mock("../../../logger", () => ({
   info: jest.fn(),
@@ -19,15 +19,15 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-describe("Expense Service", () => {
+describe("Transaction Service", () => {
   it("should add an expense to the database", async () => {
-    const mockExpenseRepository = {
-      addExpenseToDatabase: jest.fn().mockResolvedValue(undefined),
-    } as unknown as ExpenseRepository;
+    const mockTransactionRepository = {
+      addTransactionToDatabase: jest.fn().mockResolvedValue(undefined),
+    } as unknown as TransactionRepository;
 
-    const expenseService = new ExpenseService(mockExpenseRepository);
+    const expenseService = new TransactionService(mockTransactionRepository);
 
-    const expenseData: IExpense = {
+    const expenseData: ITransaction = {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       type: "Food",
       amount: 50,
@@ -37,22 +37,22 @@ describe("Expense Service", () => {
       date: "2023-10-01",
     };
 
-    await expenseService.addExpenseToDatabase(expenseData);
+    await expenseService.addTransactionToDatabase(expenseData);
 
-    expect(mockExpenseRepository.addExpenseToDatabase).toHaveBeenCalledWith(
-      expenseData
-    );
+    expect(
+      mockTransactionRepository.addTransactionToDatabase
+    ).toHaveBeenCalledWith(expenseData);
   });
   it("should throw an error if adding expense fails", async () => {
-    const mockExpenseRepository = {
-      addExpenseToDatabase: jest
+    const mockTransactionRepository = {
+      addTransactionToDatabase: jest
         .fn()
         .mockRejectedValue(new Error("Database error")),
-    } as unknown as ExpenseRepository;
+    } as unknown as TransactionRepository;
 
-    const expenseService = new ExpenseService(mockExpenseRepository);
+    const expenseService = new TransactionService(mockTransactionRepository);
 
-    const expenseData: IExpense = {
+    const expenseData: ITransaction = {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       type: "Food",
       amount: 50,
@@ -63,12 +63,12 @@ describe("Expense Service", () => {
     };
 
     await expect(
-      expenseService.addExpenseToDatabase(expenseData)
+      expenseService.addTransactionToDatabase(expenseData)
     ).rejects.toThrow("Database error");
   });
   it("should get expenses from the database", async () => {
-    const mockExpenseRepository = {
-      getExpensesFromDatabase: jest.fn().mockResolvedValue([
+    const mockTransactionRepository = {
+      getTransactionsFromDatabase: jest.fn().mockResolvedValue([
         {
           type: "Food",
           amount: 50,
@@ -78,17 +78,16 @@ describe("Expense Service", () => {
           date: "2023-10-01",
         },
       ]),
-    } as unknown as ExpenseRepository;
+    } as unknown as TransactionRepository;
 
-    const expenseService = new ExpenseService(mockExpenseRepository);
+    const expenseService = new TransactionService(mockTransactionRepository);
 
     const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
-    const expenses = await expenseService.getExpensesFromDatabase(userId);
+    const expenses = await expenseService.getTransactionsFromDatabase(userId);
 
-    expect(mockExpenseRepository.getExpensesFromDatabase).toHaveBeenCalledWith(
-      userId,
-      undefined
-    );
+    expect(
+      mockTransactionRepository.getTransactionsFromDatabase
+    ).toHaveBeenCalledWith(userId, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -101,29 +100,29 @@ describe("Expense Service", () => {
     ]);
   });
   it("should throw an error if getting expenses fails", async () => {
-    const mockExpenseRepository = {
-      getExpensesFromDatabase: jest
+    const mockTransactionRepository = {
+      getTransactionsFromDatabase: jest
         .fn()
         .mockRejectedValue(new Error("Database error")),
-    } as unknown as ExpenseRepository;
+    } as unknown as TransactionRepository;
 
-    const expenseService = new ExpenseService(mockExpenseRepository);
+    const expenseService = new TransactionService(mockTransactionRepository);
 
     const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
     await expect(
-      expenseService.getExpensesFromDatabase(userId)
+      expenseService.getTransactionsFromDatabase(userId)
     ).rejects.toThrow("Database error");
   });
 });
 
-describe("Expense Controller", () => {
-  it("should call addExpenseToDatabase with correct parameters", async () => {
-    const mockExpenseService = {
-      addExpenseToDatabase: jest.fn().mockResolvedValue(undefined),
-    } as unknown as ExpenseService;
+describe("Transaction Controller", () => {
+  it("should call addTransactionToDatabase with correct parameters", async () => {
+    const mockTransactionService = {
+      addTransactionToDatabase: jest.fn().mockResolvedValue(undefined),
+    } as unknown as TransactionService;
 
-    const expenseController = new ExpenseController(mockExpenseService);
+    const expenseController = new TransactionController(mockTransactionService);
 
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
@@ -145,9 +144,15 @@ describe("Expense Controller", () => {
 
     const next = jest.fn();
 
-    await expenseController.postExpense(req as Request, res as Response, next);
+    await expenseController.postTransaction(
+      req as Request,
+      res as Response,
+      next
+    );
 
-    expect(mockExpenseService.addExpenseToDatabase).toHaveBeenCalledWith({
+    expect(
+      mockTransactionService.addTransactionToDatabase
+    ).toHaveBeenCalledWith({
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       type: "Food",
       amount: 50,
@@ -158,18 +163,18 @@ describe("Expense Controller", () => {
     });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.send).toHaveBeenCalledWith({
-      message: "Expense added successfully",
+      message: "Transaction added successfully",
     });
   });
 
-  it("should handle errors in postExpense", async () => {
-    const mockExpenseService = {
-      addExpenseToDatabase: jest
+  it("should handle errors in postTransaction", async () => {
+    const mockTransactionService = {
+      addTransactionToDatabase: jest
         .fn()
         .mockRejectedValue(new Error("Error adding expense")),
-    } as unknown as ExpenseService;
+    } as unknown as TransactionService;
 
-    const expenseController = new ExpenseController(mockExpenseService);
+    const expenseController = new TransactionController(mockTransactionService);
 
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
@@ -191,14 +196,18 @@ describe("Expense Controller", () => {
 
     const next = jest.fn();
 
-    await expenseController.postExpense(req as Request, res as Response, next);
+    await expenseController.postTransaction(
+      req as Request,
+      res as Response,
+      next
+    );
 
     expect(next).toHaveBeenCalledWith(new Error("Error adding expense"));
   });
 
-  it("should call getExpensesFromDatabase with correct userId", async () => {
-    const mockExpenseService = {
-      getExpensesFromDatabase: jest.fn().mockResolvedValue([
+  it("should call getTransactionsFromDatabase with correct userId", async () => {
+    const mockTransactionService = {
+      getTransactionsFromDatabase: jest.fn().mockResolvedValue([
         {
           type: "Food",
           amount: 50,
@@ -208,8 +217,8 @@ describe("Expense Controller", () => {
           date: "2023-10-01",
         },
       ]),
-    } as unknown as ExpenseService;
-    const expenseController = new ExpenseController(mockExpenseService);
+    } as unknown as TransactionService;
+    const expenseController = new TransactionController(mockTransactionService);
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
       body: {},
@@ -220,11 +229,14 @@ describe("Expense Controller", () => {
       send: jest.fn(),
     } as Partial<Response>;
     const next = jest.fn();
-    await expenseController.getExpenses(req as Request, res as Response, next);
-    expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
-      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      undefined
+    await expenseController.getTransactions(
+      req as Request,
+      res as Response,
+      next
     );
+    expect(
+      mockTransactionService.getTransactionsFromDatabase
+    ).toHaveBeenCalledWith("f47ac10b-58cc-4372-a567-0e02b2c3d479", undefined);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([
       {
@@ -238,8 +250,8 @@ describe("Expense Controller", () => {
     ]);
   });
   it("should filter expenses by transaction type", async () => {
-    const mockExpenseService = {
-      getExpensesFromDatabase: jest.fn().mockResolvedValue([
+    const mockTransactionService = {
+      getTransactionsFromDatabase: jest.fn().mockResolvedValue([
         {
           type: "Food",
           amount: 50,
@@ -249,9 +261,9 @@ describe("Expense Controller", () => {
           date: "2023-10-01",
         },
       ]),
-    } as unknown as ExpenseService;
+    } as unknown as TransactionService;
 
-    const expenseController = new ExpenseController(mockExpenseService);
+    const expenseController = new TransactionController(mockTransactionService);
 
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
@@ -266,12 +278,15 @@ describe("Expense Controller", () => {
 
     const next = jest.fn();
 
-    await expenseController.getExpenses(req as Request, res as Response, next);
-
-    expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
-      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      "Food"
+    await expenseController.getTransactions(
+      req as Request,
+      res as Response,
+      next
     );
+
+    expect(
+      mockTransactionService.getTransactionsFromDatabase
+    ).toHaveBeenCalledWith("f47ac10b-58cc-4372-a567-0e02b2c3d479", "Food");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([
       {
@@ -285,11 +300,11 @@ describe("Expense Controller", () => {
     ]);
   });
   it("should return an empty array if the transation type does not match", async () => {
-    const mockExpenseService = {
-      getExpensesFromDatabase: jest.fn().mockResolvedValue([]),
-    } as unknown as ExpenseService;
+    const mockTransactionService = {
+      getTransactionsFromDatabase: jest.fn().mockResolvedValue([]),
+    } as unknown as TransactionService;
 
-    const expenseController = new ExpenseController(mockExpenseService);
+    const expenseController = new TransactionController(mockTransactionService);
 
     const req = {
       user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
@@ -304,9 +319,15 @@ describe("Expense Controller", () => {
 
     const next = jest.fn();
 
-    await expenseController.getExpenses(req as Request, res as Response, next);
+    await expenseController.getTransactions(
+      req as Request,
+      res as Response,
+      next
+    );
 
-    expect(mockExpenseService.getExpensesFromDatabase).toHaveBeenCalledWith(
+    expect(
+      mockTransactionService.getTransactionsFromDatabase
+    ).toHaveBeenCalledWith(
       "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       "NonExistentType"
     );

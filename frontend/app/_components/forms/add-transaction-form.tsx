@@ -16,7 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
-import { usePostExpense } from "@/app/mutations/use-post-expense";
+import { usePostTransaction } from "@/app/mutations/use-post-expense";
 
 interface AddTransactionFormProps {
   onSuccess: () => void;
@@ -37,7 +37,7 @@ export function AddTransactionForm({
     type: "expense" as "income" | "expense",
   });
 
-  const { mutateAsync: postExpense } = usePostExpense();
+  const { mutateAsync: postTransaction } = usePostTransaction();
 
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -55,7 +55,7 @@ export function AddTransactionForm({
       type: formData.type,
     };
 
-    await postExpense(transaction);
+    await postTransaction(transaction);
     setIsLoading(false);
     onSuccess();
   };
