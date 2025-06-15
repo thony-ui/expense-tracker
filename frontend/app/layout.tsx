@@ -5,6 +5,7 @@ import "./globals.css";
 import ReactQueryProvider from "./providers/query-client-provider";
 import ClientWrapper from "./providers/client-wrapper";
 import { ToastContainer } from "react-toastify";
+import ChatWidget from "./_components/chat";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,19 +23,22 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReactQueryProvider>
-          <ClientWrapper>{children}</ClientWrapper>
+          <ClientWrapper>
+            {children}
+            <ChatWidget />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </ClientWrapper>
         </ReactQueryProvider>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
       </body>
     </html>
   );
