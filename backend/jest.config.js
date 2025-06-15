@@ -1,4 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} **/
+// test ci
 module.exports = {
   testEnvironment: "node",
   transform: {
