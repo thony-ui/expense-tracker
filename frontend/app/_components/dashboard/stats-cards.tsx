@@ -83,7 +83,9 @@ export function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {card.isCount ? card.value : formatCurrency(card.value)}
+              <p className="break-words">
+                {card.isCount ? card.value : formatCurrency(card.value)}
+              </p>
             </div>
           </CardContent>
         </Card>
