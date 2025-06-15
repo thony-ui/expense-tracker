@@ -1,9 +1,22 @@
+import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
+import { formatLLMContext } from "../../../utils/format-llm-context";
+import { getLLMPrompt } from "../../../utils/llm-prompt";
 
 require("dotenv").config();
 
 export class ChatService {
-  getResponseFromLLM = async (prompt: string) => {
+  getResponseFromLLM = async (prompt: string, userId: string) => {
+    const { data: expenses, error } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("userId", userId);
+    if (error) {
+      logger.error(`ChatService: Error fetching expenses: ${error.message}`);
+      throw new Error(`Error fetching expenses: ${error.message}`);
+    }
+    const formattedLLMContext = formatLLMContext(expenses);
+    const llmPrompt = getLLMPrompt(formattedLLMContext);
     const response = await fetch(process.env.OPENROUTER_URL!, {
       method: "POST",
       headers: {
@@ -11,9 +24,9 @@ export class ChatService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct",
+        model: "mistralai/mistral-7b-instruct:free",
         messages: [
-          { role: "system", content: "You are a helpful assistant." },
+          { role: "system", content: llmPrompt },
           { role: "user", content: prompt },
         ],
         stream: true,

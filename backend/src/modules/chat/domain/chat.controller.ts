@@ -13,6 +13,7 @@ export class ChatController {
     res: Response,
     next: NextFunction
   ) => {
+    const userId = req.user.id;
     try {
       const { prompt } = validateGetPrompt(req.body);
       logger.info(
@@ -24,7 +25,7 @@ export class ChatController {
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       });
-      const $stream = await this.chatService.getResponseFromLLM(prompt);
+      const $stream = await this.chatService.getResponseFromLLM(prompt, userId);
       if (!$stream) {
         throw new Error("No response stream from LLM");
       }
