@@ -29,6 +29,7 @@ describe("ChatController", () => {
     chatController = new ChatController(chatService);
     mockRequest = {
       body: { prompt: "Test prompt" },
+      user: { id: "test-user-id" },
     };
     mockResponse = {
       writeHead: jest.fn(),
