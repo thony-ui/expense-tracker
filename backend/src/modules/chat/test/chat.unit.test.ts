@@ -25,10 +25,13 @@ describe("ChatController", () => {
   let nextFunction: NextFunction;
 
   beforeEach(() => {
-    chatService = new ChatService();
+    chatService = {
+      getResponseFromLLM: jest.fn(),
+    } as unknown as ChatService;
     chatController = new ChatController(chatService);
     mockRequest = {
       body: { prompt: "Test prompt" },
+      user: { id: "test-user-id" },
     };
     mockResponse = {
       writeHead: jest.fn(),
@@ -39,7 +42,7 @@ describe("ChatController", () => {
 
   it("should call next with an error if getResponseFromLLM fails", async () => {
     const error = new Error("Test error");
-    jest.spyOn(chatService, "getResponseFromLLM").mockRejectedValue(error);
+    (chatService.getResponseFromLLM as jest.Mock).mockRejectedValue(error);
 
     await chatController.getResponseFromLLM(
       mockRequest as Request,

@@ -65,25 +65,27 @@ function MarkDownMessage({ children }: { children: string }) {
         ),
         // Tables
         table: ({ children, ...props }) => (
-          <div className="w-full max-w-full ">
-            <div className="overflow-x-auto">
-              <table {...props} className="text-sm border-collapse min-w-full">
-                {children}
-              </table>
-            </div>
-          </div>
+          <table
+            {...props}
+            className="text-xs border-collapse w-full border border-gray-300 table-fixed"
+          >
+            {children}
+          </table>
         ),
         th: ({ children, ...props }) => (
           <th
             {...props}
-            className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold"
+            className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold overflow-auto"
           >
             {children}
           </th>
         ),
         // Table row
         tr: ({ children, ...props }) => (
-          <tr {...props} className="border-b border-gray-200 hover:bg-gray-50">
+          <tr
+            {...props}
+            className="border-b border-gray-200 hover:bg-gray-50 overflow-auto"
+          >
             {children}
           </tr>
         ),
@@ -91,7 +93,7 @@ function MarkDownMessage({ children }: { children: string }) {
         td: ({ children, ...props }) => (
           <td
             {...props}
-            className="border border-gray-300 px-3 py-2 text-xs break-words"
+            className="border border-gray-300 px-3 py-2 text-xs overflow-auto"
           >
             {children}
           </td>
