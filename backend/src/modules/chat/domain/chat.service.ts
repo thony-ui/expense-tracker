@@ -7,15 +7,17 @@ require("dotenv").config();
 
 export class ChatService {
   getResponseFromLLM = async (prompt: string, userId: string) => {
-    const { data: expenses, error } = await supabase
-      .from("expenses")
+    const { data: transactions, error } = await supabase
+      .from("transactions")
       .select("*")
       .eq("userId", userId);
     if (error) {
-      logger.error(`ChatService: Error fetching expenses: ${error.message}`);
-      throw new Error(`Error fetching expenses: ${error.message}`);
+      logger.error(
+        `ChatService: Error fetching transactions: ${error.message}`
+      );
+      throw new Error(`Error fetching transactions: ${error.message}`);
     }
-    const formattedLLMContext = formatLLMContext(expenses);
+    const formattedLLMContext = formatLLMContext(transactions);
     const llmPrompt = getLLMPrompt(formattedLLMContext);
     const response = await fetch(process.env.OPENROUTER_URL!, {
       method: "POST",

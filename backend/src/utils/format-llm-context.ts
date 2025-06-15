@@ -1,5 +1,5 @@
 export function formatLLMContext(
-  expenses: {
+  transactions: {
     id: string;
     amount: number;
     category: string;
@@ -9,23 +9,23 @@ export function formatLLMContext(
   }[]
 ): string {
   const expensesXML = `
-<expenses>
+<transactions>
 ${
-  expenses
+  transactions
     .map(
-      (expense) => `
-  <expense>
-    <id>${expense.id}</id>
-    <amount>${expense.amount}</amount>
-    <category>${expense.category}</category>
-    <description>${expense.description || ""}</description>
-    <date>${expense.date}</date>
-    <type>${expense.type}</type>
-  </expense>
+      (transaction) => `
+  <transaction>
+    <id>${transaction.id}</id>
+    <amount>${transaction.amount}</amount>
+    <category>${transaction.category}</category>
+    <description>${transaction.description}</description>
+    <date>${transaction.date}</date>
+    <type>${transaction.type}</type>
+  </transaction>
 `
     )
-    .join("") || "  <expense>No expenses found</expense>"
+    .join("") || "  <transaction>No transactions found</transaction>"
 }
-</expenses>`;
+</transactions>`;
   return expensesXML;
 }

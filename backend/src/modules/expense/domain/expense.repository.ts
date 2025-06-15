@@ -13,7 +13,7 @@ export class ExpenseRepository implements IExpenseService {
     date,
   }: IExpense) => {
     const { data, error } = await supabase
-      .from("expenses")
+      .from("transactions")
       .insert([{ type, amount, name, description, category, date, userId }]);
     if (error) {
       logger.error(`ExpenseRepository: addExpenseToDatabase error: ${error}`);
@@ -27,7 +27,7 @@ export class ExpenseRepository implements IExpenseService {
     transactionType?: string
   ) => {
     let query = supabase
-      .from("expenses")
+      .from("transactions")
       .select("type, amount, name, description, category, date, id")
       .eq("userId", userId);
 
