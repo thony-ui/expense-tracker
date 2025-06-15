@@ -1,7 +1,7 @@
 import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
-import { formatLLMContext } from "../../../utils/format-llm-context";
-import { getLLMPrompt } from "../../../utils/llm-prompt";
+import { formatLLMContext } from "../../../utils/llm/format-llm-context";
+import { getLLMPrompt } from "../../../utils/llm/llm-prompt";
 
 require("dotenv").config();
 

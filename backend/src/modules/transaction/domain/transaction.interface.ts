@@ -1,4 +1,4 @@
-export interface IExpense {
+export interface ITransaction {
   userId: string;
   type: string;
   amount: number;
@@ -8,7 +8,7 @@ export interface IExpense {
   date: string;
 }
 
-export interface IGetExpenses {
+export interface IGetTransactions {
   type: string;
   amount: number;
   name: string;
@@ -16,8 +16,8 @@ export interface IGetExpenses {
   category: string;
   date: string;
 }
-export interface IExpenseService {
-  addExpenseToDatabase: ({
+export interface ITransactionService {
+  addTransactionToDatabase: ({
     userId,
     type,
     amount,
@@ -25,10 +25,10 @@ export interface IExpenseService {
     description,
     category,
     date,
-  }: IExpense) => Promise<void>;
+  }: ITransaction) => Promise<void>;
 
-  getExpensesFromDatabase: (
+  getTransactionsFromDatabase: (
     userId: string,
     transactionType?: string
-  ) => Promise<IGetExpenses[]>;
+  ) => Promise<IGetTransactions[]>;
 }
