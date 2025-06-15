@@ -22,6 +22,12 @@ export class ChatService {
     logger.info(
       `ChatService: getResponseFromLLM called with prompt: ${prompt}`
     );
+    if (!response.ok) {
+      logger.error(
+        `ChatService: Error fetching response from LLM: ${response.statusText}`
+      );
+      throw new Error(`Error fetching response: ${response.statusText}`);
+    }
     return response.body;
   };
 }

@@ -1,4 +1,5 @@
 import { Response } from "express";
+import logger from "../logger";
 export async function sendChunkToClient(
   stream: ReadableStream<Uint8Array>,
   res: Response
@@ -14,13 +15,16 @@ export async function sendChunkToClient(
 
       const data = line.slice(6);
       if (data === "[DONE]") {
+        res.end();
         return;
       }
 
       try {
         const parsed = JSON.parse(data);
         const content = parsed.choices?.[0]?.delta?.content;
-        if (content) res.write(content);
+        if (content) {
+          res.write(content);
+        }
       } catch (e) {
         console.error("Failed to parse JSON stream chunk:", e);
       }
