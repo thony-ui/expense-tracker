@@ -87,10 +87,7 @@ export default function ChatWidget() {
           </SheetTrigger>
           <SheetTitle></SheetTitle>
 
-          <SheetContent
-            side="right"
-            className="w-[320px] max-w-96 p-0 flex flex-col"
-          >
+          <SheetContent className="w-[320px] md:w-[384px] p-0 flex flex-col">
             {/* Chat Header */}
             <div className="flex gap-1 flex-col justify-start pt-3 px-4 pb-4">
               <h3 className="font-semibold">AI Assistant</h3>
