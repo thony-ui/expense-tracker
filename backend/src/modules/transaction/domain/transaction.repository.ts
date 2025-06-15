@@ -1,6 +1,6 @@
 import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
-import { getCurrentWeekStart } from "../../../utils/formate-date";
+import { formatDate, getCurrentWeekStart } from "../../../utils/formate-date";
 import { ITransaction, ITransactionService } from "./transaction.interface";
 
 export class TransactionRepository implements ITransactionService {
@@ -102,8 +102,9 @@ export class TransactionRepository implements ITransactionService {
       0
     );
 
-    const startDateStr = startDate.toISOString().split("T")[0];
-    const endDateStr = endDate.toISOString().split("T")[0];
+    const startDateStr = formatDate(startDate);
+    const endDateStr = formatDate(endDate);
+    console.log(startDateStr, endDateStr);
 
     let query = supabase
       .from("transactions")
@@ -139,8 +140,8 @@ export class TransactionRepository implements ITransactionService {
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
 
-    const startDateStr = startDate.toISOString().split("T")[0];
-    const endDateStr = endDate.toISOString().split("T")[0];
+    const startDateStr = formatDate(startDate);
+    const endDateStr = formatDate(endDate);
 
     let query = supabase
       .from("transactions")
