@@ -20,9 +20,14 @@ import { usePostExpense } from "@/app/mutations/use-post-expense";
 
 interface AddTransactionFormProps {
   onSuccess: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
+export function AddTransactionForm({
+  onSuccess,
+  setOpen,
+}: AddTransactionFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     amount: "",
@@ -38,6 +43,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsLoading(true);
     e.preventDefault();
 
     const transaction: Omit<ITransaction, "id"> = {
@@ -50,6 +56,7 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
     };
 
     await postExpense(transaction);
+    setIsLoading(false);
     onSuccess();
   };
 
@@ -150,10 +157,12 @@ export function AddTransactionForm({ onSuccess }: AddTransactionFormProps) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onSuccess}>
+        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
           Cancel
         </Button>
-        <Button type="submit">Add Transaction</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Adding..." : "Add Transaction"}
+        </Button>
       </div>
     </form>
   );

@@ -39,6 +39,7 @@ export function AddTransactionDialog() {
           onSuccess={() => {
             handleSuccess();
           }}
+          setOpen={setOpen}
         />
       </DialogContent>
     </Dialog>
