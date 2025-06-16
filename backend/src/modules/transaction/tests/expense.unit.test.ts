@@ -99,6 +99,138 @@ describe("Transaction Service", () => {
       },
     ]);
   });
+  it("should get yearly expenses from the database", async () => {
+    const mockTransactionRepository = {
+      getYearlyTransactionsFromDatabase: jest.fn().mockResolvedValue([
+        {
+          type: "Food",
+          amount: 50,
+          name: "Lunch",
+          description: "Lunch at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      ]),
+    } as unknown as TransactionRepository;
+    const expenseService = new TransactionService(mockTransactionRepository);
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const expenses = await expenseService.getYearlyTransactionsFromDatabase(
+      userId,
+      undefined
+    );
+    expect(
+      mockTransactionRepository.getYearlyTransactionsFromDatabase
+    ).toHaveBeenCalledWith(userId, undefined);
+    expect(expenses).toEqual([
+      {
+        type: "Food",
+        amount: 50,
+        name: "Lunch",
+        description: "Lunch at a restaurant",
+        category: "Dining",
+        date: "2023-10-01",
+      },
+    ]);
+  });
+  it("should get monthly expenses from the database", async () => {
+    const mockTransactionRepository = {
+      getMonthlyTransactionsFromDatabase: jest.fn().mockResolvedValue([
+        {
+          type: "Food",
+          amount: 50,
+          name: "Lunch",
+          description: "Lunch at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      ]),
+    } as unknown as TransactionRepository;
+    const expenseService = new TransactionService(mockTransactionRepository);
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const expenses = await expenseService.getMonthlyTransactionsFromDatabase(
+      userId,
+      undefined
+    );
+    expect(
+      mockTransactionRepository.getMonthlyTransactionsFromDatabase
+    ).toHaveBeenCalledWith(userId, undefined);
+    expect(expenses).toEqual([
+      {
+        type: "Food",
+        amount: 50,
+        name: "Lunch",
+        description: "Lunch at a restaurant",
+        category: "Dining",
+        date: "2023-10-01",
+      },
+    ]);
+  });
+  it("should get weekly expenses from the database", async () => {
+    const mockTransactionRepository = {
+      getWeeklyTransactionsFromDatabase: jest.fn().mockResolvedValue([
+        {
+          type: "Food",
+          amount: 50,
+          name: "Lunch",
+          description: "Lunch at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      ]),
+    } as unknown as TransactionRepository;
+    const expenseService = new TransactionService(mockTransactionRepository);
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const expenses = await expenseService.getWeeklyTransactionsFromDatabase(
+      userId,
+      undefined
+    );
+    expect(
+      mockTransactionRepository.getWeeklyTransactionsFromDatabase
+    ).toHaveBeenCalledWith(userId, undefined);
+    expect(expenses).toEqual([
+      {
+        type: "Food",
+        amount: 50,
+        name: "Lunch",
+        description: "Lunch at a restaurant",
+        category: "Dining",
+        date: "2023-10-01",
+      },
+    ]);
+  });
+  it("should get daily expenses from the database", async () => {
+    const mockTransactionRepository = {
+      getDailyTransactionsFromDatabase: jest.fn().mockResolvedValue([
+        {
+          type: "Food",
+          amount: 50,
+          name: "Lunch",
+          description: "Lunch at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      ]),
+    } as unknown as TransactionRepository;
+    const expenseService = new TransactionService(mockTransactionRepository);
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const expenses = await expenseService.getDailyTransactionsFromDatabase(
+      userId,
+      undefined
+    );
+    expect(
+      mockTransactionRepository.getDailyTransactionsFromDatabase
+    ).toHaveBeenCalledWith(userId, undefined);
+    expect(expenses).toEqual([
+      {
+        type: "Food",
+        amount: 50,
+        name: "Lunch",
+        description: "Lunch at a restaurant",
+        category: "Dining",
+        date: "2023-10-01",
+      },
+    ]);
+  });
   it("should throw an error if getting expenses fails", async () => {
     const mockTransactionRepository = {
       getTransactionsFromDatabase: jest
