@@ -3,7 +3,6 @@
 import { StatsCards } from "./stats-cards";
 import { RecentTransactions } from "./recent-transactions";
 import { IncomeExpenseChart } from "../charts/income-expense-chart";
-import { CategoryChart } from "../charts/category-chart";
 import { useUser } from "@/components/contexts/user-context";
 
 export function DashboardOverview() {
@@ -28,11 +27,7 @@ export function DashboardOverview() {
 
       <StatsCards />
 
-      {/* Reliable Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <IncomeExpenseChart />
-        <CategoryChart />
-      </div>
+      <IncomeExpenseChart />
 
       <RecentTransactions />
     </div>
