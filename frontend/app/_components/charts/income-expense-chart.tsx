@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useGetDailyTransactions,
   useGetMonthlyTransactions,
+  useGetTransactions,
   useGetWeeklyTransactions,
   useGetYearlyTransactions,
 } from "@/app/queries/use-get-transactions";
@@ -54,7 +55,7 @@ type ChartViewConfig = {
 };
 
 export function IncomeExpenseChart() {
-  const { data: monthlyTransactions = [] } = useGetMonthlyTransactions();
+  const { data: monthlyTransactions = [] } = useGetTransactions();
   const { data: yearlyTransactions = [] } = useGetYearlyTransactions();
   const { data: weeklyTransactions = [] } = useGetWeeklyTransactions();
   const { data: dailyTransactions = [] } = useGetDailyTransactions();
