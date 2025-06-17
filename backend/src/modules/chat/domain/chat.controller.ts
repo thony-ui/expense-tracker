@@ -38,4 +38,33 @@ export class ChatController {
       next(error);
     }
   };
+  generateExpenseReport = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const userId = req.user.id;
+    try {
+      logger.info(
+        `ChatController: generateExpenseReport called for userId: ${userId}`
+      );
+      const htmlReport = await this.chatService.generateExpenseReport(userId);
+      const pdfBuffer = await this.chatService.generatePDFReport(
+        htmlReport,
+        userId
+      );
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="expense_report_${req.params.userId}.pdf"`
+      );
+
+      res.send(pdfBuffer);
+    } catch (error) {
+      logger.error(
+        `ChatController: Error generating expense report for userId ${userId}`
+      );
+      next(error);
+    }
+  };
 }

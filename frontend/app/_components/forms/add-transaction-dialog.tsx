@@ -28,7 +28,7 @@ export function AddTransactionDialog() {
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <PlusIcon className="h-4 w-4" />
-          Add Transaction
+          <p className="hidden sm:block">Add Transaction</p>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
