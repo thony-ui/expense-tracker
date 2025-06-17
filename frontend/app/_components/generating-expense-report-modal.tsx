@@ -19,9 +19,9 @@ export function GeneratingExpenseReportDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <div className="flex flex-col items-center gap-4 py-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <h3 className="text-lg text-muted-foreground">
+        <div className="flex flex-col items-center gap-2 py-4">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <h3 className="text-md text-muted-foreground">
             Generating Report...
           </h3>
         </div>
