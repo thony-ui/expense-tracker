@@ -47,15 +47,7 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserCircleIcon className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Cog6ToothIcon className="mr-2 h-4 w-4" />
-          <span>Settings</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={handleSignOut}>
           <ArrowRightIcon className="mr-2 h-4 w-4" />
           <span>Sign Out</span>
