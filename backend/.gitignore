@@ -4,3 +4,4 @@ dump.rdb
 /builds/
 /dist/
 /logs/
+/.cache/
