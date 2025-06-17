@@ -21,7 +21,7 @@ export function GeneratingExpenseReportDialog({
       >
         <div className="flex flex-col items-center gap-4 py-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <h3 className="text-lg font-semibold text-muted-foreground">
+          <h3 className="text-lg text-muted-foreground">
             Generating Report...
           </h3>
         </div>
