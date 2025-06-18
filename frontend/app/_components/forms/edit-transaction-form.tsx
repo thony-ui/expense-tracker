@@ -18,6 +18,8 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
 import { useGetTransaction } from "@/app/queries/use-get-transaction";
 import { useUpdateTransaction } from "@/app/mutations/use-update-transaction";
+import PopoverExchangeRateData from "../popover-exchange-rate-data";
+import { ArrowBigRight } from "lucide-react";
 
 interface EditTransactionFormProps {
   onSuccess: () => void;
@@ -43,6 +45,13 @@ export function EditTransactionForm({
     type: "expense",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<{
+    rate: number;
+    targetCurrency: string;
+  }>({
+    rate: 1,
+    targetCurrency: "Singapore Dollar",
+  });
 
   useEffect(() => {
     if (transaction) {
@@ -66,7 +75,9 @@ export function EditTransactionForm({
 
     const transaction: Omit<ITransaction, "id"> = {
       name: formData.name,
-      amount: Number.parseFloat(formData.amount),
+      amount: Number(
+        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
+      ),
       description: formData.description,
       category: formData.category,
       date: formData.date,
@@ -87,6 +98,14 @@ export function EditTransactionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center gap-4 flex-wrap">
+        <PopoverExchangeRateData
+          exchangeRate={exchangeRate}
+          setExchangeRate={setExchangeRate}
+        />
+        <ArrowBigRight />
+        <p className="font-bold">SGD</p>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="type">Type</Label>

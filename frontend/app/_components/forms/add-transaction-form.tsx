@@ -18,6 +18,10 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
 import { usePostTransaction } from "@/app/mutations/use-post-transaction";
 
+import { ArrowBigRight } from "lucide-react";
+
+import PopoverExchangeRateData from "../popover-exchange-rate-data";
+
 interface AddTransactionFormProps {
   onSuccess: () => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,6 +40,13 @@ export function AddTransactionForm({
     date: new Date().toISOString().split("T")[0],
     type: "expense" as "income" | "expense",
   });
+  const [exchangeRate, setExchangeRate] = useState<{
+    rate: number;
+    targetCurrency: string;
+  }>({
+    rate: 1,
+    targetCurrency: "Singapore Dollar",
+  });
 
   const { mutateAsync: postTransaction } = usePostTransaction();
 
@@ -48,7 +59,9 @@ export function AddTransactionForm({
 
     const transaction: Omit<ITransaction, "id"> = {
       name: formData.name,
-      amount: Number.parseFloat(formData.amount),
+      amount: Number(
+        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
+      ),
       description: formData.description,
       category: formData.category,
       date: formData.date,
@@ -62,6 +75,14 @@ export function AddTransactionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center gap-4 flex-wrap">
+        <PopoverExchangeRateData
+          exchangeRate={exchangeRate}
+          setExchangeRate={setExchangeRate}
+        />
+        <ArrowBigRight />
+        <p className="font-bold">SGD</p>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="type">Type</Label>

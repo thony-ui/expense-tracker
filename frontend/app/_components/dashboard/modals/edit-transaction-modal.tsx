@@ -1,12 +1,9 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusIcon } from "lucide-react";
 import React from "react";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
 import { toast } from "react-toastify";
