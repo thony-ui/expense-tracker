@@ -49,4 +49,18 @@ export interface ITransactionService {
     userId: string,
     transactionType?: string
   ) => Promise<IGetTransactions[]>;
+
+  deleteTransactionFromDatabase: (
+    transactionId: string,
+    userId: string
+  ) => Promise<void>;
+  updateTransactionInDatabase: (
+    transactionId: string,
+    userId: string,
+    updatedTransaction: ITransaction
+  ) => Promise<void>;
+  getTransactionByIdFromDatabase: (
+    transactionId: string,
+    userId: string
+  ) => Promise<IGetTransactions>;
 }

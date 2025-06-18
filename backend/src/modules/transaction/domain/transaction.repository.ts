@@ -104,7 +104,6 @@ export class TransactionRepository implements ITransactionService {
 
     const startDateStr = formatDate(startDate);
     const endDateStr = formatDate(endDate);
-    console.log(startDateStr, endDateStr);
 
     let query = supabase
       .from("transactions")
@@ -196,6 +195,69 @@ export class TransactionRepository implements ITransactionService {
     logger.info(
       `TransactionRepository: getDailyTransactions success for date ${currentDate}: ${data?.length} transactions`
     );
+    return data;
+  };
+
+  deleteTransactionFromDatabase = async (
+    transactionId: string,
+    userId: string
+  ) => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", transactionId)
+      .eq("userId", userId);
+
+    if (error) {
+      logger.error(
+        `TransactionRepository: deleteTransactionFromDatabase error: ${error}`
+      );
+      throw new Error("Error deleting transaction from database");
+    }
+
+    logger.info(
+      `TransactionRepository: deleteTransactionFromDatabase success: ${data}`
+    );
+  };
+  updateTransactionInDatabase = async (
+    transactionId: string,
+    userId: string,
+    updatedTransaction: Omit<ITransaction, "userId">
+  ) => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .update(updatedTransaction)
+      .eq("id", transactionId)
+      .eq("userId", userId);
+
+    if (error) {
+      logger.error(
+        `TransactionRepository: updateTransactionInDatabase error: ${error}`
+      );
+      throw new Error("Error updating transaction in database");
+    }
+
+    logger.info(
+      `TransactionRepository: updateTransactionInDatabase success: ${data}`
+    );
+  };
+  getTransactionByIdFromDatabase = async (
+    transactionId: string,
+    userId: string
+  ) => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("type, amount, name, description, category, date, id")
+      .eq("id", transactionId)
+      .eq("userId", userId)
+      .single();
+
+    if (error) {
+      logger.error(`TransactionRepository: getTransactionById error: ${error}`);
+      throw new Error("Error fetching transaction by ID from database");
+    }
+
+    logger.info(`TransactionRepository: getTransactionById success: ${data}`);
     return data;
   };
 }

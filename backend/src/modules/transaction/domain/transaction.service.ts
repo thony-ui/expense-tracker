@@ -101,4 +101,47 @@ export class TransactionService implements ITransactionService {
       );
     return transactions;
   };
+
+  deleteTransactionFromDatabase = async (
+    transactionId: string,
+    userId: string
+  ) => {
+    logger.info(
+      `TransactionService: deleteTransactionFromDatabase called for transactionId: ${transactionId}, userId: ${userId}`
+    );
+    await this.transactionRepository.deleteTransactionFromDatabase(
+      transactionId,
+      userId
+    );
+  };
+  updateTransactionInDatabase = async (
+    transactionId: string,
+    userId: string,
+    updatedTransaction: Omit<ITransaction, "userId">
+  ) => {
+    logger.info(
+      `TransactionService: updateTransactionInDatabase called for transactionId: ${transactionId}, userId: ${userId}, updatedTransaction: ${JSON.stringify(
+        updatedTransaction
+      )}`
+    );
+    await this.transactionRepository.updateTransactionInDatabase(
+      transactionId,
+      userId,
+      updatedTransaction
+    );
+  };
+  getTransactionByIdFromDatabase = async (
+    transactionId: string,
+    userId: string
+  ): Promise<IGetTransactions> => {
+    logger.info(
+      `TransactionService: getTransactionById called for transactionId: ${transactionId}, userId: ${userId}`
+    );
+    const transaction =
+      await this.transactionRepository.getTransactionByIdFromDatabase(
+        transactionId,
+        userId
+      );
+    return transaction;
+  };
 }

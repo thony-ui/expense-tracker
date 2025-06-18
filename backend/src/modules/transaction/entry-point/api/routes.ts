@@ -20,5 +20,18 @@ export function defineTransactionRoutes(expressApp: Application) {
   transactionRouter.get("/weekly", transactionController.getWeeklyTransactions);
   transactionRouter.get("/daily", transactionController.getDailyTransactions);
 
+  transactionRouter.delete(
+    "/:transactionId",
+    transactionController.deleteTransaction
+  );
+  transactionRouter.put(
+    "/:transactionId",
+    transactionController.updateTransaction
+  );
+  transactionRouter.get(
+    "/:transactionId",
+    transactionController.getTransactionById
+  );
+
   expressApp.use("/v1/transactions", authenticateUser, transactionRouter);
 }

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,28 +16,46 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
-import { usePostTransaction } from "@/app/mutations/use-post-transaction";
+import { useGetTransaction } from "@/app/queries/use-get-transaction";
+import { useUpdateTransaction } from "@/app/mutations/use-update-transaction";
 
-interface AddTransactionFormProps {
+interface EditTransactionFormProps {
   onSuccess: () => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  transactionId: string;
 }
 
-export function AddTransactionForm({
+export function EditTransactionForm({
   onSuccess,
   setOpen,
-}: AddTransactionFormProps) {
+  transactionId,
+}: EditTransactionFormProps) {
+  const { data: transaction } = useGetTransaction(transactionId);
+
+  const { mutateAsync: updateTransaction } = useUpdateTransaction();
   const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     amount: "",
     description: "",
     category: "",
     date: new Date().toISOString().split("T")[0],
-    type: "expense" as "income" | "expense",
+    type: "expense",
   });
 
-  const { mutateAsync: postTransaction } = usePostTransaction();
+  useEffect(() => {
+    if (transaction) {
+      setFormData({
+        name: transaction.name,
+        amount: transaction.amount.toString(),
+        description: transaction.description,
+        category: transaction.category,
+        date: transaction.date,
+        type: transaction.type,
+      });
+    }
+  }, [transaction]);
 
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -52,10 +70,10 @@ export function AddTransactionForm({
       description: formData.description,
       category: formData.category,
       date: formData.date,
-      type: formData.type,
+      type: formData.type as "income" | "expense",
     };
 
-    await postTransaction(transaction);
+    await updateTransaction({ transactionId, transaction });
     setIsLoading(false);
     onSuccess();
   };
@@ -111,9 +129,10 @@ export function AddTransactionForm({
         <Label htmlFor="category">Category</Label>
         <Select
           value={formData.category}
-          onValueChange={(value) =>
-            setFormData({ ...formData, category: value })
-          }
+          onValueChange={(value) => {
+            if (!value) return;
+            setFormData({ ...formData, category: value });
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a category" />
@@ -161,7 +180,7 @@ export function AddTransactionForm({
           Cancel
         </Button>
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Adding..." : "Add Transaction"}
+          {isLoading ? "Updating..." : "Edit Transaction"}
         </Button>
       </div>
     </form>
