@@ -5,6 +5,7 @@ import { defineUserRoutes } from "./modules/user";
 import { Server } from "http";
 import { defineChatRoutes } from "./modules/chat";
 import { defineTransactionRoutes } from "./modules/transaction";
+import { defineExchangeRateRouter } from "./modules/exchange-rate";
 
 require("dotenv").config(); // Load environment variables from .env file
 
@@ -14,7 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      process.env.ALLOWRD_ORIGIN_DEVELOPMENT!, // Development origin
+      process.env.ALLOWED_ORIGIN_DEVELOPMENT!, // Development origin
       process.env.ALLOWED_ORIGIN_PRODUCTION!,
     ],
     credentials: true,
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 defineUserRoutes(app);
 defineTransactionRoutes(app);
 defineChatRoutes(app);
+defineExchangeRateRouter(app);
 
 const port = process.env.PORT || 8000;
 let server: Server;
