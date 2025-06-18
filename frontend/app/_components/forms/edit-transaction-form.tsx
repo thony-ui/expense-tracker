@@ -85,9 +85,10 @@ export function EditTransactionForm({
           <Label htmlFor="type">Type</Label>
           <Select
             value={formData.type}
-            onValueChange={(value: "income" | "expense") =>
-              setFormData({ ...formData, type: value })
-            }
+            onValueChange={(value: "income" | "expense") => {
+              if (!value) return;
+              setFormData({ ...formData, type: value });
+            }}
           >
             <SelectTrigger>
               <SelectValue />
