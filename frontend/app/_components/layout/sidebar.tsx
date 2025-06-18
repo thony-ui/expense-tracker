@@ -1,21 +1,24 @@
-"use client"
+"use client";
 
-import { HomeIcon, CreditCardIcon, ChartBarIcon, CogIcon, TagIcon } from "@heroicons/react/24/outline"
-import { cn } from "@/lib/utils"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
+import { HomeIcon, CreditCardIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Transactions", href: "#", icon: CreditCardIcon, current: false },
-  { name: "Analytics", href: "#", icon: ChartBarIcon, current: false },
-  { name: "Categories", href: "#", icon: TagIcon, current: false },
-  { name: "Settings", href: "#", icon: CogIcon, current: false },
-]
+  { name: "Dashboard", href: "/", icon: HomeIcon, current: true },
+  {
+    name: "Transactions",
+    href: "/transactions",
+    icon: CreditCardIcon,
+    current: false,
+  },
+];
 
 interface SidebarProps {
-  open: boolean
-  setOpen: (open: boolean) => void
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
@@ -33,7 +36,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         <SidebarContent />
       </div>
     </>
-  )
+  );
 }
 
 function SidebarContent() {
@@ -54,19 +57,26 @@ function SidebarContent() {
                       "w-full justify-start gap-x-3",
                       item.current
                         ? "bg-gray-50 text-indigo-600"
-                        : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
+                        : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
                     )}
                     asChild
+                    onClick={() => {
+                      navigation.forEach((navItem) => {
+                        navItem.current = navItem.name === item.name;
+                      });
+                    }}
                   >
-                    <a href={item.href}>
+                    <Link href={item.href}>
                       <item.icon
                         className={cn(
-                          item.current ? "text-indigo-600" : "text-gray-400 group-hover:text-indigo-600",
-                          "h-6 w-6 shrink-0",
+                          item.current
+                            ? "text-indigo-600"
+                            : "text-gray-400 group-hover:text-indigo-600",
+                          "h-6 w-6 shrink-0"
                         )}
                       />
                       {item.name}
-                    </a>
+                    </Link>
                   </Button>
                 </li>
               ))}
@@ -75,5 +85,5 @@ function SidebarContent() {
         </ul>
       </nav>
     </div>
-  )
+  );
 }
