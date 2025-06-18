@@ -97,7 +97,7 @@ export function IncomeExpenseChart() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2 md:gap-0">
           <div className="space-y-1">
             <CardTitle>Income and Expense Chart</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -133,9 +133,14 @@ export function IncomeExpenseChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) =>
-                view === "monthly" ? value.slice(0, 3) : value
-              }
+              tickFormatter={(value) => {
+                if (view === "monthly") {
+                  const isMediumScreen =
+                    window.matchMedia("(min-width: 768px)").matches;
+                  return isMediumScreen ? value.slice(0, 3) : value.slice(0, 1);
+                }
+                return value;
+              }}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent />} />

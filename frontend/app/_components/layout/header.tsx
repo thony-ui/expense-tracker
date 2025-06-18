@@ -39,15 +39,8 @@ export function Header({ onMenuClick }: HeaderProps) {
             <p className="hidden sm:block">Generate Report</p>
           </Button>
         </div>
-        <div className="flex gap-x-4">
-          <button
-            type="button"
-            className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
-          >
-            <BellIcon className="h-6 w-6" />
-          </button>
-          <UserMenu />
-        </div>
+
+        <UserMenu />
       </div>
     </div>
   );
