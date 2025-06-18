@@ -40,7 +40,7 @@ function DeleteTransactionModal({
         <DialogFooter className="flex gap-2 flex-wrap flex-row justify-end sm:gap-0">
           <Button
             variant="secondary"
-            className="border-none"
+            className="border-none w-[100px]"
             onClick={() => setOpen(false)}
           >
             Cancel
@@ -48,6 +48,7 @@ function DeleteTransactionModal({
           <Button
             variant="destructive"
             onClick={() => handleDelete(transactionId)}
+            className="w-[100px]"
           >
             Delete
           </Button>
