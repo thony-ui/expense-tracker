@@ -1,23 +1,20 @@
 "use client";
 
-import { StatsCards } from "./stats-cards";
-import { IncomeExpenseChart } from "../charts/income-expense-chart";
-import { useUser } from "@/components/contexts/user-context";
+import { Transactions } from "@/app/_components/transactions";
 import { useGetTransactions } from "@/app/queries/use-get-transactions";
 import { useState, useMemo } from "react";
-import { Transactions } from "../transactions";
 
 type TTransactionType = "expense" | "income" | "all";
 
-export function DashboardOverview() {
-  // TODO: Replace with real data fetching logic. For now we use useUser to check if the data obtained from the user is loading.
-  const { isLoading } = useUser();
-  const { data: expenseTransactions = [] } = useGetTransactions({
-    transactionType: "expense",
-  });
-  const { data: incomeTransactions = [] } = useGetTransactions({
-    transactionType: "income",
-  });
+export function TransactionsOverview() {
+  const { data: expenseTransactions = [], isLoading: isLoadingExpenses } =
+    useGetTransactions({
+      transactionType: "expense",
+    });
+  const { data: incomeTransactions = [], isLoading: isLoadingIncome } =
+    useGetTransactions({
+      transactionType: "income",
+    });
   const [dataType, setDataType] = useState<TTransactionType>("all");
   const [searchTransaction, setSearchTransaction] = useState<string>("");
   const transactions = useMemo(() => {
@@ -42,10 +39,10 @@ export function DashboardOverview() {
           .includes(searchTransaction.toLowerCase())
       );
   }, [expenseTransactions, incomeTransactions, dataType, searchTransaction]);
-  if (isLoading) {
+  if (isLoadingExpenses || isLoadingIncome) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-[80vh]">
-        <p className="text-gray-500">Loading dashboard data, please wait...</p>
+        <p className="text-gray-500">Loading Transactions...</p>
       </div>
     );
   }
@@ -53,19 +50,12 @@ export function DashboardOverview() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600">
-          Track your expenses and manage your budget
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900">Your Transactions</h1>
+        <p className="text-gray-600">Track your expenses and income</p>
       </div>
-
-      <StatsCards />
-
-      <IncomeExpenseChart />
-
       <Transactions
-        title="Recent Transactions"
-        transactions={transactions.slice(0, 5)}
+        title={"Transactions Overview"}
+        transactions={transactions}
         setDataType={setDataType}
         setSearchTransaction={setSearchTransaction}
         dataType={dataType}

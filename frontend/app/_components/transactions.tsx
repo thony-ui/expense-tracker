@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { useGetTransactions } from "@/app/queries/use-get-transactions";
-import { TransactionDropdownMenu } from "./transaction-dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -10,48 +8,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ITransaction } from "@/lib/types";
+import { TransactionDropdownMenu } from "./dashboard/transaction-dropdown-menu";
 
 type TTransactionType = "expense" | "income" | "all";
 
-export function RecentTransactions() {
-  const { data: expenseTransactions = [] } = useGetTransactions({
-    transactionType: "expense",
-  });
-  const { data: incomeTransactions = [] } = useGetTransactions({
-    transactionType: "income",
-  });
-  const [dataType, setDataType] = useState<TTransactionType>("all");
-  const [searchTransaction, setSearchTransaction] = useState<string>("");
-  const transactions = useMemo(() => {
-    if (dataType === "expense") {
-      return expenseTransactions.filter((transaction) =>
-        transaction.description
-          .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
-      );
-    } else if (dataType === "income") {
-      return incomeTransactions.filter((transaction) =>
-        transaction.description
-          .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
-      );
-    }
-    return [...expenseTransactions, ...incomeTransactions]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .filter((transaction) =>
-        transaction.description
-          .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
-      );
-  }, [expenseTransactions, incomeTransactions, dataType, searchTransaction]);
+interface IRecentTransactionsProps {
+  title: string;
+  transactions: ITransaction[];
+
+  setDataType: React.Dispatch<React.SetStateAction<TTransactionType>>;
+  setSearchTransaction: React.Dispatch<React.SetStateAction<string>>;
+
+  dataType: TTransactionType;
+}
+
+export function Transactions({
+  title,
+  transactions,
+  setDataType,
+  setSearchTransaction,
+  dataType,
+}: IRecentTransactionsProps) {
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center flex-wrap gap-2">
-          <CardTitle className="text-nowrap">Recent Transactions</CardTitle>
+          <CardTitle className="text-nowrap">{title}</CardTitle>
           <div className="flex gap-2 flex-wrap items-center">
             <div className="flex items-center border px-[2px] gap-2 rounded-md">
               <Input
@@ -81,7 +66,7 @@ export function RecentTransactions() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {transactions.slice(0, 5).map((transaction) => (
+          {transactions.map((transaction) => (
             <div
               key={transaction.id}
               className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-4 flex-wrap"
