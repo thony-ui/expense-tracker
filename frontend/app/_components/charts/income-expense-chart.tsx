@@ -13,7 +13,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useGetDailyTransactions,
-  useGetMonthlyTransactions,
   useGetTransactions,
   useGetWeeklyTransactions,
   useGetYearlyTransactions,

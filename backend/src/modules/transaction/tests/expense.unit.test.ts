@@ -246,6 +246,94 @@ describe("Transaction Service", () => {
       expenseService.getTransactionsFromDatabase(userId)
     ).rejects.toThrow("Database error");
   });
+  it("should delete an expense from the database", async () => {
+    const mockTransactionRepository = {
+      deleteTransactionFromDatabase: jest.fn().mockResolvedValue(undefined),
+    } as unknown as TransactionRepository;
+
+    const expenseService = new TransactionService(mockTransactionRepository);
+
+    const transactionId = "12345";
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+
+    await expenseService.deleteTransactionFromDatabase(transactionId, userId);
+
+    expect(
+      mockTransactionRepository.deleteTransactionFromDatabase
+    ).toHaveBeenCalledWith(transactionId, userId);
+  });
+  it("should throw an error if deleting expense fails", async () => {
+    const mockTransactionRepository = {
+      deleteTransactionFromDatabase: jest
+        .fn()
+        .mockRejectedValue(new Error("Database error")),
+    } as unknown as TransactionRepository;
+
+    const expenseService = new TransactionService(mockTransactionRepository);
+
+    const transactionId = "12345";
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+
+    await expect(
+      expenseService.deleteTransactionFromDatabase(transactionId, userId)
+    ).rejects.toThrow("Database error");
+  });
+  it("should update an expense in the database", async () => {
+    const mockTransactionRepository = {
+      updateTransactionInDatabase: jest.fn().mockResolvedValue(undefined),
+    } as unknown as TransactionRepository;
+
+    const expenseService = new TransactionService(mockTransactionRepository);
+
+    const transactionId = "12345";
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const updatedTransaction = {
+      type: "Food",
+      amount: 60,
+      name: "Dinner",
+      description: "Dinner at a restaurant",
+      category: "Dining",
+      date: "2023-10-01",
+    };
+
+    await expenseService.updateTransactionInDatabase(
+      transactionId,
+      userId,
+      updatedTransaction
+    );
+
+    expect(
+      mockTransactionRepository.updateTransactionInDatabase
+    ).toHaveBeenCalledWith(transactionId, userId, updatedTransaction);
+  });
+  it("should throw an error if updating expense fails", async () => {
+    const mockTransactionRepository = {
+      updateTransactionInDatabase: jest
+        .fn()
+        .mockRejectedValue(new Error("Database error")),
+    } as unknown as TransactionRepository;
+
+    const expenseService = new TransactionService(mockTransactionRepository);
+
+    const transactionId = "12345";
+    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+    const updatedTransaction = {
+      type: "Food",
+      amount: 60,
+      name: "Dinner",
+      description: "Dinner at a restaurant",
+      category: "Dining",
+      date: "2023-10-01",
+    };
+
+    await expect(
+      expenseService.updateTransactionInDatabase(
+        transactionId,
+        userId,
+        updatedTransaction
+      )
+    ).rejects.toThrow("Database error");
+  });
 });
 
 describe("Transaction Controller", () => {
@@ -465,5 +553,55 @@ describe("Transaction Controller", () => {
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([]);
+  });
+  it("should update an expense in the database", async () => {
+    const mockTransactionService = {
+      updateTransactionInDatabase: jest.fn().mockResolvedValue(undefined),
+    } as unknown as TransactionService;
+
+    const expenseController = new TransactionController(mockTransactionService);
+
+    const req = {
+      user: { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" },
+      body: {
+        updatedTransaction: {
+          type: "Food",
+          amount: 60,
+          name: "Dinner",
+          description: "Dinner at a restaurant",
+          category: "Dining",
+          date: "2023-10-01",
+        },
+      },
+      params: { transactionId: "12345" },
+    } as Partial<Request>;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    } as Partial<Response>;
+
+    const next = jest.fn();
+
+    await expenseController.updateTransaction(
+      req as Request,
+      res as Response,
+      next
+    );
+
+    expect(
+      mockTransactionService.updateTransactionInDatabase
+    ).toHaveBeenCalledWith("12345", "f47ac10b-58cc-4372-a567-0e02b2c3d479", {
+      type: "Food",
+      amount: 60,
+      name: "Dinner",
+      description: "Dinner at a restaurant",
+      category: "Dining",
+      date: "2023-10-01",
+    });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith({
+      message: "Transaction updated successfully",
+    });
   });
 });

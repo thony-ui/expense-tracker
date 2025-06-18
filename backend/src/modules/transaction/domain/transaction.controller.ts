@@ -4,6 +4,9 @@ import { TransactionService } from "./transaction.service";
 import {
   validatePostTransaction,
   validateGetTransactions,
+  validateDeleteTransaction,
+  validateUpdateTransaction,
+  validateGetTransactionById,
 } from "./transaction.validator";
 
 export class TransactionController {
@@ -163,6 +166,80 @@ export class TransactionController {
           type
         );
       res.status(200).send(transactions);
+    } catch (error) {
+      next(error);
+    }
+  };
+  deleteTransaction = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { transactionId } = req.params;
+    try {
+      const { transactionId: id, userId: uid } = validateDeleteTransaction({
+        transactionId,
+        userId,
+      });
+      logger.info(
+        `TransactionController: deleteTransaction called for transactionId: ${id} and userId: ${uid}`
+      );
+      await this.transactionService.deleteTransactionFromDatabase(id, uid);
+      res.status(200).send({ message: "Transaction deleted successfully" });
+    } catch (error) {
+      next(error);
+    }
+  };
+  updateTransaction = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { transactionId } = req.params;
+    const updatedTransaction = req.body;
+    try {
+      const {
+        transactionId: id,
+        userId: uid,
+        updatedTransaction: updatedTransactionForDatabase,
+      } = validateUpdateTransaction({
+        transactionId,
+        userId,
+        ...updatedTransaction,
+      });
+      logger.info(
+        `TransactionController: updateTransaction called for transactionId: ${id} and userId: ${uid}`
+      );
+      await this.transactionService.updateTransactionInDatabase(
+        id,
+        uid,
+        updatedTransactionForDatabase
+      );
+      res.status(200).send({ message: "Transaction updated successfully" });
+    } catch (error) {
+      next(error);
+    }
+  };
+  getTransactionById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { transactionId } = req.params;
+    try {
+      const { transactionId: id, userId: uid } = validateGetTransactionById({
+        userId,
+        transactionId,
+      });
+      logger.info(
+        `TransactionController: getTransactionById called for transactionId: ${id} and userId: ${uid}`
+      );
+      const transaction =
+        await this.transactionService.getTransactionByIdFromDatabase(id, uid);
+      res.status(200).send(transaction);
     } catch (error) {
       next(error);
     }
