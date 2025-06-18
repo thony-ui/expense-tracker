@@ -30,11 +30,10 @@ export function EditTransactionForm({
   setOpen,
   transactionId,
 }: EditTransactionFormProps) {
-  const { data: transaction } = useGetTransaction(transactionId);
+  const { data: transaction, isLoading: isLoadingTransaction } =
+    useGetTransaction(transactionId);
 
   const { mutateAsync: updateTransaction } = useUpdateTransaction();
-  const [isLoading, setIsLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "",
     amount: "",
@@ -43,6 +42,7 @@ export function EditTransactionForm({
     date: new Date().toISOString().split("T")[0],
     type: "expense",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -77,6 +77,13 @@ export function EditTransactionForm({
     setIsLoading(false);
     onSuccess();
   };
+  if (isLoadingTransaction) {
+    return (
+      <div className="flex flex-col justify-center items-center w-full h-full">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
