@@ -32,7 +32,7 @@ export class ChatService implements IChatService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1-0528:free",
+        model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
         messages: [
           { role: "system", content: llmPrompt },
           { role: "user", content: prompt },
@@ -72,7 +72,7 @@ export class ChatService implements IChatService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1-0528:free",
+        model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
         messages: [
           { role: "system", content: llmPrompt },
           { role: "user", content: "Generate an expense report." },
