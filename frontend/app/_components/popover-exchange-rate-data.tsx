@@ -39,6 +39,14 @@ function PopoverExchangeRateData({
 }: IExchangeRateData) {
   const [openPopoverBox, setOpenPopoverBox] = useState(false);
   const { data: exchangeRateData = [] } = useGetExchangeRateData();
+  const exchangeRateDataWithSingaporeDollars = [
+    {
+      baseCurrency: "Singapore Dollar",
+      targetCurrency: "Singapore Dollar",
+      exchangeRate: 1,
+    },
+    ...exchangeRateData,
+  ];
   return (
     <Popover open={openPopoverBox} onOpenChange={setOpenPopoverBox}>
       <PopoverTrigger asChild>
@@ -58,7 +66,7 @@ function PopoverExchangeRateData({
           <CommandList>
             <CommandEmpty>No currency found.</CommandEmpty>
             <CommandGroup>
-              {exchangeRateData.map((exchangeRate) => (
+              {exchangeRateDataWithSingaporeDollars.map((exchangeRate) => (
                 <CommandItem
                   key={exchangeRate.targetCurrency}
                   value={exchangeRate.targetCurrency}

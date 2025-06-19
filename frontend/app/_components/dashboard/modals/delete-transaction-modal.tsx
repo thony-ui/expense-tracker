@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 
 function DeleteTransactionModal({
@@ -20,10 +20,13 @@ function DeleteTransactionModal({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   transactionId: string;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: deleteTransaction } = useDeleteTransaction();
   const handleDelete = async (transactionId: string) => {
-    setOpen(false);
+    setIsLoading(true);
     await deleteTransaction(transactionId);
+    setOpen(false);
+    setIsLoading(false);
     toast("Transaction deleted successfully!", { type: "success" });
     invalidateTransactions();
   };
@@ -42,6 +45,7 @@ function DeleteTransactionModal({
             variant="secondary"
             className="border-none w-[100px]"
             onClick={() => setOpen(false)}
+            disabled={isLoading}
           >
             Cancel
           </Button>
@@ -49,8 +53,9 @@ function DeleteTransactionModal({
             variant="destructive"
             onClick={() => handleDelete(transactionId)}
             className="w-[100px]"
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>

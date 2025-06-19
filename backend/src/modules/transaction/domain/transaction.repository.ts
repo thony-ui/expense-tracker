@@ -1,3 +1,8 @@
+import {
+  addRowToGoogleSheet,
+  deleteRowFromGoogleSheet,
+  updateGoogleSheetRowByTransactionId,
+} from "../../../lib/google-sheets";
 import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
 import { formatDate, getCurrentWeekStart } from "../../../utils/formate-date";
@@ -15,13 +20,27 @@ export class TransactionRepository implements ITransactionService {
   }: ITransaction) => {
     const { data, error } = await supabase
       .from("transactions")
-      .insert([{ type, amount, name, description, category, date, userId }]);
+      .insert([{ type, amount, name, description, category, date, userId }])
+      .select();
     if (error) {
       logger.error(
         `TransactionRepository: addTransactionToDatabase error: ${error}`
       );
       throw new Error("Error adding expense to database");
     }
+    const insertedTransaction = data?.[0]; // Get the inserted row
+    const transactionId = insertedTransaction?.id; // This is the UUID or auto-ID
+
+    await addRowToGoogleSheet({
+      transactionId,
+      userId,
+      type,
+      amount,
+      name,
+      description,
+      category,
+      date,
+    });
     logger.info(
       `TransactionRepository: addTransactionToDatabase success: ${data}`
     );
@@ -214,6 +233,7 @@ export class TransactionRepository implements ITransactionService {
       );
       throw new Error("Error deleting transaction from database");
     }
+    await deleteRowFromGoogleSheet(transactionId);
 
     logger.info(
       `TransactionRepository: deleteTransactionFromDatabase success: ${data}`
@@ -228,7 +248,8 @@ export class TransactionRepository implements ITransactionService {
       .from("transactions")
       .update(updatedTransaction)
       .eq("id", transactionId)
-      .eq("userId", userId);
+      .eq("userId", userId)
+      .select("id, userId, type, amount, name, description, category, date");
 
     if (error) {
       logger.error(
@@ -236,6 +257,12 @@ export class TransactionRepository implements ITransactionService {
       );
       throw new Error("Error updating transaction in database");
     }
+    const updatedTransactionData = data?.[0]; // Get the updated row
+
+    await updateGoogleSheetRowByTransactionId(
+      transactionId,
+      updatedTransactionData as unknown as ITransaction
+    );
 
     logger.info(
       `TransactionRepository: updateTransactionInDatabase success: ${data}`
