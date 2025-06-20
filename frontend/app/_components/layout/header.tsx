@@ -19,7 +19,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     useState<boolean>(false);
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center border-b border-gray-200 bg-white shadow-sm pr-6 pl-4">
+    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center border-b border-gray-200 bg-white shadow-sm pr-6 pl-4 md:pl-6">
       <GeneratingExpenseReportDialog isGenerating={isGenerating} />
       <ConfirmGenerateReportModal
         open={isOpenConfirmGenerationModal}
