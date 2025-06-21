@@ -18,7 +18,7 @@ async function GoogleSheetClient() {
 }
 
 export async function addRowToGoogleSheet(
-  values: ITransaction & { transactionId: string },
+  values: ITransaction & { transactionId: string } & { username: string },
   range = "Transactions!A:B"
 ) {
   const sheets = await GoogleSheetClient();
@@ -47,7 +47,7 @@ export async function updateGoogleSheetRowByTransactionId(
   }
 
   const sheets = await GoogleSheetClient();
-  const updateRange = `Transactions!A${rowIndex}:M${rowIndex}`; // Full row
+  const updateRange = `Transactions!A${rowIndex}:N${rowIndex}`; // Full row
   logger.info(
     `Updating row ${rowIndex} in Google Sheet with values: ${JSON.stringify(
       updatedTransaction

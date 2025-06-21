@@ -8,6 +8,13 @@ import logger from "../../../logger";
 import { formatDate, getCurrentWeekStart } from "../../../utils/formate-date";
 import { ITransaction, ITransactionService } from "./transaction.interface";
 
+type TTransactionWithUser = ITransaction & {
+  id: string;
+  users?: {
+    name: string;
+  };
+};
+
 export class TransactionRepository implements ITransactionService {
   addTransactionToDatabase = async ({
     userId,
@@ -41,7 +48,7 @@ export class TransactionRepository implements ITransactionService {
           exchange_rate,
         },
       ])
-      .select();
+      .select("*, users(name)");
     if (error) {
       logger.error(
         `TransactionRepository: addTransactionToDatabase error: ${error}`
@@ -54,6 +61,7 @@ export class TransactionRepository implements ITransactionService {
     await addRowToGoogleSheet({
       transactionId,
       userId,
+      username: insertedTransaction?.users?.name || "Unknown User",
       type,
       amount,
       name,
@@ -284,21 +292,35 @@ export class TransactionRepository implements ITransactionService {
       .update(updatedTransaction)
       .eq("id", transactionId)
       .eq("userId", userId)
-      .select(
-        "id, userId, type, amount, name, description, category, date, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
-      );
-
+      .select("*, users(name)");
     if (error) {
       logger.error(
         `TransactionRepository: updateTransactionInDatabase error: ${error}`
       );
       throw new Error("Error updating transaction in database");
     }
-    const updatedTransactionData = data?.[0]; // Get the updated row
+    const updatedTransactionData = data?.[0];
+
+    const updatedTransactionDataWithName = {
+      id: updatedTransactionData.id,
+      userId: updatedTransactionData.userId,
+      username: updatedTransactionData.users?.name || "Unknown User",
+      type: updatedTransactionData.type,
+      amount: updatedTransactionData.amount,
+      name: updatedTransactionData.name,
+      description: updatedTransactionData.description,
+      category: updatedTransactionData.category,
+      date: updatedTransactionData.date,
+      base_currency: updatedTransactionData.base_currency,
+      converted_currency: updatedTransactionData.converted_currency,
+      base_amount: updatedTransactionData.base_amount,
+      converted_amount: updatedTransactionData.converted_amount,
+      exchange_rate: updatedTransactionData.exchange_rate,
+    };
 
     await updateGoogleSheetRowByTransactionId(
       transactionId,
-      updatedTransactionData as unknown as ITransaction
+      updatedTransactionDataWithName
     );
 
     logger.info(
