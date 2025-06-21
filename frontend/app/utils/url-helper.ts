@@ -7,8 +7,6 @@ export const getURL = (path = "") => {
   // Trim the URL and remove trailing slash if exists.
   url = url.replace(/\/+$/, "");
   // Make sure to include `https://` when not localhost.
-  url = url.includes("http") ? url : `https://${url}`;
-  // Ensure path starts without a slash to avoid double slashes in the final URL.
   const newPath = path.replace(/^\/+/, "");
 
   // Concatenate the URL and the path.
