@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/supabase-client";
+import { getURL } from "../utils/url-helper";
 
 export default function ForgotPasswordPage() {
   const supabase = createClient();
@@ -14,11 +15,12 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
+    const callbackURL = getURL("/api/auth/reset-password");
     e.preventDefault();
     setStatus("loading");
     setMessage("");
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: callbackURL,
     });
     if (error) {
       setStatus("error");

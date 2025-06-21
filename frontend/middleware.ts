@@ -17,12 +17,7 @@ export async function middleware(request: NextRequest) {
     "/categories",
     "/settings",
   ];
-  const publicRoutes = [
-    "/auth/signin",
-    "/auth/signup",
-    "/forgot-password",
-    "/reset-password",
-  ];
+  const publicRoutes = ["/auth/signin", "/auth/signup", "/forgot-password"];
 
   const path = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.includes(path);
