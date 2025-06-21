@@ -65,7 +65,7 @@ export function EditTransactionForm({
       });
       setExchangeRate({
         rate: transaction.exchange_rate,
-        targetCurrency: transaction.base_currency,
+        targetCurrency: transaction.converted_currency,
       });
     }
   }, [transaction]);
@@ -86,8 +86,8 @@ export function EditTransactionForm({
       category: formData.category,
       date: formData.date,
       type: formData.type as "income" | "expense",
-      base_currency: exchangeRate.targetCurrency,
-      converted_currency: "Singapore Dollar",
+      base_currency: "Singapore Dollar",
+      converted_currency: exchangeRate.targetCurrency,
       base_amount: Number.parseFloat(formData.amount),
       converted_amount: Number.parseFloat(
         (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)

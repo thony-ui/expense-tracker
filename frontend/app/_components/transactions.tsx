@@ -85,7 +85,7 @@ export function Transactions({
                     </p>
                     <p className="text-sm text-gray-500">
                       Base Amount: {transaction.base_amount}{" "}
-                      {transaction.base_currency}
+                      {transaction.converted_currency}
                     </p>
                     <p className="text-sm text-gray-500">
                       Exchange Rate: {transaction.exchange_rate}
