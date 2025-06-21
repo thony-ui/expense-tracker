@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { signInAction } from "./actions/sigin-in";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function SignInForm() {
   const router = useRouter();
@@ -90,29 +91,14 @@ export function SignInForm() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            id="remember-me"
-            name="remember-me"
-            type="checkbox"
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label
-            htmlFor="remember-me"
-            className="ml-2 block text-sm text-gray-900"
-          >
-            Remember me
-          </label>
-        </div>
-
-        <div className="text-sm">
-          <a
-            href="#"
+      <div className="w-full">
+        <div className="text-sm flex justify-end">
+          <Link
+            href="/forgot-password"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
             Forgot your password?
-          </a>
+          </Link>
         </div>
       </div>
 

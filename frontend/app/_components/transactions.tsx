@@ -74,9 +74,10 @@ export function Transactions({
               <div className="flex-1">
                 <div className="flex items-center gap-3">
                   <div>
-                    <p className="font-medium text-gray-900">
-                      {transaction.description}
+                    <p className="font-bold text-gray-900">
+                      {transaction.name}
                     </p>
+                    <p className="text-gray-700">{transaction.description}</p>
                     <p className="text-sm text-gray-500">
                       {formatDate(transaction.date)}
                     </p>
