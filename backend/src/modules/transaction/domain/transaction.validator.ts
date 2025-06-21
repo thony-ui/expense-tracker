@@ -9,6 +9,11 @@ const postTransactionValidator = z.object({
   description: z.string(),
   category: z.string().min(2).max(100),
   date: z.string(),
+  base_currency: z.string(),
+  converted_currency: z.string(),
+  base_amount: z.number().min(0),
+  converted_amount: z.number().min(0),
+  exchange_rate: z.number(),
 });
 
 type TPostTransactionValidator = z.infer<typeof postTransactionValidator>;
@@ -95,6 +100,11 @@ const updateTransactionValidator = z.object({
     description: z.string(),
     category: z.string().min(2).max(100),
     date: z.string(),
+    base_currency: z.string(),
+    converted_currency: z.string(),
+    base_amount: z.number().min(0),
+    converted_amount: z.number().min(0),
+    exchange_rate: z.number(),
   }),
 });
 type TUpdateTransactionValidator = z.infer<typeof updateTransactionValidator>;

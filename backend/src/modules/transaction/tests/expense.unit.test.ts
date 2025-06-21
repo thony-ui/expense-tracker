@@ -35,6 +35,11 @@ describe("Transaction Service", () => {
       description: "Lunch at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     };
 
     await expenseService.addTransactionToDatabase(expenseData);
@@ -60,6 +65,11 @@ describe("Transaction Service", () => {
       description: "Lunch at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     };
 
     await expect(
@@ -76,6 +86,11 @@ describe("Transaction Service", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionRepository;
@@ -96,6 +111,11 @@ describe("Transaction Service", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -109,6 +129,11 @@ describe("Transaction Service", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionRepository;
@@ -129,6 +154,11 @@ describe("Transaction Service", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -142,6 +172,11 @@ describe("Transaction Service", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionRepository;
@@ -162,6 +197,11 @@ describe("Transaction Service", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -175,6 +215,11 @@ describe("Transaction Service", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionRepository;
@@ -195,6 +240,11 @@ describe("Transaction Service", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -208,6 +258,11 @@ describe("Transaction Service", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionRepository;
@@ -228,6 +283,11 @@ describe("Transaction Service", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -294,6 +354,11 @@ describe("Transaction Service", () => {
       description: "Dinner at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     };
 
     await expenseService.updateTransactionInDatabase(
@@ -324,6 +389,11 @@ describe("Transaction Service", () => {
       description: "Dinner at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     };
 
     await expect(
@@ -353,6 +423,11 @@ describe("Transaction Controller", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
       query: {},
     } as Partial<Request>;
@@ -380,6 +455,11 @@ describe("Transaction Controller", () => {
       description: "Lunch at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.send).toHaveBeenCalledWith({
@@ -405,6 +485,11 @@ describe("Transaction Controller", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
       query: {},
     } as Partial<Request>;
@@ -435,6 +520,11 @@ describe("Transaction Controller", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionService;
@@ -466,6 +556,11 @@ describe("Transaction Controller", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -479,6 +574,11 @@ describe("Transaction Controller", () => {
           description: "Lunch at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       ]),
     } as unknown as TransactionService;
@@ -516,6 +616,11 @@ describe("Transaction Controller", () => {
         description: "Lunch at a restaurant",
         category: "Dining",
         date: "2023-10-01",
+        base_currency: "SGD",
+        converted_currency: "SGD",
+        base_amount: 50,
+        converted_amount: 50,
+        exchange_rate: 1,
       },
     ]);
   });
@@ -571,6 +676,11 @@ describe("Transaction Controller", () => {
           description: "Dinner at a restaurant",
           category: "Dining",
           date: "2023-10-01",
+          base_currency: "SGD",
+          converted_currency: "SGD",
+          base_amount: 50,
+          converted_amount: 50,
+          exchange_rate: 1,
         },
       },
       params: { transactionId: "12345" },
@@ -598,6 +708,11 @@ describe("Transaction Controller", () => {
       description: "Dinner at a restaurant",
       category: "Dining",
       date: "2023-10-01",
+      base_currency: "SGD",
+      converted_currency: "SGD",
+      base_amount: 50,
+      converted_amount: 50,
+      exchange_rate: 1,
     });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith({

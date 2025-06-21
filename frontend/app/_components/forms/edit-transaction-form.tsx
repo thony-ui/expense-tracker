@@ -57,11 +57,15 @@ export function EditTransactionForm({
     if (transaction) {
       setFormData({
         name: transaction.name,
-        amount: transaction.amount.toString(),
+        amount: transaction.base_amount.toString(),
         description: transaction.description,
         category: transaction.category,
         date: transaction.date,
         type: transaction.type,
+      });
+      setExchangeRate({
+        rate: transaction.exchange_rate,
+        targetCurrency: transaction.base_currency,
       });
     }
   }, [transaction]);
@@ -82,6 +86,13 @@ export function EditTransactionForm({
       category: formData.category,
       date: formData.date,
       type: formData.type as "income" | "expense",
+      base_currency: exchangeRate.targetCurrency,
+      converted_currency: "Singapore Dollar",
+      base_amount: Number.parseFloat(formData.amount),
+      converted_amount: Number.parseFloat(
+        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
+      ),
+      exchange_rate: exchangeRate.rate,
     };
 
     await updateTransaction({ transactionId, transaction });

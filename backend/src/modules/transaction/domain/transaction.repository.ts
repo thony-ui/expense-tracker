@@ -17,10 +17,30 @@ export class TransactionRepository implements ITransactionService {
     description,
     category,
     date,
+    base_currency,
+    converted_currency = "Singapore Dollar",
+    base_amount,
+    converted_amount,
+    exchange_rate,
   }: ITransaction) => {
     const { data, error } = await supabase
       .from("transactions")
-      .insert([{ type, amount, name, description, category, date, userId }])
+      .insert([
+        {
+          type,
+          amount,
+          name,
+          description,
+          category,
+          date,
+          userId,
+          base_currency,
+          converted_currency,
+          base_amount,
+          converted_amount,
+          exchange_rate,
+        },
+      ])
       .select();
     if (error) {
       logger.error(
@@ -40,6 +60,11 @@ export class TransactionRepository implements ITransactionService {
       description,
       category,
       date,
+      base_currency,
+      converted_currency,
+      base_amount,
+      converted_amount,
+      exchange_rate,
     });
     logger.info(
       `TransactionRepository: addTransactionToDatabase success: ${data}`
@@ -52,7 +77,9 @@ export class TransactionRepository implements ITransactionService {
   ) => {
     let query = supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("userId", userId);
 
     // Add conditional filter for transactionType
@@ -81,7 +108,9 @@ export class TransactionRepository implements ITransactionService {
 
     let query = supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("userId", userId)
       .gte("date", startDate)
       .lte("date", endDate);
@@ -126,7 +155,9 @@ export class TransactionRepository implements ITransactionService {
 
     let query = supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("userId", userId)
       .gte("date", startDateStr)
       .lte("date", endDateStr);
@@ -163,7 +194,9 @@ export class TransactionRepository implements ITransactionService {
 
     let query = supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("userId", userId)
       .gte("date", startDateStr)
       .lte("date", endDateStr);
@@ -194,7 +227,9 @@ export class TransactionRepository implements ITransactionService {
     const currentDate = new Date().toISOString().split("T")[0];
     let query = supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("userId", userId)
       .eq("date", currentDate);
 
@@ -249,7 +284,9 @@ export class TransactionRepository implements ITransactionService {
       .update(updatedTransaction)
       .eq("id", transactionId)
       .eq("userId", userId)
-      .select("id, userId, type, amount, name, description, category, date");
+      .select(
+        "id, userId, type, amount, name, description, category, date, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      );
 
     if (error) {
       logger.error(
@@ -274,7 +311,9 @@ export class TransactionRepository implements ITransactionService {
   ) => {
     const { data, error } = await supabase
       .from("transactions")
-      .select("type, amount, name, description, category, date, id")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+      )
       .eq("id", transactionId)
       .eq("userId", userId)
       .single();
