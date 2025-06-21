@@ -75,11 +75,20 @@ export function Transactions({
                 <div className="flex items-center gap-3">
                   <div>
                     <p className="font-bold text-gray-900">
-                      {transaction.name}
+                      Name: {transaction.name}
                     </p>
-                    <p className="text-gray-700">{transaction.description}</p>
+                    <p className="text-gray-700">
+                      Description: {transaction.description}
+                    </p>
                     <p className="text-sm text-gray-500">
-                      {formatDate(transaction.date)}
+                      Date: {formatDate(transaction.date)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Base Amount: {transaction.base_amount}{" "}
+                      {transaction.base_currency}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Exchange Rate: {transaction.exchange_rate}
                     </p>
                   </div>
                 </div>

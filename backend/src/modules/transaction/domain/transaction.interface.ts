@@ -6,6 +6,12 @@ export interface ITransaction {
   description: string;
   category: string;
   date: string;
+
+  base_currency: string;
+  converted_currency: string;
+  base_amount: number;
+  converted_amount: number;
+  exchange_rate: number;
 }
 
 export interface IGetTransactions {
@@ -15,6 +21,12 @@ export interface IGetTransactions {
   description: string;
   category: string;
   date: string;
+
+  base_currency: string;
+  converted_currency: string;
+  base_amount: number;
+  converted_amount: number;
+  exchange_rate: number;
 }
 export interface ITransactionService {
   addTransactionToDatabase: ({

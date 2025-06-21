@@ -6,6 +6,12 @@ export interface ITransaction {
   category: string;
   date: string;
   type: "income" | "expense";
+
+  base_currency: string;
+  converted_currency: string;
+  base_amount: number;
+  converted_amount: number;
+  exchange_rate: number;
 }
 
 export interface ICategory {
