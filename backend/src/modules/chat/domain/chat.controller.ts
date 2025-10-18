@@ -44,11 +44,16 @@ export class ChatController {
     next: NextFunction
   ) => {
     const userId = req.user.id;
+    const { startDate, endDate } = req.body;
     try {
       logger.info(
         `ChatController: generateExpenseReport called for userId: ${userId}`
       );
-      const htmlReport = await this.chatService.generateExpenseReport(userId);
+      const htmlReport = await this.chatService.generateExpenseReport(
+        userId,
+        startDate,
+        endDate
+      );
       const pdfBuffer = await this.chatService.generatePDFReport(
         htmlReport,
         userId

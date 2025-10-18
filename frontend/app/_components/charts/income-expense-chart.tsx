@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useGetDailyTransactions,
+  useGetMonthlyTransactions,
   useGetTransactions,
   useGetWeeklyTransactions,
   useGetYearlyTransactions,
@@ -32,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ITransaction } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const chartConfig = {
   expense: {
@@ -54,10 +57,21 @@ type ChartViewConfig = {
 };
 
 export function IncomeExpenseChart() {
-  const { data: monthlyTransactions = [] } = useGetTransactions();
-  const { data: yearlyTransactions = [] } = useGetYearlyTransactions();
-  const { data: weeklyTransactions = [] } = useGetWeeklyTransactions();
-  const { data: dailyTransactions = [] } = useGetDailyTransactions();
+  const [date, setDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const { data: monthlyTransactions = [] } = useGetMonthlyTransactions({
+    date,
+  });
+  const { data: yearlyTransactions = [] } = useGetYearlyTransactions({
+    date,
+  });
+  const { data: weeklyTransactions = [] } = useGetWeeklyTransactions({
+    date,
+  });
+  const { data: dailyTransactions = [] } = useGetDailyTransactions({
+    date,
+  });
   const transactionManager = useMemo(() => {
     const chartViewConfigMap: Record<TView, ChartViewConfig> = {
       monthly: {
@@ -104,21 +118,31 @@ export function IncomeExpenseChart() {
               Your expenses and income
             </p>
           </div>
-          <Select
-            onValueChange={(value) => {
-              setView(value as TView);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Monthly" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="yearly">Yearly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="daily">Daily</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-1">
+            <Select
+              onValueChange={(value) => {
+                setView(value as TView);
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Monthly" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="yearly">Yearly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              className="w-[180px]"
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent>

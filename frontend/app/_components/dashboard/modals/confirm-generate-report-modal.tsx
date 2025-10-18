@@ -7,7 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import React from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import React, { useState } from "react";
 
 function ConfirmGenerateReportModal({
   open,
@@ -18,8 +20,17 @@ function ConfirmGenerateReportModal({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { mutateAsync: postGenerateReport } =
-    usePostGenerateExpenseReport(setIsGenerating);
+  const [startDate, setStartDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const { mutateAsync: postGenerateReport } = usePostGenerateExpenseReport(
+    setIsGenerating,
+    startDate,
+    endDate
+  );
   const handleConfirm = async () => {
     setOpen(false);
     await postGenerateReport();
@@ -29,12 +40,28 @@ function ConfirmGenerateReportModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Generate Report</DialogTitle>
-          <p className="text-sm text-gray-500">
-            Are you sure you want to generate a report? This will create a new
-            report based on your current transactions.
-          </p>
         </DialogHeader>
-        <DialogFooter className="flex gap-2 flex-wrap flex-row justify-end sm:gap-0">
+        <div className="flex flex-col gap-4 w-[280px]">
+          <div className="flex flex-row gap-5 items-center">
+            <Label htmlFor="start-date">Start Date: </Label>
+            <Input
+              type="date"
+              id="start-date"
+              className="w-[180px] ml-auto"
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-row gap-5 items-center">
+            <Label htmlFor="end-date">End Date: </Label>
+            <Input
+              type="date"
+              id="end-date"
+              className="w-[180px] ml-auto"
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex gap-2 flex-wrap flex-row sm:gap-0">
           <Button
             variant="secondary"
             className="border-none w-[100px]"
@@ -46,6 +73,7 @@ function ConfirmGenerateReportModal({
             variant="default"
             onClick={handleConfirm}
             className="w-[100px]"
+            disabled={!startDate || !endDate || startDate > endDate}
           >
             Confirm
           </Button>

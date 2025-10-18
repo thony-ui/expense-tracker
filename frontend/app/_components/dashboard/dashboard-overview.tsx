@@ -14,9 +14,11 @@ export function DashboardOverview() {
   const { isLoading } = useUser();
   const { data: expenseTransactions = [] } = useGetTransactions({
     transactionType: "expense",
+    limit: 5,
   });
   const { data: incomeTransactions = [] } = useGetTransactions({
     transactionType: "income",
+    limit: 5,
   });
   const [dataType, setDataType] = useState<TTransactionType>("all");
   const [searchTransaction, setSearchTransaction] = useState<string>("");

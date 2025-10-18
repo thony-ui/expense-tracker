@@ -42,6 +42,15 @@ export function validatePostTransaction(
 const getTransactionsValidator = z.object({
   userId: z.string().uuid("Invalid user ID format"),
   transactionType: z.string().optional(),
+  limit: z.preprocess((arg) => {
+    if (typeof arg === "string") return parseInt(arg, 10);
+    return arg;
+  }, z.number().min(1).optional()),
+  offSet: z.preprocess((arg) => {
+    if (typeof arg === "string") return parseInt(arg, 10);
+    return arg;
+  }, z.number().min(0).optional()),
+  date: z.string().optional(),
 });
 type TGetTransactionsValidator = z.infer<typeof getTransactionsValidator>;
 export function validateGetTransactions(

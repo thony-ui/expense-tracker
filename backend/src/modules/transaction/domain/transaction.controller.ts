@@ -64,17 +64,29 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType } = req.query;
+    const { transactionType, limit, offSet } = req.query;
     try {
-      const { userId: id, transactionType: type } = validateGetTransactions({
+      const {
+        userId: id,
+        transactionType: type,
+        limit: maxLimit,
+        offSet: maxOffSet,
+      } = validateGetTransactions({
         userId,
         transactionType,
+        limit,
+        offSet,
       });
       logger.info(
-        `TransactionController: getTransactions called for userId: ${userId} and transactionType: ${type}`
+        `TransactionController: getTransactions called for userId: ${userId} and transactionType: ${type} and limit: ${maxLimit} and offSet: ${maxOffSet}`
       );
       const transactions =
-        await this.transactionService.getTransactionsFromDatabase(id, type);
+        await this.transactionService.getTransactionsFromDatabase(
+          id,
+          type,
+          maxLimit,
+          maxOffSet
+        );
       res.status(200).send(transactions);
     } catch (error) {
       next(error);
@@ -86,11 +98,16 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType } = req.query;
+    const { transactionType, date } = req.query;
     try {
-      const { userId: id, transactionType: type } = validateGetTransactions({
+      const {
+        userId: id,
+        transactionType: type,
+        date: txnDate,
+      } = validateGetTransactions({
         userId,
         transactionType,
+        date,
       });
       logger.info(
         `TransactionController: getYearlyTransactions called for userId: ${userId} and transactionType: ${type}`
@@ -98,7 +115,8 @@ export class TransactionController {
       const transactions =
         await this.transactionService.getYearlyTransactionsFromDatabase(
           id,
-          type
+          type,
+          txnDate
         );
       res.status(200).send(transactions);
     } catch (error) {
@@ -111,11 +129,16 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType } = req.query;
+    const { transactionType, date } = req.query;
     try {
-      const { userId: id, transactionType: type } = validateGetTransactions({
+      const {
+        userId: id,
+        transactionType: type,
+        date: txnDate,
+      } = validateGetTransactions({
         userId,
         transactionType,
+        date,
       });
       logger.info(
         `TransactionController: getMonthlyTransactions called for userId: ${userId} and transactionType: ${type}`
@@ -123,7 +146,8 @@ export class TransactionController {
       const transactions =
         await this.transactionService.getMonthlyTransactionsFromDatabase(
           id,
-          type
+          type,
+          txnDate
         );
       res.status(200).send(transactions);
     } catch (error) {
@@ -136,11 +160,16 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType } = req.query;
+    const { transactionType, date } = req.query;
     try {
-      const { userId: id, transactionType: type } = validateGetTransactions({
+      const {
+        userId: id,
+        transactionType: type,
+        date: txnDate,
+      } = validateGetTransactions({
         userId,
         transactionType,
+        date,
       });
       logger.info(
         `TransactionController: getWeeklyTransactions called for userId: ${userId} and transactionType: ${type}`
@@ -148,7 +177,8 @@ export class TransactionController {
       const transactions =
         await this.transactionService.getWeeklyTransactionsFromDatabase(
           id,
-          type
+          type,
+          txnDate
         );
       res.status(200).send(transactions);
     } catch (error) {
@@ -161,11 +191,16 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType } = req.query;
+    const { transactionType, date } = req.query;
     try {
-      const { userId: id, transactionType: type } = validateGetTransactions({
+      const {
+        userId: id,
+        transactionType: type,
+        date: txnDate,
+      } = validateGetTransactions({
         userId,
         transactionType,
+        date,
       });
       logger.info(
         `TransactionController: getDailyTransactions called for userId: ${userId} and transactionType: ${type}`
@@ -173,7 +208,8 @@ export class TransactionController {
       const transactions =
         await this.transactionService.getDailyTransactionsFromDatabase(
           id,
-          type
+          type,
+          txnDate
         );
       res.status(200).send(transactions);
     } catch (error) {

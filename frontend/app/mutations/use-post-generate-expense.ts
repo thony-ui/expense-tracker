@@ -4,14 +4,19 @@ import { useMutation } from "@tanstack/react-query";
 const baseUrl = "/v1/chat";
 
 export function usePostGenerateExpenseReport(
-  setIsGenerating: (value: boolean) => void
+  setIsGenerating: (value: boolean) => void,
+  startDate: string,
+  endDate: string
 ) {
   return useMutation({
     mutationFn: async () => {
       setIsGenerating(true);
       const response = await axiosInstance.post(
         `${baseUrl}/generate-report`,
-        {},
+        {
+          startDate,
+          endDate,
+        },
         {
           responseType: "blob",
         }

@@ -1,5 +1,6 @@
 "use client";
 
+import Pagination from "@/app/_components/pagination";
 import { Transactions } from "@/app/_components/transactions";
 import { useGetTransactions } from "@/app/queries/use-get-transactions";
 import { useState, useMemo } from "react";
@@ -7,13 +8,18 @@ import { useState, useMemo } from "react";
 type TTransactionType = "expense" | "income" | "all";
 
 export function TransactionsOverview() {
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const { data: expenseTransactions = [], isLoading: isLoadingExpenses } =
     useGetTransactions({
       transactionType: "expense",
+      limit: 5,
+      offSet: (currentPage - 1) * 5,
     });
   const { data: incomeTransactions = [], isLoading: isLoadingIncome } =
     useGetTransactions({
       transactionType: "income",
+      limit: 5,
+      offSet: (currentPage - 1) * 5,
     });
   const [dataType, setDataType] = useState<TTransactionType>("all");
   const [searchTransaction, setSearchTransaction] = useState<string>("");
@@ -53,6 +59,11 @@ export function TransactionsOverview() {
         <h1 className="text-2xl font-bold text-gray-900">Your Transactions</h1>
         <p className="text-gray-600">Track your expenses and income</p>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        transactionsLength={transactions.length}
+      />
       <Transactions
         title={"Transactions Overview"}
         transactions={transactions}

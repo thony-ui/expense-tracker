@@ -81,7 +81,9 @@ export class TransactionRepository implements ITransactionService {
 
   getTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    limit?: number,
+    offSet?: number
   ) => {
     let query = supabase
       .from("transactions")
@@ -93,6 +95,12 @@ export class TransactionRepository implements ITransactionService {
     // Add conditional filter for transactionType
     if (transactionType) {
       query = query.eq("type", transactionType);
+    }
+
+    if (typeof limit === "number" && typeof offSet === "number") {
+      query = query.range(offSet, offSet + limit - 1);
+    } else if (typeof limit === "number") {
+      query = query.limit(limit);
     }
 
     const { data, error } = await query.order("date", { ascending: false });
@@ -108,9 +116,12 @@ export class TransactionRepository implements ITransactionService {
 
   getYearlyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
-    const year = new Date().getFullYear();
+    const year = date
+      ? new Date(date).getFullYear().toString()
+      : new Date().getFullYear().toString();
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
@@ -144,22 +155,14 @@ export class TransactionRepository implements ITransactionService {
 
   getMonthlyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
-    const currentDate = new Date();
-    const startDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
-    const endDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    );
-
-    const startDateStr = formatDate(startDate);
-    const endDateStr = formatDate(endDate);
+    const selectedYear = date
+      ? new Date(date).getFullYear().toString()
+      : new Date().getFullYear().toString();
+    const startDateStr = `${selectedYear}-01-01`;
+    const endDateStr = `${selectedYear}-12-31`;
 
     let query = supabase
       .from("transactions")
@@ -191,14 +194,24 @@ export class TransactionRepository implements ITransactionService {
 
   getWeeklyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
-    const startDate = new Date(getCurrentWeekStart());
+    console.log(date);
+    const baseDate = date ? new Date(date) : new Date();
+
+    // Calculate start of week (Monday)
+    const dayOfWeek = baseDate.getDay(); // 0 (Sun) - 6 (Sat)
+    const diffToMonday = (dayOfWeek + 6) % 7; // days since Monday
+    const startDate = new Date(baseDate);
+    startDate.setDate(baseDate.getDate() - diffToMonday);
+
+    // End of week is 6 days after start
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
 
-    const startDateStr = formatDate(startDate);
-    const endDateStr = formatDate(endDate);
+    const startDateStr = formatDate(startDate); // "yyyy-mm-dd"
+    const endDateStr = formatDate(endDate); // "yyyy-mm-dd"
 
     let query = supabase
       .from("transactions")
@@ -230,9 +243,10 @@ export class TransactionRepository implements ITransactionService {
 
   getDailyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
-    const currentDate = new Date().toISOString().split("T")[0];
+    const currentDate = date || new Date().toISOString().split("T")[0];
     let query = supabase
       .from("transactions")
       .select(

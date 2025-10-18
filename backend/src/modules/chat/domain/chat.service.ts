@@ -52,11 +52,17 @@ export class ChatService implements IChatService {
     return response.body;
   };
 
-  generateExpenseReport = async (userId: string): Promise<string> => {
+  generateExpenseReport = async (
+    userId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<string> => {
     const { data: transactions, error } = await supabase
       .from("transactions")
       .select("*")
-      .eq("userId", userId);
+      .eq("userId", userId)
+      .gte("date", startDate)
+      .lte("date", endDate);
     if (error) {
       logger.error(
         `ChatService: Error fetching transactions for report: ${error.message}`

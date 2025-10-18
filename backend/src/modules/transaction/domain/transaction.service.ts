@@ -43,7 +43,9 @@ export class TransactionService implements ITransactionService {
 
   getTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    limit?: number,
+    offSet?: number
   ) => {
     logger.info(
       `TransactionService: getTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -51,13 +53,16 @@ export class TransactionService implements ITransactionService {
     const transactions =
       await this.transactionRepository.getTransactionsFromDatabase(
         userId,
-        transactionType
+        transactionType,
+        limit,
+        offSet
       );
     return transactions;
   };
   getYearlyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
     logger.info(
       `TransactionService: getYearlyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -65,13 +70,15 @@ export class TransactionService implements ITransactionService {
     const transactions =
       await this.transactionRepository.getYearlyTransactionsFromDatabase(
         userId,
-        transactionType
+        transactionType,
+        date
       );
     return transactions;
   };
   getMonthlyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
     logger.info(
       `TransactionService: getMonthlyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -79,13 +86,15 @@ export class TransactionService implements ITransactionService {
     const transactions =
       await this.transactionRepository.getMonthlyTransactionsFromDatabase(
         userId,
-        transactionType
+        transactionType,
+        date
       );
     return transactions;
   };
   getWeeklyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
     logger.info(
       `TransactionService: getWeeklyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -93,13 +102,15 @@ export class TransactionService implements ITransactionService {
     const transactions =
       await this.transactionRepository.getWeeklyTransactionsFromDatabase(
         userId,
-        transactionType
+        transactionType,
+        date
       );
     return transactions;
   };
   getDailyTransactionsFromDatabase = async (
     userId: string,
-    transactionType?: string
+    transactionType?: string,
+    date?: string
   ) => {
     logger.info(
       `TransactionService: getDailyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -107,7 +118,8 @@ export class TransactionService implements ITransactionService {
     const transactions =
       await this.transactionRepository.getDailyTransactionsFromDatabase(
         userId,
-        transactionType
+        transactionType,
+        date
       );
     return transactions;
   };
