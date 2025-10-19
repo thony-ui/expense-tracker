@@ -1,4 +1,5 @@
 import { useDeleteSavingsGoal } from "@/app/mutations/use-delete-savings-goal";
+import { useUpdateTransactions } from "@/app/mutations/use-put-transactions";
 import { invalidateSavingsGoals } from "@/app/queries/use-get-savings-goals";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ITransaction } from "@/lib/types";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -15,15 +17,21 @@ function DeleteGoalModal({
   open,
   setOpen,
   goalId,
+  transactionsForSavingsIds,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   goalId: string;
+  transactionsForSavingsIds: string[];
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: deleteGoal } = useDeleteSavingsGoal();
+  const { mutateAsync: updateTransactions } = useUpdateTransactions(
+    transactionsForSavingsIds
+  );
   const handleDelete = async (goalId: string) => {
     setIsLoading(true);
+    await updateTransactions();
     await deleteGoal(goalId);
     setOpen(false);
     setIsLoading(false);

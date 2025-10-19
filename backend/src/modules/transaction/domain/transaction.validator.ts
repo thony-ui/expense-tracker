@@ -193,3 +193,31 @@ export function validateGetTransactionsBySavingsGoalId(
     throw error;
   }
 }
+
+const updateMultipleTransactionsValidator = z.object({
+  transactionIds: z.array(z.number()),
+  userId: z.string().uuid("Invalid user ID format"),
+});
+type TUpdateMultipleTransactionsValidator = z.infer<
+  typeof updateMultipleTransactionsValidator
+>;
+export function validateUpdateMultipleTransactions(
+  data: unknown
+): TUpdateMultipleTransactionsValidator {
+  try {
+    const parsed = updateMultipleTransactionsValidator.parse(data);
+    return parsed;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error(
+        `TransactionValidator: validateUpdateMultipleTransactions error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      throw new Error(
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+      );
+    }
+    throw error;
+  }
+}

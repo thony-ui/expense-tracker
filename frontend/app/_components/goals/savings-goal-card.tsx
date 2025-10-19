@@ -281,6 +281,9 @@ export function SavingsGoalCard({
                   open={deleteModalOpen}
                   setOpen={setDeleteModalOpen}
                   goalId={goal.id}
+                  transactionsForSavingsIds={transactionsForSavings.map(
+                    (t) => t.id
+                  )}
                 />
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

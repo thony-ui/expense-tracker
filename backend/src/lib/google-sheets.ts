@@ -40,7 +40,7 @@ export async function updateGoogleSheetRowByTransactionId(
   transactionId: string,
   updatedTransaction: ITransaction
 ) {
-  const rowIndex = await findRowIndexByTransactionId(transactionId);
+  const rowIndex = await findRowIndexByTransactionId(transactionId.toString());
 
   if (rowIndex === null) {
     throw new Error(`Transaction ID ${transactionId} not found.`);

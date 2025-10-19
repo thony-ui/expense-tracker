@@ -185,4 +185,18 @@ export class TransactionService implements ITransactionService {
       );
     return transactions;
   };
+  updateMultipleTransactionsInDatabase = async (
+    transactionIds: number[],
+    userId: string
+  ): Promise<void> => {
+    logger.info(
+      `TransactionService: updateMultipleTransactionsInDatabase called for transactionIds: ${transactionIds.join(
+        ", "
+      )}, userId: ${userId}`
+    );
+    await this.transactionRepository.updateMultipleTransactionsInDatabase(
+      transactionIds,
+      userId
+    );
+  };
 }

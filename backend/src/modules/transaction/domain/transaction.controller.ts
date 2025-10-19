@@ -8,6 +8,7 @@ import {
   validateUpdateTransaction,
   validateGetTransactionById,
   validateGetTransactionsBySavingsGoalId,
+  validateUpdateMultipleTransactions,
 } from "./transaction.validator";
 
 export class TransactionController {
@@ -300,7 +301,10 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { savingsGoalIds } = req.query;
+    let { savingsGoalIds } = req.query;
+    if (!Array.isArray(savingsGoalIds)) {
+      savingsGoalIds = savingsGoalIds ? [savingsGoalIds] : [];
+    }
     try {
       const { savingsGoalIds: ids, userId: uid } =
         validateGetTransactionsBySavingsGoalId({
@@ -316,6 +320,32 @@ export class TransactionController {
           uid
         );
       res.status(200).send(transactions);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateMultipleTransactions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { transactionIds } = req.body;
+    try {
+      const { transactionIds: ids, userId: uid } =
+        validateUpdateMultipleTransactions({
+          userId,
+          transactionIds,
+        });
+      logger.info(
+        `TransactionController: updateMultipleTransactions called for transactionIds: ${transactionIds} and userId: ${userId}`
+      );
+      await this.transactionService.updateMultipleTransactionsInDatabase(
+        ids,
+        uid
+      );
+      res.status(200).send({ message: "Transactions updated successfully" });
     } catch (error) {
       next(error);
     }

@@ -405,4 +405,54 @@ export class TransactionRepository implements ITransactionService {
     );
     return data;
   };
+  updateMultipleTransactionsInDatabase: (
+    transactionIds: number[],
+    userId: string
+  ) => Promise<void> = async (transactionIds, userId) => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .update({ savingsGoalId: null })
+      .in("id", transactionIds)
+      .eq("userId", userId)
+      .select("*, users(name)");
+
+    if (error) {
+      logger.error(
+        `TransactionRepository: updateMultipleTransactionsInDatabase error: ${error}`
+      );
+      throw new Error("Error updating multiple transactions in database");
+    }
+
+    // Update Google Sheets for each updated transaction
+    if (Array.isArray(data)) {
+      for (const updatedTransactionData of data) {
+        const updatedTransactionDataWithName = {
+          id: updatedTransactionData.id,
+          userId: updatedTransactionData.userId,
+          username: updatedTransactionData.users?.name || "Unknown User",
+          type: updatedTransactionData.type,
+          amount: updatedTransactionData.amount,
+          name: updatedTransactionData.name,
+          description: updatedTransactionData.description,
+          category: updatedTransactionData.category,
+          date: updatedTransactionData.date,
+          base_currency: updatedTransactionData.base_currency,
+          converted_currency: updatedTransactionData.converted_currency,
+          base_amount: updatedTransactionData.base_amount,
+          converted_amount: updatedTransactionData.converted_amount,
+          exchange_rate: updatedTransactionData.exchange_rate,
+          savingsGoalId: updatedTransactionData.savingsGoalId,
+        };
+
+        await updateGoogleSheetRowByTransactionId(
+          updatedTransactionData.id,
+          updatedTransactionDataWithName
+        );
+      }
+    }
+
+    logger.info(
+      `TransactionRepository: updateMultipleTransactionsInDatabase success: ${data}`
+    );
+  };
 }

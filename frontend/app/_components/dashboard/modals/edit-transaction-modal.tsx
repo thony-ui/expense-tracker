@@ -8,7 +8,10 @@ import React from "react";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
 import { toast } from "react-toastify";
 import { EditTransactionForm } from "../../forms/edit-transaction-form";
-import { invalidateGetTransaction } from "@/app/queries/use-get-transaction";
+import {
+  invalidateGetTransaction,
+  invalidateGetTransactionsBySavingsGoalId,
+} from "@/app/queries/use-get-transaction";
 
 function EditTransactionModal({
   open,
@@ -24,6 +27,7 @@ function EditTransactionModal({
     toast("Transaction edited successfully!", { type: "success" });
     invalidateTransactions();
     invalidateGetTransaction(transactionId);
+    invalidateGetTransactionsBySavingsGoalId();
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -45,10 +45,8 @@ export function invalidateGetTransaction(transactionId: string) {
   });
 }
 
-export function invalidateGetTransactionsBySavingsGoalId(
-  savingsGoalId: string
-) {
+export function invalidateGetTransactionsBySavingsGoalId() {
   return queryClient.invalidateQueries({
-    queryKey: ["transactions", savingsGoalId],
+    queryKey: ["transactions"],
   });
 }

@@ -88,4 +88,9 @@ export interface ITransactionService {
     savingsGoalIds: string[],
     userId: string
   ) => Promise<IGetTransactions[]>;
+
+  updateMultipleTransactionsInDatabase: (
+    transactionIds: number[],
+    userId: string
+  ) => Promise<void>;
 }
