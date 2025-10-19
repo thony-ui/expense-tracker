@@ -53,7 +53,7 @@ export function NaturalLanguageInput({
           Try: "Spent $50 on groceries yesterday" or "Paid $120 for dinner last
           Friday"
         </p>
-        <div className="flex gap-2">
+        <form className="flex gap-2" onSubmit={parseNaturalLanguage}>
           <Input
             placeholder="Describe your transaction..."
             value={input}
@@ -68,7 +68,7 @@ export function NaturalLanguageInput({
           >
             <Send className="h-4 w-4" />
           </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );
