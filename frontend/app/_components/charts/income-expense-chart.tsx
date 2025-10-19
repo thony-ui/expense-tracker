@@ -111,20 +111,20 @@ export function IncomeExpenseChart() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center gap-2 md:gap-0">
+        <div className="flex justify-between items-center gap-2 md:gap-0 flex-col md:flex-row">
           <div className="space-y-1">
             <CardTitle>Income and Expense Chart</CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
               Your expenses and income
             </p>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 min-w-0">
             <Select
               onValueChange={(value) => {
                 setView(value as TView);
               }}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Monthly" />
               </SelectTrigger>
               <SelectContent>
@@ -140,7 +140,7 @@ export function IncomeExpenseChart() {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-[180px]"
+              className="w-[160px]"
             />
           </div>
         </div>

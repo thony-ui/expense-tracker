@@ -1,8 +1,8 @@
 "use client";
 
-import Pagination from "@/app/_components/pagination";
 import { Transactions } from "@/app/_components/transactions";
 import { useGetTransactions } from "@/app/queries/use-get-transactions";
+import Pagination from "@/app/shared/_components/pagination";
 import { useState, useMemo } from "react";
 
 type TTransactionType = "expense" | "income" | "all";

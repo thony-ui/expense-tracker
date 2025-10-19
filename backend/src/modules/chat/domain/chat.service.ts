@@ -16,7 +16,8 @@ export class ChatService implements IChatService {
     const { data: transactions, error } = await supabase
       .from("transactions")
       .select("*")
-      .eq("userId", userId);
+      .eq("userId", userId)
+      .eq("type", "expense");
     if (error) {
       logger.error(
         `ChatService: Error fetching transactions: ${error.message}`
@@ -61,6 +62,7 @@ export class ChatService implements IChatService {
       .from("transactions")
       .select("*")
       .eq("userId", userId)
+      .eq("type", "expense")
       .gte("date", startDate)
       .lte("date", endDate);
     if (error) {

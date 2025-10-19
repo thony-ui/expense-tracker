@@ -48,6 +48,7 @@ function ConfirmGenerateReportModal({
               type="date"
               id="start-date"
               className="w-[180px] ml-auto"
+              value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
@@ -57,6 +58,7 @@ function ConfirmGenerateReportModal({
               type="date"
               id="end-date"
               className="w-[180px] ml-auto"
+              value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
