@@ -116,7 +116,9 @@ export function SignUpForm() {
       </Button>
 
       <div className="flex justify-center gap-2">
-        <span className="text-sm text-gray-600">Already have an account? </span>
+        <span className="text-sm text-gray-600 dark:text-white">
+          Already have an account?{" "}
+        </span>
         <button
           className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
           onClick={() => router.push("/auth/signin")}

@@ -107,7 +107,7 @@ export function SignInForm() {
       </Button>
 
       <div className="flex justify-center gap-2">
-        <span className="text-sm text-gray-600 cursor-pointer">
+        <span className="text-sm text-gray-600 cursor-pointer dark:text-white">
           Don't have an account?{" "}
         </span>
         <button
