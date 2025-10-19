@@ -1,11 +1,56 @@
 import { ITransaction } from "@/lib/types";
 
+// export function getMonthlyChartData(monthlyTransactions: ITransaction[]) {
+//   if (!monthlyTransactions) return [];
+
+//   const monthlyData: Record<string, { income: number; expense: number }> = {};
+
+//   const months = [
+//     "January",
+//     "February",
+//     "March",
+//     "April",
+//     "May",
+//     "June",
+//     "July",
+//     "August",
+//     "September",
+//     "October",
+//     "November",
+//     "December",
+//   ];
+
+//   months.forEach((month) => {
+//     monthlyData[month] = { income: 0, expense: 0 };
+//   });
+
+//   // Aggregate transaction data
+//   monthlyTransactions.forEach((tx) => {
+//     const date = new Date(tx.date);
+//     const month = months[date.getMonth()];
+
+//     if (tx.type === "income") {
+//       monthlyData[month].income += tx.amount;
+//     } else {
+//       monthlyData[month].expense += tx.amount;
+//     }
+//   });
+
+//   // Format for chart
+//   return months.map((month) => ({
+//     month,
+//     income: monthlyData[month].income,
+//     expense: monthlyData[month].expense,
+//   }));
+// }
+
 export function getMonthlyChartData(monthlyTransactions: ITransaction[]) {
-  if (!monthlyTransactions) return [];
+  if (!monthlyTransactions || monthlyTransactions.length === 0) return [];
 
-  const monthlyData: Record<string, { income: number; expense: number }> = {};
-
-  const months = [
+  // Get the month from the first transaction
+  const firstTxDate = new Date(monthlyTransactions[0].date);
+  const monthIndex = firstTxDate.getMonth();
+  const monthName = [
     "January",
     "February",
     "March",
@@ -18,30 +63,26 @@ export function getMonthlyChartData(monthlyTransactions: ITransaction[]) {
     "October",
     "November",
     "December",
-  ];
+  ][monthIndex];
 
-  months.forEach((month) => {
-    monthlyData[month] = { income: 0, expense: 0 };
-  });
+  let income = 0;
+  let expense = 0;
 
-  // Aggregate transaction data
   monthlyTransactions.forEach((tx) => {
-    const date = new Date(tx.date);
-    const month = months[date.getMonth()];
-
     if (tx.type === "income") {
-      monthlyData[month].income += tx.amount;
+      income += tx.amount;
     } else {
-      monthlyData[month].expense += tx.amount;
+      expense += tx.amount;
     }
   });
 
-  // Format for chart
-  return months.map((month) => ({
-    month,
-    income: monthlyData[month].income,
-    expense: monthlyData[month].expense,
-  }));
+  return [
+    {
+      month: monthName,
+      income,
+      expense,
+    },
+  ];
 }
 
 export function getYearlyChartData(yearlyTransactions: ITransaction[]) {

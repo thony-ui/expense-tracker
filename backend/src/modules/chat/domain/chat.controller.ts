@@ -72,4 +72,35 @@ export class ChatController {
       next(error);
     }
   };
+
+  parseTransaction = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { text } = req.body;
+
+      if (!text) {
+        res.status(400).json({ error: "No text provided" });
+        return;
+      }
+
+      logger.info(`ChatController: parseTransaction called with text: ${text}`);
+
+      const parsedTransaction =
+        await this.chatService.parseTransactionFromNaturalLanguage(text);
+
+      logger.info(
+        `ChatController: Successfully parsed transaction: ${JSON.stringify(
+          parsedTransaction
+        )}`
+      );
+
+      res.json(parsedTransaction);
+    } catch (error) {
+      logger.error(`ChatController: Error parsing transaction: ${error}`);
+      next(error);
+    }
+  };
 }

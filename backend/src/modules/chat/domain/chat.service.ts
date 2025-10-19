@@ -4,6 +4,7 @@ import { formatLLMContext } from "../../../utils/llm/format-llm-context";
 import {
   getLLMPromptForExpenseReport,
   getLLMPromptForTransactions,
+  getLLMPromptForTransactionParsing,
 } from "../../../utils/llm/llm-prompt";
 import { IChatService } from "./chat.interface";
 import puppeteer from "puppeteer";
@@ -194,6 +195,93 @@ export class ChatService implements IChatService {
     } catch (error) {
       logger.error(`Error generating PDF: ${error}`);
       throw new Error(`Error generating PDF: ${error}`);
+    }
+  };
+
+  // Parse natural language transaction input using LLM
+  parseTransactionFromNaturalLanguage = async (
+    text: string
+  ): Promise<{
+    amount: number;
+    date: string;
+    category: string;
+    type: "income" | "expense";
+    description: string;
+  }> => {
+    try {
+      const llmPrompt = getLLMPromptForTransactionParsing();
+
+      logger.info(
+        `ChatService: parseTransactionFromNaturalLanguage called with text: ${text}`
+      );
+
+      const response = await fetch(process.env.OPENROUTER_URL!, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+          messages: [
+            { role: "system", content: llmPrompt },
+            { role: "user", content: text },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        logger.error(
+          `ChatService: Error fetching response from LLM: ${response.statusText}`
+        );
+        throw new Error(`Error parsing transaction: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      const content = responseData.choices[0].message.content;
+
+      // Parse the JSON response from LLM
+      // The LLM might wrap it in markdown code blocks, so we need to extract it
+      let jsonString = content.trim();
+
+      // Remove markdown code block if present
+      if (jsonString.startsWith("```json")) {
+        jsonString = jsonString
+          .replace(/^```json\s*/, "")
+          .replace(/```\s*$/, "");
+      } else if (jsonString.startsWith("```")) {
+        jsonString = jsonString.replace(/^```\s*/, "").replace(/```\s*$/, "");
+      }
+
+      const parsedTransaction = JSON.parse(jsonString);
+
+      logger.info(
+        `ChatService: Successfully parsed transaction: ${JSON.stringify(
+          parsedTransaction
+        )}`
+      );
+
+      // Validate the parsed transaction has all required fields
+      if (
+        !parsedTransaction.amount ||
+        !parsedTransaction.date ||
+        !parsedTransaction.category ||
+        !parsedTransaction.type ||
+        !parsedTransaction.description
+      ) {
+        throw new Error("Incomplete transaction data from LLM");
+      }
+
+      return {
+        amount: Number(parsedTransaction.amount),
+        date: parsedTransaction.date,
+        category: parsedTransaction.category,
+        type: parsedTransaction.type as "income" | "expense",
+        description: parsedTransaction.description,
+      };
+    } catch (error) {
+      logger.error(`Error parsing transaction: ${error}`);
+      throw new Error(`Error parsing transaction: ${error}`);
     }
   };
 }

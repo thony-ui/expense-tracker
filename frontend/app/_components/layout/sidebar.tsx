@@ -41,9 +41,11 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
 function SidebarContent() {
   return (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 border-r">
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-950 px-6 pb-4 border-r dark:border-gray-800">
       <div className="flex h-16 shrink-0 items-center">
-        <h1 className="text-xl font-bold text-gray-900">ExpenseTracker</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          ExpenseTracker
+        </h1>
       </div>
       <nav className="flex flex-1 flex-col">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -56,8 +58,8 @@ function SidebarContent() {
                     className={cn(
                       "w-full justify-start gap-x-3",
                       item.current
-                        ? "bg-gray-50 text-indigo-600"
-                        : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
+                        ? "bg-gray-50 dark:bg-gray-900 text-indigo-600 dark:text-indigo-400"
+                        : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-900"
                     )}
                     asChild
                     onClick={() => {
@@ -70,8 +72,8 @@ function SidebarContent() {
                       <item.icon
                         className={cn(
                           item.current
-                            ? "text-indigo-600"
-                            : "text-gray-400 group-hover:text-indigo-600",
+                            ? "text-indigo-600 dark:text-indigo-400"
+                            : "text-gray-400 dark:text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
                           "h-6 w-6 shrink-0"
                         )}
                       />

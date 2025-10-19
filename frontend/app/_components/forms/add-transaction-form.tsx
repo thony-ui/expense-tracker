@@ -17,10 +17,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
 import { usePostTransaction } from "@/app/mutations/use-post-transaction";
+import { useGetSavingsGoals } from "@/app/queries/use-get-savings-goals";
+import { useUpdateSavingsGoal } from "@/app/mutations/use-update-savings-goal";
 
 import { ArrowBigRight } from "lucide-react";
 
 import PopoverExchangeRateData from "../popover-exchange-rate-data";
+import { toast } from "react-toastify";
 
 interface AddTransactionFormProps {
   onSuccess: () => void;
@@ -39,6 +42,8 @@ export function AddTransactionForm({
     category: "",
     date: new Date().toISOString().split("T")[0],
     type: "expense" as "income" | "expense",
+    savingsGoalId: "",
+    allocateToGoal: false,
   });
   const [exchangeRate, setExchangeRate] = useState<{
     rate: number;
@@ -49,6 +54,8 @@ export function AddTransactionForm({
   });
 
   const { mutateAsync: postTransaction } = usePostTransaction();
+  const { data: savingsGoals = [] } = useGetSavingsGoals();
+  const { mutateAsync: updateSavingsGoal } = useUpdateSavingsGoal();
 
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -76,6 +83,31 @@ export function AddTransactionForm({
     };
 
     await postTransaction(transaction);
+
+    // If income and allocate to savings goal is enabled
+    if (
+      formData.type === "income" &&
+      formData.allocateToGoal &&
+      formData.savingsGoalId
+    ) {
+      try {
+        const selectedGoal = savingsGoals.find(
+          (g) => g.id === formData.savingsGoalId
+        );
+        if (selectedGoal) {
+          const newAmount =
+            selectedGoal.currentAmount + Number.parseFloat(formData.amount);
+          await updateSavingsGoal({
+            goalId: formData.savingsGoalId,
+            updatedGoal: { currentAmount: newAmount },
+          });
+          toast.success(`Added $${formData.amount} to ${selectedGoal.title}!`);
+        }
+      } catch (error) {
+        toast.error("Failed to update savings goal");
+      }
+    }
+
     setIsLoading(false);
     onSuccess();
   };
@@ -183,6 +215,57 @@ export function AddTransactionForm({
           required
         />
       </div>
+
+      {/* Savings Goal Allocation - Only show for Income */}
+      {formData.type === "income" && savingsGoals.length > 0 && (
+        <div className="space-y-3 p-4 border rounded-lg bg-green-50 dark:bg-green-950/20">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allocateToGoal"
+              checked={formData.allocateToGoal}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  allocateToGoal: e.target.checked,
+                })
+              }
+              className="w-4 h-4 rounded"
+            />
+            <Label
+              htmlFor="allocateToGoal"
+              className="cursor-pointer font-medium"
+            >
+              💰 Allocate to Savings Goal
+            </Label>
+          </div>
+
+          {formData.allocateToGoal && (
+            <div>
+              <p className="text-xs mb-2 font-bold">Select Savings Goal</p>
+              <Select
+                value={formData.savingsGoalId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, savingsGoalId: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a goal..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {savingsGoals.map((goal) => (
+                    <SelectItem key={goal.id} value={goal.id}>
+                      <div className="">
+                        <span className="font-medium">{goal.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button

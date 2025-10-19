@@ -158,11 +158,17 @@ export class TransactionRepository implements ITransactionService {
     transactionType?: string,
     date?: string
   ) => {
-    const selectedYear = date
-      ? new Date(date).getFullYear().toString()
-      : new Date().getFullYear().toString();
-    const startDateStr = `${selectedYear}-01-01`;
-    const endDateStr = `${selectedYear}-12-31`;
+    const selectedDate = date ? new Date(date) : new Date();
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth(); // 0-based
+
+    // Start of month: YYYY-MM-01
+    const startDateStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+    // End of month: last day of month
+    const endDateObj = new Date(year, month + 1, 0); // last day of month
+    const endDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+      endDateObj.getDate()
+    ).padStart(2, "0")}`;
 
     let query = supabase
       .from("transactions")

@@ -30,9 +30,7 @@ function Pagination({
         <button
           className="px-3 py-1 disabled:opacity-50"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={
-            !transactionsLength || currentPage * 5 >= transactionsLength
-          }
+          disabled={!transactionsLength}
         >
           Next
         </button>

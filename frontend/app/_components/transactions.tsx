@@ -69,12 +69,12 @@ export function Transactions({
           {transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-4 flex-wrap"
+              className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors gap-4 flex-wrap"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3">
                   <div>
-                    <p className="font-bold text-gray-900">
+                    <p className="font-bold text-gray-900 dark:text-white">
                       Name: {transaction.name}
                     </p>
                     <p className="text-gray-700">

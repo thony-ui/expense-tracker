@@ -25,16 +25,8 @@ import {
   getWeeklyChartData,
   getYearlyChartData,
 } from "@/app/utils/format-chart-data";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ITransaction } from "@/lib/types";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ChartFilter, TView } from "./chart-filter";
 
 const chartConfig = {
   expense: {
@@ -47,7 +39,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type TView = "monthly" | "yearly" | "weekly" | "daily";
 type TDataKey = "day" | "month" | "year" | "week";
 
 type ChartViewConfig = {
@@ -118,31 +109,12 @@ export function IncomeExpenseChart() {
               Your expenses and income
             </p>
           </div>
-          <div className="flex gap-1 min-w-0">
-            <Select
-              onValueChange={(value) => {
-                setView(value as TView);
-              }}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Monthly" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="yearly">Yearly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              className="w-[160px]"
-            />
-          </div>
+          <ChartFilter
+            view={view}
+            onViewChange={setView}
+            date={date}
+            onDateChange={setDate}
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -150,7 +122,7 @@ export function IncomeExpenseChart() {
           config={chartConfig}
           className="h-[350px] md:h-[500px] w-full"
         >
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={chartData} barSize={100}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey={transactionManager[view].dataKey}

@@ -7,8 +7,10 @@ export function defineChatRoutes(expressApp: Application) {
   const chatRouter = Router();
   const chatService = new ChatService();
   const chatController = new ChatController(chatService);
+
   chatRouter.post("/", chatController.getResponseFromLLM);
   chatRouter.post("/generate-report", chatController.generateExpenseReport);
+  chatRouter.post("/parse-transaction", chatController.parseTransaction);
 
   expressApp.use("/v1/chat", authenticateUser, chatRouter);
 }

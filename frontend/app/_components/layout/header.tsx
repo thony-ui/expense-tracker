@@ -8,6 +8,7 @@ import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
 import { GeneratingExpenseReportDialog } from "../generating-expense-report-modal";
 import ConfirmGenerateReportModal from "../dashboard/modals/confirm-generate-report-modal";
+import { DarkModeToggle } from "../dark-mode-toggle";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -19,7 +20,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     useState<boolean>(false);
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center border-b border-gray-200 bg-white shadow-sm pr-6 pl-4 md:pl-6">
+    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-sm pr-6 pl-4 md:pl-6">
       <GeneratingExpenseReportDialog isGenerating={isGenerating} />
       <ConfirmGenerateReportModal
         open={isOpenConfirmGenerationModal}
@@ -30,7 +31,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       <div className="flex items-center justify-between w-full ml-2 lg:ml-0">
         <button
           type="button"
-          className="text-gray-700 lg:hidden"
+          className="text-gray-700 dark:text-gray-300 lg:hidden"
           onClick={onMenuClick}
         >
           <Bars3Icon className="h-6 w-6" />
@@ -38,7 +39,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex gap-2 ">
           <AddTransactionDialog />
           <Button
-            className="flex items-center gap-2 bg-white text-black hover:bg-gray-100 hover:text-black border border-zinc-100"
+            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white border border-zinc-100 dark:border-zinc-800"
             onClick={() => setIsOpenConfirmGenerationModal(true)}
           >
             <DownloadIcon className="h-4 w-4" />
@@ -46,7 +47,10 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Button>
         </div>
 
-        <UserMenu />
+        <div className="flex items-center gap-3">
+          <DarkModeToggle />
+          <UserMenu />
+        </div>
       </div>
     </div>
   );

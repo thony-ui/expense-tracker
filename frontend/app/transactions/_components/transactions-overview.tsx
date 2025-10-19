@@ -56,7 +56,9 @@ export function TransactionsOverview() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Your Transactions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Your Transactions
+        </h1>
         <p className="text-gray-600">Track your expenses and income</p>
       </div>
       <Pagination

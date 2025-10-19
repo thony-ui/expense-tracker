@@ -102,7 +102,7 @@ describe("Transaction Service", () => {
 
     expect(
       mockTransactionRepository.getTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined);
+    ).toHaveBeenCalledWith(userId, undefined, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -145,7 +145,7 @@ describe("Transaction Service", () => {
     );
     expect(
       mockTransactionRepository.getYearlyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined);
+    ).toHaveBeenCalledWith(userId, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -188,7 +188,7 @@ describe("Transaction Service", () => {
     );
     expect(
       mockTransactionRepository.getMonthlyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined);
+    ).toHaveBeenCalledWith(userId, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -231,7 +231,7 @@ describe("Transaction Service", () => {
     );
     expect(
       mockTransactionRepository.getWeeklyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined);
+    ).toHaveBeenCalledWith(userId, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -274,7 +274,7 @@ describe("Transaction Service", () => {
     );
     expect(
       mockTransactionRepository.getDailyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined);
+    ).toHaveBeenCalledWith(userId, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -546,7 +546,12 @@ describe("Transaction Controller", () => {
     );
     expect(
       mockTransactionService.getTransactionsFromDatabase
-    ).toHaveBeenCalledWith("f47ac10b-58cc-4372-a567-0e02b2c3d479", undefined);
+    ).toHaveBeenCalledWith(
+      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      undefined,
+      undefined,
+      undefined
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([
       {
@@ -606,7 +611,12 @@ describe("Transaction Controller", () => {
 
     expect(
       mockTransactionService.getTransactionsFromDatabase
-    ).toHaveBeenCalledWith("f47ac10b-58cc-4372-a567-0e02b2c3d479", "Food");
+    ).toHaveBeenCalledWith(
+      "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "Food",
+      undefined,
+      undefined
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([
       {
@@ -654,7 +664,9 @@ describe("Transaction Controller", () => {
       mockTransactionService.getTransactionsFromDatabase
     ).toHaveBeenCalledWith(
       "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      "NonExistentType"
+      "NonExistentType",
+      undefined,
+      undefined
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith([]);
