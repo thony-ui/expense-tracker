@@ -12,6 +12,13 @@ export interface ITransaction {
   base_amount: number;
   converted_amount: number;
   exchange_rate: number;
+
+  savingsGoalId?: string;
+
+  savings_goals?: {
+    id: string;
+    title: string;
+  };
 }
 
 export interface ICategory {

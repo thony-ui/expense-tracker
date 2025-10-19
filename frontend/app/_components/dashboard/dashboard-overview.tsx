@@ -102,7 +102,6 @@ export function DashboardOverview() {
     try {
       await postSavingsGoal({
         ...goal,
-        currentAmount: 0,
       });
       toast.success("Savings goal created!");
     } catch (error) {
@@ -115,7 +114,6 @@ export function DashboardOverview() {
     goal: {
       title?: string;
       targetAmount?: number;
-      currentAmount?: number;
       deadline?: string;
       category?: string;
     }
@@ -128,15 +126,6 @@ export function DashboardOverview() {
       toast.success("Goal updated!");
     } catch (error) {
       toast.error("Failed to update goal");
-    }
-  };
-
-  const handleDeleteGoal = async (id: string) => {
-    try {
-      await deleteSavingsGoal(id);
-      toast.success("Goal deleted!");
-    } catch (error) {
-      toast.error("Failed to delete goal");
     }
   };
 
@@ -186,7 +175,6 @@ export function DashboardOverview() {
           goals={savingsGoals}
           onAddGoal={handleAddGoal}
           onEditGoal={handleEditGoal}
-          onDeleteGoal={handleDeleteGoal}
         />
       </div>
     </div>

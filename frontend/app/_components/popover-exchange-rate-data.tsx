@@ -54,7 +54,7 @@ function PopoverExchangeRateData({
           variant="outline"
           role="combobox"
           aria-expanded={openPopoverBox}
-          className="w-[225px] justify-between"
+          className="w-[225px] justify-between dark:border-gray-500"
         >
           {exchangeRate.targetCurrency}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />

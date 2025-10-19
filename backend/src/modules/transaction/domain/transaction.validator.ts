@@ -14,6 +14,7 @@ const postTransactionValidator = z.object({
   base_amount: z.number().min(0),
   converted_amount: z.number().min(0),
   exchange_rate: z.number(),
+  savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
 });
 
 type TPostTransactionValidator = z.infer<typeof postTransactionValidator>;
@@ -114,6 +115,7 @@ const updateTransactionValidator = z.object({
     base_amount: z.number().min(0),
     converted_amount: z.number().min(0),
     exchange_rate: z.number(),
+    savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
   }),
 });
 type TUpdateTransactionValidator = z.infer<typeof updateTransactionValidator>;
@@ -153,6 +155,34 @@ export function validateGetTransactionById(
     if (error instanceof z.ZodError) {
       logger.error(
         `TransactionValidator: validateGetTransactionById error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`
+      );
+      throw new Error(
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+      );
+    }
+    throw error;
+  }
+}
+
+const getTransactionsBySavingsGoalIdValidator = z.object({
+  savingsGoalIds: z.array(z.string().uuid("Invalid savings goal ID format")),
+  userId: z.string().uuid("Invalid user ID format"),
+});
+type TGetTransactionsBySavingsGoalIdValidator = z.infer<
+  typeof getTransactionsBySavingsGoalIdValidator
+>;
+export function validateGetTransactionsBySavingsGoalId(
+  data: unknown
+): TGetTransactionsBySavingsGoalIdValidator {
+  try {
+    const parsed = getTransactionsBySavingsGoalIdValidator.parse(data);
+    return parsed;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error(
+        `TransactionValidator: validateGetTransactionsBySavingsGoalId error: ${error.errors
           .map((e) => e.message)
           .join(", ")}`
       );

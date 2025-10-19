@@ -21,6 +21,7 @@ export class TransactionService implements ITransactionService {
     base_amount,
     converted_amount,
     exchange_rate,
+    savingsGoalId,
   }: ITransaction) => {
     logger.info(
       `TransactionService: addTransactionToDatabase called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`
@@ -38,6 +39,7 @@ export class TransactionService implements ITransactionService {
       base_amount,
       converted_amount,
       exchange_rate,
+      savingsGoalId,
     });
   };
 
@@ -165,5 +167,22 @@ export class TransactionService implements ITransactionService {
         userId
       );
     return transaction;
+  };
+
+  getTransactionsBySavingsGoalIdFromDatabase = async (
+    savingsGoalIds: string[],
+    userId: string
+  ): Promise<IGetTransactions[]> => {
+    logger.info(
+      `TransactionService: getTransactionsBySavingsGoalId called for savingsGoalIds: ${savingsGoalIds.join(
+        ", "
+      )}, userId: ${userId}`
+    );
+    const transactions =
+      await this.transactionRepository.getTransactionsBySavingsGoalIdFromDatabase(
+        savingsGoalIds,
+        userId
+      );
+    return transactions;
   };
 }

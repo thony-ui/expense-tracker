@@ -38,7 +38,7 @@ export function Transactions({
         <div className="flex justify-between items-center flex-wrap gap-2">
           <CardTitle className="text-nowrap">{title}</CardTitle>
           <div className="flex gap-2 flex-wrap items-center">
-            <div className="flex items-center border px-[2px] gap-2 rounded-md">
+            <div className="flex items-center border px-[2px] gap-2 rounded-md dark:border-gray-500">
               <Input
                 className="w-[200px] placeholder:text-[14px] outline-none ring-0 border-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent shadow-none"
                 placeholder="Search Transaction..."
@@ -52,7 +52,7 @@ export function Transactions({
                 setDataType(value as TTransactionType);
               }}
             >
-              <SelectTrigger className="w-[180px] h-[37.5px]">
+              <SelectTrigger className="w-[180px] h-[37.5px] dark:border-gray-500">
                 <SelectValue placeholder="all" />
               </SelectTrigger>
               <SelectContent>
@@ -69,7 +69,7 @@ export function Transactions({
           {transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors gap-4 flex-wrap"
+              className="dark:border-gray-500 flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors gap-4 flex-wrap"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export function Transactions({
                     <p className="font-bold text-gray-900 dark:text-white">
                       Name: {transaction.name}
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 dark:text-gray-400">
                       Description: {transaction.description}
                     </p>
                     <p className="text-sm text-gray-500">

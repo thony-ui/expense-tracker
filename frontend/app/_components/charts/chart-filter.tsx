@@ -44,7 +44,10 @@ export function ChartFilter({
             onViewChange(value as TView);
           }}
         >
-          <SelectTrigger className="w-[140px]" id="view-select">
+          <SelectTrigger
+            className="w-[140px] dark:border-gray-500"
+            id="view-select"
+          >
             <SelectValue placeholder="Monthly" />
           </SelectTrigger>
           <SelectContent>
@@ -67,7 +70,7 @@ export function ChartFilter({
           value={date}
           onChange={(e) => onDateChange(e.target.value)}
           required
-          className="w-[160px]"
+          className="w-[160px] dark:border-gray-500"
         />
       </div>
     </div>

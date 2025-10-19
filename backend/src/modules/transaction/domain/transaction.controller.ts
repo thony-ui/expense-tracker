@@ -7,6 +7,7 @@ import {
   validateDeleteTransaction,
   validateUpdateTransaction,
   validateGetTransactionById,
+  validateGetTransactionsBySavingsGoalId,
 } from "./transaction.validator";
 
 export class TransactionController {
@@ -31,6 +32,7 @@ export class TransactionController {
         base_amount,
         converted_amount,
         exchange_rate,
+        savingsGoalId,
         userId: id,
       } = validatePostTransaction({
         ...req.body,
@@ -52,6 +54,7 @@ export class TransactionController {
         base_amount,
         converted_amount,
         exchange_rate,
+        savingsGoalId,
       });
       res.status(201).send({ message: "Transaction added successfully" });
     } catch (error) {
@@ -286,6 +289,33 @@ export class TransactionController {
       const transaction =
         await this.transactionService.getTransactionByIdFromDatabase(id, uid);
       res.status(200).send(transaction);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getTransactionBySavingsGoalId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { savingsGoalIds } = req.query;
+    try {
+      const { savingsGoalIds: ids, userId: uid } =
+        validateGetTransactionsBySavingsGoalId({
+          userId,
+          savingsGoalIds,
+        });
+      logger.info(
+        `TransactionController: getTransactionBySavingsGoalId called for savingsGoalId: ${ids} and userId: ${uid}`
+      );
+      const transactions =
+        await this.transactionService.getTransactionsBySavingsGoalIdFromDatabase(
+          ids,
+          uid
+        );
+      res.status(200).send(transactions);
     } catch (error) {
       next(error);
     }

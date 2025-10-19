@@ -13,7 +13,6 @@ export function useGetExchangeRateData() {
     queryKey: [baseUrl],
     queryFn: async () => {
       const response = await axiosInstance.get<IExchangeRateData[]>(baseUrl);
-      console.log(response);
       return response.data;
     },
     refetchOnWindowFocus: false,

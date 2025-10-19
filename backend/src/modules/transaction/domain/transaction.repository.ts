@@ -29,7 +29,9 @@ export class TransactionRepository implements ITransactionService {
     base_amount,
     converted_amount,
     exchange_rate,
+    savingsGoalId,
   }: ITransaction) => {
+    console.log(savingsGoalId);
     const { data, error } = await supabase
       .from("transactions")
       .insert([
@@ -46,6 +48,7 @@ export class TransactionRepository implements ITransactionService {
           base_amount,
           converted_amount,
           exchange_rate,
+          savingsGoalId,
         },
       ])
       .select("*, users(name)");
@@ -73,6 +76,7 @@ export class TransactionRepository implements ITransactionService {
       base_amount,
       converted_amount,
       exchange_rate,
+      savingsGoalId,
     });
     logger.info(
       `TransactionRepository: addTransactionToDatabase success: ${data}`
@@ -88,7 +92,7 @@ export class TransactionRepository implements ITransactionService {
     let query = supabase
       .from("transactions")
       .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savings_goals(id, title), savingsGoalId"
       )
       .eq("userId", userId);
 
@@ -309,10 +313,14 @@ export class TransactionRepository implements ITransactionService {
   ) => {
     const { data, error } = await supabase
       .from("transactions")
-      .update(updatedTransaction)
+      .update({
+        ...updatedTransaction,
+        savingsGoalId: updatedTransaction.savingsGoalId || null, // Clear if not provided
+      })
       .eq("id", transactionId)
       .eq("userId", userId)
       .select("*, users(name)");
+
     if (error) {
       logger.error(
         `TransactionRepository: updateTransactionInDatabase error: ${error}`
@@ -336,6 +344,7 @@ export class TransactionRepository implements ITransactionService {
       base_amount: updatedTransactionData.base_amount,
       converted_amount: updatedTransactionData.converted_amount,
       exchange_rate: updatedTransactionData.exchange_rate,
+      savingsGoalId: updatedTransactionData.savingsGoalId,
     };
 
     await updateGoogleSheetRowByTransactionId(
@@ -354,7 +363,7 @@ export class TransactionRepository implements ITransactionService {
     const { data, error } = await supabase
       .from("transactions")
       .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savings_goals(id, title)"
       )
       .eq("id", transactionId)
       .eq("userId", userId)
@@ -366,6 +375,34 @@ export class TransactionRepository implements ITransactionService {
     }
 
     logger.info(`TransactionRepository: getTransactionById success: ${data}`);
+    return data;
+  };
+
+  getTransactionsBySavingsGoalIdFromDatabase = async (
+    savingsGoalIds: string[],
+    userId: string
+  ) => {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savingsGoalId"
+      )
+      .in("savingsGoalId", savingsGoalIds)
+      .eq("userId", userId)
+      .order("date", { ascending: false });
+
+    if (error) {
+      logger.error(
+        `TransactionRepository: getTransactionsBySavingsGoalId error: ${error}`
+      );
+      throw new Error(
+        "Error fetching transactions by savings goal ID from database"
+      );
+    }
+
+    logger.info(
+      `TransactionRepository: getTransactionsBySavingsGoalId success: ${data}`
+    );
     return data;
   };
 }

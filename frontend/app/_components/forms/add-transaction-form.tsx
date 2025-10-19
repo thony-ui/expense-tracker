@@ -80,33 +80,10 @@ export function AddTransactionForm({
         (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
       ),
       exchange_rate: exchangeRate.rate,
+      savingsGoalId: formData.savingsGoalId || undefined,
     };
 
     await postTransaction(transaction);
-
-    // If income and allocate to savings goal is enabled
-    if (
-      formData.type === "income" &&
-      formData.allocateToGoal &&
-      formData.savingsGoalId
-    ) {
-      try {
-        const selectedGoal = savingsGoals.find(
-          (g) => g.id === formData.savingsGoalId
-        );
-        if (selectedGoal) {
-          const newAmount =
-            selectedGoal.currentAmount + Number.parseFloat(formData.amount);
-          await updateSavingsGoal({
-            goalId: formData.savingsGoalId,
-            updatedGoal: { currentAmount: newAmount },
-          });
-          toast.success(`Added $${formData.amount} to ${selectedGoal.title}!`);
-        }
-      } catch (error) {
-        toast.error("Failed to update savings goal");
-      }
-    }
 
     setIsLoading(false);
     onSuccess();
@@ -131,7 +108,7 @@ export function AddTransactionForm({
               setFormData({ ...formData, type: value })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="dark:border-gray-500">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -153,6 +130,7 @@ export function AddTransactionForm({
               setFormData({ ...formData, amount: e.target.value })
             }
             required
+            className="dark:border-gray-500"
           />
         </div>
       </div>
@@ -165,6 +143,7 @@ export function AddTransactionForm({
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
+          className="dark:border-gray-500"
         />
       </div>
       <div>
@@ -175,7 +154,7 @@ export function AddTransactionForm({
             setFormData({ ...formData, category: value })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className="dark:border-gray-500">
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
@@ -201,6 +180,7 @@ export function AddTransactionForm({
             setFormData({ ...formData, description: e.target.value })
           }
           required
+          className="dark:border-gray-500"
         />
       </div>
 
@@ -213,12 +193,13 @@ export function AddTransactionForm({
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
           style={{ width: "100%", maxWidth: "100%" }}
           required
+          className="dark:border-gray-500"
         />
       </div>
 
       {/* Savings Goal Allocation - Only show for Income */}
       {formData.type === "income" && savingsGoals.length > 0 && (
-        <div className="space-y-3 p-4 border rounded-lg bg-green-50 dark:bg-green-950/20">
+        <div className="space-y-3 p-4 border rounded-lg bg-green-50 dark:bg-green-700/20">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -249,7 +230,7 @@ export function AddTransactionForm({
                   setFormData({ ...formData, savingsGoalId: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="dark:border-gray-500">
                   <SelectValue placeholder="Choose a goal..." />
                 </SelectTrigger>
                 <SelectContent>

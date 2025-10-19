@@ -29,6 +29,10 @@ export function defineTransactionRoutes(expressApp: Application) {
     transactionController.updateTransaction
   );
   transactionRouter.get(
+    "/savings-goal",
+    transactionController.getTransactionBySavingsGoalId
+  );
+  transactionRouter.get(
     "/:transactionId",
     transactionController.getTransactionById
   );

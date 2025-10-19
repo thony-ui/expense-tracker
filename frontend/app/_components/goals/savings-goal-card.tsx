@@ -15,12 +15,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChartFilter, TView } from "../charts/chart-filter";
+import DeleteGoalModal from "../dashboard/modals/delete-goal-modal";
+import { useGetTransactions } from "@/app/queries/use-get-transactions";
+import { ITransaction } from "@/lib/types";
+import { useGetTransactionsBySavingsGoalIds } from "@/app/queries/use-get-transaction";
 
 interface SavingsGoal {
   id: string;
   title: string;
   targetAmount: number;
-  currentAmount: number;
   deadline: string;
   category?: string;
 }
@@ -38,21 +41,19 @@ interface SavingsGoalCardProps {
     goal: {
       title?: string;
       targetAmount?: number;
-      currentAmount?: number;
       deadline?: string;
       category?: string;
     }
   ) => void;
-  onDeleteGoal: (id: string) => void;
 }
 
 export function SavingsGoalCard({
   goals,
   onAddGoal,
   onEditGoal,
-  onDeleteGoal,
 }: SavingsGoalCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0]
@@ -61,9 +62,21 @@ export function SavingsGoalCard({
   const [formData, setFormData] = useState({
     title: "",
     targetAmount: "",
-    currentAmount: "",
     deadline: "",
   });
+  const goalIds = goals.map((goal) => goal.id);
+  const { data: allTransactions } = useGetTransactionsBySavingsGoalIds(goalIds);
+
+  const transactionsMap = useMemo(() => {
+    if (!allTransactions) return {};
+    return allTransactions.reduce((acc, tx) => {
+      if (tx.savingsGoalId) {
+        if (!acc[tx.savingsGoalId]) acc[tx.savingsGoalId] = [];
+        acc[tx.savingsGoalId].push(tx);
+      }
+      return acc;
+    }, {} as Record<string, ITransaction[]>);
+  }, [allTransactions]);
 
   // Filter goals based on deadline and selected date/view
   const filteredGoals = useMemo(() => {
@@ -109,7 +122,6 @@ export function SavingsGoalCard({
       onEditGoal(editingGoal.id, {
         title: formData.title,
         targetAmount: parseFloat(formData.targetAmount),
-        currentAmount: parseFloat(formData.currentAmount),
         deadline: formData.deadline,
       });
     } else {
@@ -123,7 +135,6 @@ export function SavingsGoalCard({
     setFormData({
       title: "",
       targetAmount: "",
-      currentAmount: "",
       deadline: "",
     });
     setEditingGoal(null);
@@ -135,7 +146,6 @@ export function SavingsGoalCard({
     setFormData({
       title: goal.title,
       targetAmount: goal.targetAmount.toString(),
-      currentAmount: goal.currentAmount.toString(),
       deadline: goal.deadline,
     });
     setIsOpen(true);
@@ -147,7 +157,6 @@ export function SavingsGoalCard({
     setFormData({
       title: "",
       targetAmount: "",
-      currentAmount: "",
       deadline: "",
     });
   };
@@ -210,25 +219,6 @@ export function SavingsGoalCard({
                       required
                     />
                   </div>
-                  {editingGoal && (
-                    <div>
-                      <Label htmlFor="currentAmount">Current Amount ($)</Label>
-                      <Input
-                        id="currentAmount"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={formData.currentAmount}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            currentAmount: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                  )}
                   <div>
                     <Label htmlFor="deadline">Deadline</Label>
                     <Input
@@ -272,7 +262,11 @@ export function SavingsGoalCard({
           </div>
         ) : (
           filteredGoals.map((goal) => {
-            const progress = (goal.currentAmount / goal.targetAmount) * 100;
+            const transactionsForSavings = transactionsMap[goal.id] || [];
+            const currentAmount = transactionsForSavings
+              .map((t) => t.amount)
+              .reduce((acc, curr) => acc + curr, 0);
+            const progress = (currentAmount / goal.targetAmount) * 100;
             const daysLeft = Math.ceil(
               (new Date(goal.deadline).getTime() - new Date().getTime()) /
                 (1000 * 60 * 60 * 24)
@@ -281,13 +275,18 @@ export function SavingsGoalCard({
             return (
               <div
                 key={goal.id}
-                className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow"
+                className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow dark:border-gray-500"
               >
+                <DeleteGoalModal
+                  open={deleteModalOpen}
+                  setOpen={setDeleteModalOpen}
+                  goalId={goal.id}
+                />
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="font-semibold">{goal.title}</h4>
                     <p className="text-sm text-muted-foreground">
-                      ${goal.currentAmount.toFixed(2)} of $
+                      ${currentAmount.toFixed(2)} of $
                       {goal.targetAmount.toFixed(2)}
                     </p>
                   </div>
@@ -302,7 +301,7 @@ export function SavingsGoalCard({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onDeleteGoal(goal.id)}
+                      onClick={() => setDeleteModalOpen(true)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>

@@ -8,7 +8,6 @@ export interface ISavingsGoal {
   id: string;
   title: string;
   targetAmount: number;
-  currentAmount: number;
   deadline: string;
   category?: string;
   createdAt: string;

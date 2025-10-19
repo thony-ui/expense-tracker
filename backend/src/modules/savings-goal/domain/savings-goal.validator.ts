@@ -8,10 +8,6 @@ const postSavingsGoalValidator = z.object({
     .min(1)
     .max(100, "Title must be between 1 and 100 characters"),
   targetAmount: z.number().min(0, "Target amount must be positive"),
-  currentAmount: z
-    .number()
-    .min(0, "Current amount must be positive")
-    .default(0),
   deadline: z.string(),
   category: z.string().optional(),
 });
@@ -76,7 +72,6 @@ const updateSavingsGoalValidator = z.object({
   updatedGoal: z.object({
     title: z.string().min(1).max(100).optional(),
     targetAmount: z.number().min(0).optional(),
-    currentAmount: z.number().min(0).optional(),
     deadline: z.string().optional(),
     category: z.string().optional(),
   }),

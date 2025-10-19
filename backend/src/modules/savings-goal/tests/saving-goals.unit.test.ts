@@ -34,7 +34,6 @@ describe("SavingsGoal Service", () => {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       title: "Emergency Fund",
       targetAmount: 1000,
-      currentAmount: 100,
       deadline: "2025-12-31",
       category: "General",
     };
@@ -61,7 +60,6 @@ describe("SavingsGoal Service", () => {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       title: "Emergency Fund",
       targetAmount: 1000,
-      currentAmount: 100,
       deadline: "2025-12-31",
       category: "General",
     };
@@ -77,7 +75,7 @@ describe("SavingsGoal Service", () => {
         {
           title: "Emergency Fund",
           targetAmount: 1000,
-          currentAmount: 100,
+
           deadline: "2025-12-31",
           category: "General",
         },
@@ -98,7 +96,7 @@ describe("SavingsGoal Service", () => {
       {
         title: "Emergency Fund",
         targetAmount: 1000,
-        currentAmount: 100,
+
         deadline: "2025-12-31",
         category: "General",
       },
@@ -119,7 +117,7 @@ describe("SavingsGoal Service", () => {
     const updatedGoal = {
       title: "Emergency Fund Updated",
       targetAmount: 2000,
-      currentAmount: 500,
+
       deadline: "2026-01-01",
       category: "General",
     };
@@ -170,7 +168,7 @@ describe("SavingsGoal Controller", () => {
       body: {
         title: "Emergency Fund",
         targetAmount: 1000,
-        currentAmount: 100,
+
         deadline: "2025-12-31",
         category: "General",
       },
@@ -196,7 +194,7 @@ describe("SavingsGoal Controller", () => {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       title: "Emergency Fund",
       targetAmount: 1000,
-      currentAmount: 100,
+
       deadline: "2025-12-31",
       category: "General",
     });
@@ -222,7 +220,7 @@ describe("SavingsGoal Controller", () => {
       body: {
         title: "Emergency Fund",
         targetAmount: 1000,
-        currentAmount: 100,
+
         deadline: "2025-12-31",
         category: "General",
       },
@@ -251,7 +249,7 @@ describe("SavingsGoal Controller", () => {
         {
           title: "Emergency Fund",
           targetAmount: 1000,
-          currentAmount: 100,
+
           deadline: "2025-12-31",
           category: "General",
         },
@@ -289,7 +287,6 @@ describe("SavingsGoal Controller", () => {
       {
         title: "Emergency Fund",
         targetAmount: 1000,
-        currentAmount: 100,
         deadline: "2025-12-31",
         category: "General",
       },
@@ -310,7 +307,7 @@ describe("SavingsGoal Controller", () => {
       body: {
         title: "Emergency Fund Updated",
         targetAmount: 2000,
-        currentAmount: 500,
+
         deadline: "2026-01-01",
         category: "General",
       },
@@ -338,7 +335,7 @@ describe("SavingsGoal Controller", () => {
       {
         title: "Emergency Fund Updated",
         targetAmount: 2000,
-        currentAmount: 500,
+
         deadline: "2026-01-01",
         category: "General",
       }

@@ -74,7 +74,7 @@ export function StatsCards() {
       {cards.map((card) => (
         <Card key={card.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
               {card.title}
             </CardTitle>
             <div className={`p-2 rounded-lg ${card.bgColor}`}>
@@ -83,7 +83,7 @@ export function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <p className="break-words">
+              <p className="break-words ">
                 {card.isCount ? card.value : formatCurrency(card.value)}
               </p>
             </div>

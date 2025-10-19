@@ -22,7 +22,6 @@ export class SavingsGoalController {
       const {
         title,
         targetAmount,
-        currentAmount,
         deadline,
         category,
         userId: id,
@@ -39,7 +38,6 @@ export class SavingsGoalController {
         userId: id,
         title,
         targetAmount,
-        currentAmount,
         deadline,
         category,
       });

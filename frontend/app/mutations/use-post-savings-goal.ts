@@ -7,7 +7,6 @@ const baseUrl = "/v1/savings-goals";
 interface IPostSavingsGoal {
   title: string;
   targetAmount: number;
-  currentAmount?: number;
   deadline: string;
   category?: string;
 }

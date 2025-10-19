@@ -11,7 +11,6 @@ export class SavingsGoalRepository implements ISavingsGoalService {
     userId,
     title,
     targetAmount,
-    currentAmount,
     deadline,
     category,
   }: ISavingsGoal) => {
@@ -22,7 +21,6 @@ export class SavingsGoalRepository implements ISavingsGoalService {
           userId,
           title,
           targetAmount,
-          currentAmount,
           deadline,
           category,
         },

@@ -20,6 +20,7 @@ import { useGetTransaction } from "@/app/queries/use-get-transaction";
 import { useUpdateTransaction } from "@/app/mutations/use-update-transaction";
 import PopoverExchangeRateData from "../popover-exchange-rate-data";
 import { ArrowBigRight } from "lucide-react";
+import { useGetSavingsGoals } from "@/app/queries/use-get-savings-goals";
 
 interface EditTransactionFormProps {
   onSuccess: () => void;
@@ -43,6 +44,8 @@ export function EditTransactionForm({
     category: "",
     date: new Date().toISOString().split("T")[0],
     type: "expense",
+    allocateToGoal: false,
+    savingsGoalId: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<{
@@ -62,6 +65,10 @@ export function EditTransactionForm({
         category: transaction.category,
         date: transaction.date,
         type: transaction.type,
+        allocateToGoal: transaction.savings_goals ? true : false,
+        savingsGoalId: transaction.savings_goals
+          ? transaction.savings_goals.id
+          : "",
       });
       setExchangeRate({
         rate: transaction.exchange_rate,
@@ -69,6 +76,8 @@ export function EditTransactionForm({
       });
     }
   }, [transaction]);
+
+  const { data: savingsGoals = [] } = useGetSavingsGoals();
 
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -93,6 +102,9 @@ export function EditTransactionForm({
         (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
       ),
       exchange_rate: exchangeRate.rate,
+      savingsGoalId: !formData.allocateToGoal
+        ? undefined
+        : formData.savingsGoalId || undefined,
     };
 
     await updateTransaction({ transactionId, transaction });
@@ -127,7 +139,7 @@ export function EditTransactionForm({
               setFormData({ ...formData, type: value });
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="dark:border-gray-500">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -149,6 +161,7 @@ export function EditTransactionForm({
               setFormData({ ...formData, amount: e.target.value })
             }
             required
+            className="dark:border-gray-500"
           />
         </div>
       </div>
@@ -161,6 +174,7 @@ export function EditTransactionForm({
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
+          className="dark:border-gray-500"
         />
       </div>
       <div>
@@ -172,7 +186,7 @@ export function EditTransactionForm({
             setFormData({ ...formData, category: value });
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="dark:border-gray-500">
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
@@ -198,6 +212,7 @@ export function EditTransactionForm({
             setFormData({ ...formData, description: e.target.value })
           }
           required
+          className="dark:border-gray-500"
         />
       </div>
 
@@ -210,8 +225,59 @@ export function EditTransactionForm({
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
           style={{ width: "100%", maxWidth: "100%" }}
           required
+          className="dark:border-gray-500"
         />
       </div>
+
+      {formData.type === "income" && savingsGoals.length > 0 && (
+        <div className="space-y-3 p-4 border rounded-lg bg-green-50 dark:bg-green-700/20">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allocateToGoal"
+              checked={formData.allocateToGoal}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  allocateToGoal: e.target.checked,
+                })
+              }
+              className="w-4 h-4 rounded"
+            />
+            <Label
+              htmlFor="allocateToGoal"
+              className="cursor-pointer font-medium"
+            >
+              💰 Allocate to Savings Goal
+            </Label>
+          </div>
+
+          {formData.allocateToGoal && (
+            <div>
+              <p className="text-xs mb-2 font-bold">Select Savings Goal</p>
+              <Select
+                value={formData.savingsGoalId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, savingsGoalId: value })
+                }
+              >
+                <SelectTrigger className="dark:border-gray-500">
+                  <SelectValue placeholder="Choose a goal..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {savingsGoals.map((goal) => (
+                    <SelectItem key={goal.id} value={goal.id}>
+                      <div className="">
+                        <span className="font-medium">{goal.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button

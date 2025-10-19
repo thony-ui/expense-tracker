@@ -149,7 +149,7 @@ export function CashFlowSankey() {
           </div>
 
           {/* Net Flow */}
-          <div className="text-center py-4 border-y">
+          <div className="text-center py-4 border-y dark:border-white">
             <div className="text-sm text-muted-foreground mb-1">
               Net Cash Flow
             </div>

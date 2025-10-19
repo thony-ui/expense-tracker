@@ -59,7 +59,7 @@ export function NaturalLanguageInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isProcessing}
-            className="flex-1"
+            className="flex-1 dark:border-gray-500"
           />
           <Button
             onClick={parseNaturalLanguage}

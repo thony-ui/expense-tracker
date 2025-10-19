@@ -12,6 +12,8 @@ export interface ITransaction {
   base_amount: number;
   converted_amount: number;
   exchange_rate: number;
+
+  savingsGoalId?: string;
 }
 
 export interface IGetTransactions {
@@ -81,4 +83,9 @@ export interface ITransactionService {
     transactionId: string,
     userId: string
   ) => Promise<IGetTransactions>;
+
+  getTransactionsBySavingsGoalIdFromDatabase: (
+    savingsGoalIds: string[],
+    userId: string
+  ) => Promise<IGetTransactions[]>;
 }

@@ -47,7 +47,7 @@ export async function updateGoogleSheetRowByTransactionId(
   }
 
   const sheets = await GoogleSheetClient();
-  const updateRange = `Transactions!A${rowIndex}:N${rowIndex}`; // Full row
+  const updateRange = `Transactions!A${rowIndex}:O${rowIndex}`; // Full row
   logger.info(
     `Updating row ${rowIndex} in Google Sheet with values: ${JSON.stringify(
       updatedTransaction
