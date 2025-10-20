@@ -45,29 +45,9 @@ export interface ITransactionService {
     userId: string,
     transactionType?: string,
     limit?: number,
-    offSet?: number
-  ) => Promise<IGetTransactions[]>;
-
-  getYearlyTransactionsFromDatabase: (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => Promise<IGetTransactions[]>;
-  getMonthlyTransactionsFromDatabase: (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => Promise<IGetTransactions[]>;
-
-  getWeeklyTransactionsFromDatabase: (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => Promise<IGetTransactions[]>;
-  getDailyTransactionsFromDatabase: (
-    userId: string,
-    transactionType?: string,
-    date?: string
+    offSet?: number,
+    categoryType?: string,
+    dateToFilter?: string
   ) => Promise<IGetTransactions[]>;
 
   deleteTransactionFromDatabase: (

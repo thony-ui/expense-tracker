@@ -5,7 +5,11 @@ import {
 } from "../../../lib/google-sheets";
 import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
-import { formatDate, getCurrentWeekStart } from "../../../utils/formate-date";
+import {
+  formatDate,
+  getCurrentWeekStart,
+  getDateBasedOnCategoryType,
+} from "../../../utils/formate-date";
 import { ITransaction, ITransactionService } from "./transaction.interface";
 
 type TTransactionWithUser = ITransaction & {
@@ -87,7 +91,9 @@ export class TransactionRepository implements ITransactionService {
     userId: string,
     transactionType?: string,
     limit?: number,
-    offSet?: number
+    offSet?: number,
+    categoryType?: string,
+    dateToFilter?: string
   ) => {
     let query = supabase
       .from("transactions")
@@ -107,6 +113,14 @@ export class TransactionRepository implements ITransactionService {
       query = query.limit(limit);
     }
 
+    if (categoryType && dateToFilter) {
+      const { startDate, endDate } = getDateBasedOnCategoryType(
+        categoryType,
+        dateToFilter
+      );
+      query = query.gte("date", startDate).lte("date", endDate);
+    }
+
     const { data, error } = await query.order("date", { ascending: false });
 
     if (error) {
@@ -115,172 +129,6 @@ export class TransactionRepository implements ITransactionService {
     }
 
     logger.info(`TransactionRepository: getTransactions success: ${data}`);
-    return data;
-  };
-
-  getYearlyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    const year = date
-      ? new Date(date).getFullYear().toString()
-      : new Date().getFullYear().toString();
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-
-    let query = supabase
-      .from("transactions")
-      .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
-      )
-      .eq("userId", userId)
-      .gte("date", startDate)
-      .lte("date", endDate);
-
-    if (transactionType) {
-      query = query.eq("type", transactionType);
-    }
-
-    const { data, error } = await query.order("date", { ascending: true });
-
-    if (error) {
-      logger.error(
-        `TransactionRepository: getYearlyTransactions error: ${error}`
-      );
-      throw new Error("Error fetching yearly transactions from database");
-    }
-
-    logger.info(
-      `TransactionRepository: getYearlyTransactions success for year ${year}: ${data?.length} transactions`
-    );
-    return data;
-  };
-
-  getMonthlyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    const selectedDate = date ? new Date(date) : new Date();
-    const year = selectedDate.getFullYear();
-    const month = selectedDate.getMonth(); // 0-based
-
-    // Start of month: YYYY-MM-01
-    const startDateStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-    // End of month: last day of month
-    const endDateObj = new Date(year, month + 1, 0); // last day of month
-    const endDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-      endDateObj.getDate()
-    ).padStart(2, "0")}`;
-
-    let query = supabase
-      .from("transactions")
-      .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
-      )
-      .eq("userId", userId)
-      .gte("date", startDateStr)
-      .lte("date", endDateStr);
-
-    if (transactionType) {
-      query = query.eq("type", transactionType);
-    }
-
-    const { data, error } = await query.order("date", { ascending: true });
-
-    if (error) {
-      logger.error(
-        `TransactionRepository: getMonthlyTransactions error: ${error}`
-      );
-      throw new Error("Error fetching monthly transactions from database");
-    }
-
-    logger.info(
-      `TransactionRepository: getMonthlyTransactions success for month ${startDateStr} to ${endDateStr}: ${data?.length} transactions`
-    );
-    return data;
-  };
-
-  getWeeklyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    console.log(date);
-    const baseDate = date ? new Date(date) : new Date();
-
-    // Calculate start of week (Monday)
-    const dayOfWeek = baseDate.getDay(); // 0 (Sun) - 6 (Sat)
-    const diffToMonday = (dayOfWeek + 6) % 7; // days since Monday
-    const startDate = new Date(baseDate);
-    startDate.setDate(baseDate.getDate() - diffToMonday);
-
-    // End of week is 6 days after start
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-
-    const startDateStr = formatDate(startDate); // "yyyy-mm-dd"
-    const endDateStr = formatDate(endDate); // "yyyy-mm-dd"
-
-    let query = supabase
-      .from("transactions")
-      .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
-      )
-      .eq("userId", userId)
-      .gte("date", startDateStr)
-      .lte("date", endDateStr);
-
-    if (transactionType) {
-      query = query.eq("type", transactionType);
-    }
-
-    const { data, error } = await query.order("date", { ascending: true });
-
-    if (error) {
-      logger.error(
-        `TransactionRepository: getWeeklyTransactions error: ${error}`
-      );
-      throw new Error("Error fetching weekly transactions from database");
-    }
-
-    logger.info(
-      `TransactionRepository: getWeeklyTransactions success for week ${startDateStr} to ${endDateStr}: ${data?.length} transactions`
-    );
-    return data;
-  };
-
-  getDailyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    const currentDate = date || new Date().toISOString().split("T")[0];
-    let query = supabase
-      .from("transactions")
-      .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate"
-      )
-      .eq("userId", userId)
-      .eq("date", currentDate);
-
-    if (transactionType) {
-      query = query.eq("type", transactionType);
-    }
-
-    const { data, error } = await query.order("date", { ascending: true });
-
-    if (error) {
-      logger.error(
-        `TransactionRepository: getDailyTransactions error: ${error}`
-      );
-      throw new Error("Error fetching daily transactions from database");
-    }
-
-    logger.info(
-      `TransactionRepository: getDailyTransactions success for date ${currentDate}: ${data?.length} transactions`
-    );
     return data;
   };
 

@@ -12,13 +12,6 @@ export function defineTransactionRoutes(expressApp: Application) {
 
   transactionRouter.post("/", transactionController.postTransaction);
   transactionRouter.get("/", transactionController.getTransactions);
-  transactionRouter.get("/yearly", transactionController.getYearlyTransactions);
-  transactionRouter.get(
-    "/monthly",
-    transactionController.getMonthlyTransactions
-  );
-  transactionRouter.get("/weekly", transactionController.getWeeklyTransactions);
-  transactionRouter.get("/daily", transactionController.getDailyTransactions);
 
   transactionRouter.delete(
     "/:transactionId",

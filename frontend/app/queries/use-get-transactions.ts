@@ -12,6 +12,8 @@ interface TTransactionOptions {
   offSet?: number;
 
   date?: string;
+
+  type?: "yearly" | "monthly" | "weekly" | "daily";
 }
 
 export function useGetTransactions(options?: TTransactionOptions) {
@@ -21,6 +23,8 @@ export function useGetTransactions(options?: TTransactionOptions) {
       options?.transactionType,
       options?.limit,
       options?.offSet,
+      options?.type,
+      options?.date,
     ],
     queryFn: async () => {
       const response = await axiosInstance.get<ITransaction[]>(baseUrl, {
@@ -28,77 +32,10 @@ export function useGetTransactions(options?: TTransactionOptions) {
           transactionType: options?.transactionType ?? undefined,
           limit: options?.limit ?? undefined,
           offSet: options?.offSet ?? undefined,
+          type: options?.type ?? undefined,
+          date: options?.date ?? undefined,
         },
       });
-      return response.data;
-    },
-  });
-}
-
-export function useGetYearlyTransactions(options?: TTransactionOptions) {
-  return useQuery({
-    queryKey: [baseUrl, "yearly", options?.transactionType, options?.date],
-    queryFn: async () => {
-      const response = await axiosInstance.get<ITransaction[]>(
-        `${baseUrl}/yearly`,
-        {
-          params: {
-            transactionType: options?.transactionType ?? undefined,
-            date: options?.date ?? undefined,
-          },
-        }
-      );
-      return response.data;
-    },
-  });
-}
-export function useGetMonthlyTransactions(options?: TTransactionOptions) {
-  return useQuery({
-    queryKey: [baseUrl, "monthly", options?.transactionType, options?.date],
-    queryFn: async () => {
-      const response = await axiosInstance.get<ITransaction[]>(
-        `${baseUrl}/monthly`,
-        {
-          params: {
-            transactionType: options?.transactionType ?? undefined,
-            date: options?.date ?? undefined,
-          },
-        }
-      );
-      return response.data;
-    },
-  });
-}
-export function useGetWeeklyTransactions(options?: TTransactionOptions) {
-  return useQuery({
-    queryKey: [baseUrl, "weekly", options?.transactionType, options?.date],
-    queryFn: async () => {
-      const response = await axiosInstance.get<ITransaction[]>(
-        `${baseUrl}/weekly`,
-        {
-          params: {
-            transactionType: options?.transactionType ?? undefined,
-            date: options?.date ?? undefined,
-          },
-        }
-      );
-      return response.data;
-    },
-  });
-}
-export function useGetDailyTransactions(options?: TTransactionOptions) {
-  return useQuery({
-    queryKey: [baseUrl, "daily", options?.transactionType, options?.date],
-    queryFn: async () => {
-      const response = await axiosInstance.get<ITransaction[]>(
-        `${baseUrl}/daily`,
-        {
-          params: {
-            transactionType: options?.transactionType ?? undefined,
-            date: options?.date ?? undefined,
-          },
-        }
-      );
       return response.data;
     },
   });

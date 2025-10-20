@@ -47,7 +47,9 @@ export class TransactionService implements ITransactionService {
     userId: string,
     transactionType?: string,
     limit?: number,
-    offSet?: number
+    offSet?: number,
+    categoryType?: string,
+    dateToFilter?: string
   ) => {
     logger.info(
       `TransactionService: getTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
@@ -57,71 +59,9 @@ export class TransactionService implements ITransactionService {
         userId,
         transactionType,
         limit,
-        offSet
-      );
-    return transactions;
-  };
-  getYearlyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    logger.info(
-      `TransactionService: getYearlyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
-    );
-    const transactions =
-      await this.transactionRepository.getYearlyTransactionsFromDatabase(
-        userId,
-        transactionType,
-        date
-      );
-    return transactions;
-  };
-  getMonthlyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    logger.info(
-      `TransactionService: getMonthlyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
-    );
-    const transactions =
-      await this.transactionRepository.getMonthlyTransactionsFromDatabase(
-        userId,
-        transactionType,
-        date
-      );
-    return transactions;
-  };
-  getWeeklyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    logger.info(
-      `TransactionService: getWeeklyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
-    );
-    const transactions =
-      await this.transactionRepository.getWeeklyTransactionsFromDatabase(
-        userId,
-        transactionType,
-        date
-      );
-    return transactions;
-  };
-  getDailyTransactionsFromDatabase = async (
-    userId: string,
-    transactionType?: string,
-    date?: string
-  ) => {
-    logger.info(
-      `TransactionService: getDailyTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
-    );
-    const transactions =
-      await this.transactionRepository.getDailyTransactionsFromDatabase(
-        userId,
-        transactionType,
-        date
+        offSet,
+        categoryType,
+        dateToFilter
       );
     return transactions;
   };

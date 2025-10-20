@@ -102,50 +102,14 @@ describe("Transaction Service", () => {
 
     expect(
       mockTransactionRepository.getTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined, undefined, undefined);
-    expect(expenses).toEqual([
-      {
-        type: "Food",
-        amount: 50,
-        name: "Lunch",
-        description: "Lunch at a restaurant",
-        category: "Dining",
-        date: "2023-10-01",
-        base_currency: "SGD",
-        converted_currency: "SGD",
-        base_amount: 50,
-        converted_amount: 50,
-        exchange_rate: 1,
-      },
-    ]);
-  });
-  it("should get yearly expenses from the database", async () => {
-    const mockTransactionRepository = {
-      getYearlyTransactionsFromDatabase: jest.fn().mockResolvedValue([
-        {
-          type: "Food",
-          amount: 50,
-          name: "Lunch",
-          description: "Lunch at a restaurant",
-          category: "Dining",
-          date: "2023-10-01",
-          base_currency: "SGD",
-          converted_currency: "SGD",
-          base_amount: 50,
-          converted_amount: 50,
-          exchange_rate: 1,
-        },
-      ]),
-    } as unknown as TransactionRepository;
-    const expenseService = new TransactionService(mockTransactionRepository);
-    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
-    const expenses = await expenseService.getYearlyTransactionsFromDatabase(
+    ).toHaveBeenCalledWith(
       userId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
       undefined
     );
-    expect(
-      mockTransactionRepository.getYearlyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined, undefined);
     expect(expenses).toEqual([
       {
         type: "Food",
@@ -162,135 +126,7 @@ describe("Transaction Service", () => {
       },
     ]);
   });
-  it("should get monthly expenses from the database", async () => {
-    const mockTransactionRepository = {
-      getMonthlyTransactionsFromDatabase: jest.fn().mockResolvedValue([
-        {
-          type: "Food",
-          amount: 50,
-          name: "Lunch",
-          description: "Lunch at a restaurant",
-          category: "Dining",
-          date: "2023-10-01",
-          base_currency: "SGD",
-          converted_currency: "SGD",
-          base_amount: 50,
-          converted_amount: 50,
-          exchange_rate: 1,
-        },
-      ]),
-    } as unknown as TransactionRepository;
-    const expenseService = new TransactionService(mockTransactionRepository);
-    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
-    const expenses = await expenseService.getMonthlyTransactionsFromDatabase(
-      userId,
-      undefined
-    );
-    expect(
-      mockTransactionRepository.getMonthlyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined, undefined);
-    expect(expenses).toEqual([
-      {
-        type: "Food",
-        amount: 50,
-        name: "Lunch",
-        description: "Lunch at a restaurant",
-        category: "Dining",
-        date: "2023-10-01",
-        base_currency: "SGD",
-        converted_currency: "SGD",
-        base_amount: 50,
-        converted_amount: 50,
-        exchange_rate: 1,
-      },
-    ]);
-  });
-  it("should get weekly expenses from the database", async () => {
-    const mockTransactionRepository = {
-      getWeeklyTransactionsFromDatabase: jest.fn().mockResolvedValue([
-        {
-          type: "Food",
-          amount: 50,
-          name: "Lunch",
-          description: "Lunch at a restaurant",
-          category: "Dining",
-          date: "2023-10-01",
-          base_currency: "SGD",
-          converted_currency: "SGD",
-          base_amount: 50,
-          converted_amount: 50,
-          exchange_rate: 1,
-        },
-      ]),
-    } as unknown as TransactionRepository;
-    const expenseService = new TransactionService(mockTransactionRepository);
-    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
-    const expenses = await expenseService.getWeeklyTransactionsFromDatabase(
-      userId,
-      undefined
-    );
-    expect(
-      mockTransactionRepository.getWeeklyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined, undefined);
-    expect(expenses).toEqual([
-      {
-        type: "Food",
-        amount: 50,
-        name: "Lunch",
-        description: "Lunch at a restaurant",
-        category: "Dining",
-        date: "2023-10-01",
-        base_currency: "SGD",
-        converted_currency: "SGD",
-        base_amount: 50,
-        converted_amount: 50,
-        exchange_rate: 1,
-      },
-    ]);
-  });
-  it("should get daily expenses from the database", async () => {
-    const mockTransactionRepository = {
-      getDailyTransactionsFromDatabase: jest.fn().mockResolvedValue([
-        {
-          type: "Food",
-          amount: 50,
-          name: "Lunch",
-          description: "Lunch at a restaurant",
-          category: "Dining",
-          date: "2023-10-01",
-          base_currency: "SGD",
-          converted_currency: "SGD",
-          base_amount: 50,
-          converted_amount: 50,
-          exchange_rate: 1,
-        },
-      ]),
-    } as unknown as TransactionRepository;
-    const expenseService = new TransactionService(mockTransactionRepository);
-    const userId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
-    const expenses = await expenseService.getDailyTransactionsFromDatabase(
-      userId,
-      undefined
-    );
-    expect(
-      mockTransactionRepository.getDailyTransactionsFromDatabase
-    ).toHaveBeenCalledWith(userId, undefined, undefined);
-    expect(expenses).toEqual([
-      {
-        type: "Food",
-        amount: 50,
-        name: "Lunch",
-        description: "Lunch at a restaurant",
-        category: "Dining",
-        date: "2023-10-01",
-        base_currency: "SGD",
-        converted_currency: "SGD",
-        base_amount: 50,
-        converted_amount: 50,
-        exchange_rate: 1,
-      },
-    ]);
-  });
+
   it("should throw an error if getting expenses fails", async () => {
     const mockTransactionRepository = {
       getTransactionsFromDatabase: jest
@@ -550,6 +386,8 @@ describe("Transaction Controller", () => {
       "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       undefined,
       undefined,
+      undefined,
+      undefined,
       undefined
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -615,6 +453,8 @@ describe("Transaction Controller", () => {
       "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       "Food",
       undefined,
+      undefined,
+      undefined,
       undefined
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -665,6 +505,8 @@ describe("Transaction Controller", () => {
     ).toHaveBeenCalledWith(
       "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       "NonExistentType",
+      undefined,
+      undefined,
       undefined,
       undefined
     );

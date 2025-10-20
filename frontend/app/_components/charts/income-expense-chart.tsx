@@ -11,13 +11,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  useGetDailyTransactions,
-  useGetMonthlyTransactions,
-  useGetTransactions,
-  useGetWeeklyTransactions,
-  useGetYearlyTransactions,
-} from "@/app/queries/use-get-transactions";
+import { useGetTransactions } from "@/app/queries/use-get-transactions";
 import { useMemo, useState } from "react";
 import {
   getDailyChartData,
@@ -48,53 +42,40 @@ type ChartViewConfig = {
 };
 
 export function IncomeExpenseChart() {
+  const [view, setView] = useState<TView>("monthly");
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-  const { data: monthlyTransactions = [] } = useGetMonthlyTransactions({
+  const { data: transactions = [] } = useGetTransactions({
     date,
+    type: view,
   });
-  const { data: yearlyTransactions = [] } = useGetYearlyTransactions({
-    date,
-  });
-  const { data: weeklyTransactions = [] } = useGetWeeklyTransactions({
-    date,
-  });
-  const { data: dailyTransactions = [] } = useGetDailyTransactions({
-    date,
-  });
+
   const transactionManager = useMemo(() => {
     const chartViewConfigMap: Record<TView, ChartViewConfig> = {
       monthly: {
         getChartData: getMonthlyChartData,
-        transactions: monthlyTransactions,
+        transactions: transactions,
         dataKey: "month",
       },
       yearly: {
         getChartData: getYearlyChartData,
-        transactions: yearlyTransactions,
+        transactions: transactions,
         dataKey: "year",
       },
       weekly: {
         getChartData: getWeeklyChartData,
-        transactions: weeklyTransactions,
+        transactions: transactions,
         dataKey: "week",
       },
       daily: {
         getChartData: getDailyChartData,
-        transactions: dailyTransactions,
+        transactions: transactions,
         dataKey: "day",
       },
     };
     return chartViewConfigMap;
-  }, [
-    monthlyTransactions,
-    yearlyTransactions,
-    weeklyTransactions,
-    dailyTransactions,
-  ]);
-
-  const [view, setView] = useState<TView>("monthly");
+  }, [view, transactions]);
 
   const chartData = transactionManager[view].getChartData(
     transactionManager[view].transactions

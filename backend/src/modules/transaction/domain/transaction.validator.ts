@@ -52,6 +52,7 @@ const getTransactionsValidator = z.object({
     return arg;
   }, z.number().min(0).optional()),
   date: z.string().optional(),
+  type: z.enum(["yearly", "monthly", "weekly", "daily"]).optional(),
 });
 type TGetTransactionsValidator = z.infer<typeof getTransactionsValidator>;
 export function validateGetTransactions(

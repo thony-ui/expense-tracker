@@ -68,18 +68,28 @@ export class TransactionController {
     next: NextFunction
   ): Promise<void> => {
     const userId = req.user.id;
-    const { transactionType, limit, offSet } = req.query;
+    const {
+      transactionType,
+      limit,
+      offSet,
+      type: txnType,
+      date: txnDate,
+    } = req.query;
     try {
       const {
         userId: id,
         transactionType: type,
         limit: maxLimit,
         offSet: maxOffSet,
+        type: categoryType,
+        date: dateToFilter,
       } = validateGetTransactions({
         userId,
         transactionType,
         limit,
         offSet,
+        type: txnType,
+        date: txnDate,
       });
       logger.info(
         `TransactionController: getTransactions called for userId: ${userId} and transactionType: ${type} and limit: ${maxLimit} and offSet: ${maxOffSet}`
@@ -89,137 +99,16 @@ export class TransactionController {
           id,
           type,
           maxLimit,
-          maxOffSet
+          maxOffSet,
+          categoryType,
+          dateToFilter
         );
       res.status(200).send(transactions);
     } catch (error) {
       next(error);
     }
   };
-  getYearlyTransactions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const userId = req.user.id;
-    const { transactionType, date } = req.query;
-    try {
-      const {
-        userId: id,
-        transactionType: type,
-        date: txnDate,
-      } = validateGetTransactions({
-        userId,
-        transactionType,
-        date,
-      });
-      logger.info(
-        `TransactionController: getYearlyTransactions called for userId: ${userId} and transactionType: ${type}`
-      );
-      const transactions =
-        await this.transactionService.getYearlyTransactionsFromDatabase(
-          id,
-          type,
-          txnDate
-        );
-      res.status(200).send(transactions);
-    } catch (error) {
-      next(error);
-    }
-  };
-  getMonthlyTransactions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const userId = req.user.id;
-    const { transactionType, date } = req.query;
-    try {
-      const {
-        userId: id,
-        transactionType: type,
-        date: txnDate,
-      } = validateGetTransactions({
-        userId,
-        transactionType,
-        date,
-      });
-      logger.info(
-        `TransactionController: getMonthlyTransactions called for userId: ${userId} and transactionType: ${type}`
-      );
-      const transactions =
-        await this.transactionService.getMonthlyTransactionsFromDatabase(
-          id,
-          type,
-          txnDate
-        );
-      res.status(200).send(transactions);
-    } catch (error) {
-      next(error);
-    }
-  };
-  getWeeklyTransactions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const userId = req.user.id;
-    const { transactionType, date } = req.query;
-    try {
-      const {
-        userId: id,
-        transactionType: type,
-        date: txnDate,
-      } = validateGetTransactions({
-        userId,
-        transactionType,
-        date,
-      });
-      logger.info(
-        `TransactionController: getWeeklyTransactions called for userId: ${userId} and transactionType: ${type}`
-      );
-      const transactions =
-        await this.transactionService.getWeeklyTransactionsFromDatabase(
-          id,
-          type,
-          txnDate
-        );
-      res.status(200).send(transactions);
-    } catch (error) {
-      next(error);
-    }
-  };
-  getDailyTransactions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const userId = req.user.id;
-    const { transactionType, date } = req.query;
-    try {
-      const {
-        userId: id,
-        transactionType: type,
-        date: txnDate,
-      } = validateGetTransactions({
-        userId,
-        transactionType,
-        date,
-      });
-      logger.info(
-        `TransactionController: getDailyTransactions called for userId: ${userId} and transactionType: ${type}`
-      );
-      const transactions =
-        await this.transactionService.getDailyTransactionsFromDatabase(
-          id,
-          type,
-          txnDate
-        );
-      res.status(200).send(transactions);
-    } catch (error) {
-      next(error);
-    }
-  };
+
   deleteTransaction = async (
     req: Request,
     res: Response,

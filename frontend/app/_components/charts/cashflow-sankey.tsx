@@ -1,15 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ITransaction } from "@/lib/types";
 import { useMemo, useState } from "react";
 import { ChartFilter, TView } from "./chart-filter";
-import {
-  useGetDailyTransactions,
-  useGetMonthlyTransactions,
-  useGetWeeklyTransactions,
-  useGetYearlyTransactions,
-} from "@/app/queries/use-get-transactions";
+import { useGetTransactions } from "@/app/queries/use-get-transactions";
 
 interface SankeyLink {
   source: string;
@@ -22,28 +16,10 @@ export function CashFlowSankey() {
     new Date().toISOString().split("T")[0]
   );
   const [view, setView] = useState<TView>("monthly");
-
-  const { data: monthlyTransactions = [] } = useGetMonthlyTransactions({
+  const { data: transactions = [] } = useGetTransactions({
     date,
+    type: view,
   });
-  const { data: yearlyTransactions = [] } = useGetYearlyTransactions({
-    date,
-  });
-  const { data: weeklyTransactions = [] } = useGetWeeklyTransactions({
-    date,
-  });
-  const { data: dailyTransactions = [] } = useGetDailyTransactions({
-    date,
-  });
-
-  const transactionsByView: Record<TView, ITransaction[]> = {
-    monthly: monthlyTransactions,
-    yearly: yearlyTransactions,
-    weekly: weeklyTransactions,
-    daily: dailyTransactions,
-  };
-
-  const transactions = transactionsByView[view];
 
   const sankeyData = useMemo(() => {
     const income = transactions.filter((t) => t.type === "income");
