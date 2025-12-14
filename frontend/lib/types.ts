@@ -40,3 +40,31 @@ export interface IChartData {
   value: number;
   color?: string;
 }
+
+export interface IInvestment {
+  id: string;
+  userName: string;
+  stock: string;
+  amountInSGD: number;
+  date: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface IInvestmentStats {
+  totalInvestmentsSGD: number;
+  totalStocks: number;
+  averageInvestmentSGD: number;
+}
+
+export interface IInvestmentOverTime {
+  period: string;
+  totalSGD: number;
+}
+
+export interface IInvestmentAggregated {
+  stock: string;
+  Anthony: number;
+  Albert: number;
+  Juliana: number;
+}

@@ -1,6 +1,10 @@
 "use client";
 
-import { HomeIcon, CreditCardIcon } from "@heroicons/react/24/outline";
+import {
+  HomeIcon,
+  CreditCardIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -12,6 +16,12 @@ const navigation = [
     name: "Transactions",
     href: "/transactions",
     icon: CreditCardIcon,
+    current: false,
+  },
+  {
+    name: "Investments",
+    href: "/investments",
+    icon: ChartBarIcon,
     current: false,
   },
 ];
