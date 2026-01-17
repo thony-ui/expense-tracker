@@ -1,4 +1,6 @@
 import { useDeleteTransaction } from "@/app/mutations/use-delete-transaction";
+import { invalidateBudgets } from "@/app/queries/use-get-budgets";
+import { invalidateSavingsGoals } from "@/app/queries/use-get-savings-goals";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +31,8 @@ function DeleteTransactionModal({
     setIsLoading(false);
     toast("Transaction deleted successfully!", { type: "success" });
     invalidateTransactions();
+    invalidateBudgets();
+    invalidateSavingsGoals();
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

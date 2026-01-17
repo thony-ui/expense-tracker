@@ -14,6 +14,7 @@ export interface ITransaction {
   exchange_rate: number;
 
   savingsGoalId?: string;
+  budgetId?: string;
 }
 
 export interface IGetTransactions {

@@ -13,6 +13,8 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { AddTransactionForm } from "./add-transaction-form";
 import { toast } from "react-toastify";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
+import { invalidateBudgets } from "@/app/queries/use-get-budgets";
+import { invalidateSavingsGoals } from "@/app/queries/use-get-savings-goals";
 
 export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
@@ -21,6 +23,8 @@ export function AddTransactionDialog() {
     setOpen(false);
     toast("Transaction added successfully!", { type: "success" });
     invalidateTransactions();
+    invalidateBudgets();
+    invalidateSavingsGoals();
   };
 
   return (

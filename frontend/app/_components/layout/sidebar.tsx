@@ -3,7 +3,8 @@
 import {
   HomeIcon,
   CreditCardIcon,
-  ChartBarIcon,
+  WalletIcon,
+  FlagIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -19,9 +20,15 @@ const navigation = [
     current: false,
   },
   {
-    name: "Investments",
-    href: "/investments",
-    icon: ChartBarIcon,
+    name: "Budgets",
+    href: "/budgets",
+    icon: WalletIcon,
+    current: false,
+  },
+  {
+    name: "Savings Goals",
+    href: "/savings-goals",
+    icon: FlagIcon,
     current: false,
   },
 ];

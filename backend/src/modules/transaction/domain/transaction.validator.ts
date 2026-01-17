@@ -15,6 +15,7 @@ const postTransactionValidator = z.object({
   converted_amount: z.number().min(0),
   exchange_rate: z.number(),
   savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
+  budgetId: z.string().uuid("Invalid budget ID format").optional(),
 });
 
 type TPostTransactionValidator = z.infer<typeof postTransactionValidator>;
@@ -117,6 +118,7 @@ const updateTransactionValidator = z.object({
     converted_amount: z.number().min(0),
     exchange_rate: z.number(),
     savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
+    budgetId: z.string().uuid("Invalid budget ID format").optional(),
   }),
 });
 type TUpdateTransactionValidator = z.infer<typeof updateTransactionValidator>;

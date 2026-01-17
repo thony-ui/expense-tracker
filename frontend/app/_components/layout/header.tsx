@@ -38,13 +38,13 @@ export function Header({ onMenuClick }: HeaderProps) {
         </button>
         <div className="flex gap-2 ">
           <AddTransactionDialog />
-          <Button
+          {/* <Button
             className="flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white border border-zinc-100 dark:border-zinc-800"
             onClick={() => setIsOpenConfirmGenerationModal(true)}
           >
             <DownloadIcon className="h-4 w-4" />
             <p className="hidden sm:block">Generate Report</p>
-          </Button>
+          </Button> */}
         </div>
 
         <div className="flex items-center gap-3">

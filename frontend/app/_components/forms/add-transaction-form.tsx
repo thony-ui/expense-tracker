@@ -18,6 +18,7 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants";
 import type { ITransaction } from "@/lib/types";
 import { usePostTransaction } from "@/app/mutations/use-post-transaction";
 import { useGetSavingsGoals } from "@/app/queries/use-get-savings-goals";
+import { useGetBudgets } from "@/app/queries/use-get-budgets";
 import { useUpdateSavingsGoal } from "@/app/mutations/use-update-savings-goal";
 
 import { ArrowBigRight } from "lucide-react";
@@ -43,7 +44,9 @@ export function AddTransactionForm({
     date: new Date().toISOString().split("T")[0],
     type: "expense" as "income" | "expense",
     savingsGoalId: "",
+    budgetId: "",
     allocateToGoal: false,
+    allocateToBudget: false,
   });
   const [exchangeRate, setExchangeRate] = useState<{
     rate: number;
@@ -55,6 +58,7 @@ export function AddTransactionForm({
 
   const { mutateAsync: postTransaction } = usePostTransaction();
   const { data: savingsGoals = [] } = useGetSavingsGoals();
+  const { data: budgets = [] } = useGetBudgets();
   const { mutateAsync: updateSavingsGoal } = useUpdateSavingsGoal();
 
   const categories =
@@ -81,6 +85,7 @@ export function AddTransactionForm({
       ),
       exchange_rate: exchangeRate.rate,
       savingsGoalId: formData.savingsGoalId || undefined,
+      budgetId: formData.budgetId || undefined,
     };
 
     await postTransaction(transaction);
@@ -238,6 +243,60 @@ export function AddTransactionForm({
                     <SelectItem key={goal.id} value={goal.id}>
                       <div className="">
                         <span className="font-medium">{goal.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Budget Allocation - Only show for Expense */}
+      {formData.type === "expense" && budgets.length > 0 && (
+        <div className="space-y-3 p-4 border rounded-lg bg-orange-50 dark:bg-orange-700/20">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allocateToBudget"
+              checked={formData.allocateToBudget}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  allocateToBudget: e.target.checked,
+                })
+              }
+              className="w-4 h-4 rounded"
+            />
+            <Label
+              htmlFor="allocateToBudget"
+              className="cursor-pointer font-medium"
+            >
+              📊 Allocate to Budget
+            </Label>
+          </div>
+
+          {formData.allocateToBudget && (
+            <div>
+              <p className="text-xs mb-2 font-bold">Select Budget</p>
+              <Select
+                value={formData.budgetId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, budgetId: value })
+                }
+              >
+                <SelectTrigger className="dark:border-gray-500">
+                  <SelectValue placeholder="Choose a budget..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {budgets.map((budget) => (
+                    <SelectItem key={budget.id} value={budget.id}>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="font-medium">{budget.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ${budget.remaining.toFixed(2)} remaining
+                        </span>
                       </div>
                     </SelectItem>
                   ))}

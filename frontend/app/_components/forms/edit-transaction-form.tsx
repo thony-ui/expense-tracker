@@ -21,6 +21,7 @@ import { useUpdateTransaction } from "@/app/mutations/use-update-transaction";
 import PopoverExchangeRateData from "../popover-exchange-rate-data";
 import { ArrowBigRight } from "lucide-react";
 import { useGetSavingsGoals } from "@/app/queries/use-get-savings-goals";
+import { useGetBudgets } from "@/app/queries/use-get-budgets";
 
 interface EditTransactionFormProps {
   onSuccess: () => void;
@@ -46,6 +47,8 @@ export function EditTransactionForm({
     type: "expense",
     allocateToGoal: false,
     savingsGoalId: "",
+    allocateToBudget: false,
+    budgetId: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<{
@@ -69,6 +72,8 @@ export function EditTransactionForm({
         savingsGoalId: transaction.savings_goals
           ? transaction.savings_goals.id
           : "",
+        allocateToBudget: transaction.budgets ? true : false,
+        budgetId: transaction.budgets ? transaction.budgets.id : "",
       });
       setExchangeRate({
         rate: transaction.exchange_rate,
@@ -78,6 +83,7 @@ export function EditTransactionForm({
   }, [transaction]);
 
   const { data: savingsGoals = [] } = useGetSavingsGoals();
+  const { data: budgets = [] } = useGetBudgets();
 
   const categories =
     formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -105,6 +111,9 @@ export function EditTransactionForm({
       savingsGoalId: !formData.allocateToGoal
         ? undefined
         : formData.savingsGoalId || undefined,
+      budgetId: !formData.allocateToBudget
+        ? undefined
+        : formData.budgetId || undefined,
     };
 
     await updateTransaction({ transactionId, transaction });
@@ -269,6 +278,59 @@ export function EditTransactionForm({
                     <SelectItem key={goal.id} value={goal.id}>
                       <div className="">
                         <span className="font-medium">{goal.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
+
+      {formData.type === "expense" && budgets.length > 0 && (
+        <div className="space-y-3 p-4 border rounded-lg bg-orange-50 dark:bg-orange-700/20">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allocateToBudget"
+              checked={formData.allocateToBudget}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  allocateToBudget: e.target.checked,
+                })
+              }
+              className="w-4 h-4 rounded"
+            />
+            <Label
+              htmlFor="allocateToBudget"
+              className="cursor-pointer font-medium"
+            >
+              📊 Allocate to Budget
+            </Label>
+          </div>
+
+          {formData.allocateToBudget && (
+            <div>
+              <p className="text-xs mb-2 font-bold">Select Budget</p>
+              <Select
+                value={formData.budgetId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, budgetId: value })
+                }
+              >
+                <SelectTrigger className="dark:border-gray-500">
+                  <SelectValue placeholder="Choose a budget..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {budgets.map((budget) => (
+                    <SelectItem key={budget.id} value={budget.id}>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="font-medium">{budget.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ${budget.remaining.toFixed(2)} remaining
+                        </span>
                       </div>
                     </SelectItem>
                   ))}

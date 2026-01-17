@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Target, Plus, Edit2, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -45,12 +46,16 @@ interface SavingsGoalCardProps {
       category?: string;
     }
   ) => void;
+  showViewAll?: boolean;
+  maxDisplay?: number;
 }
 
 export function SavingsGoalCard({
   goals,
   onAddGoal,
   onEditGoal,
+  showViewAll = false,
+  maxDisplay,
 }: SavingsGoalCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -165,10 +170,14 @@ export function SavingsGoalCard({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            <CardTitle>Savings Goals</CardTitle>
-          </div>
+          <CardTitle>Savings Goals</CardTitle>
+          {showViewAll && (
+            <Link href="/savings-goals">
+              <Button variant="ghost" size="sm">
+                View All
+              </Button>
+            </Link>
+          )}
           <div className="flex items-center gap-2 flex-wrap">
             <ChartFilter
               view={view}
@@ -261,73 +270,78 @@ export function SavingsGoalCard({
             </p>
           </div>
         ) : (
-          filteredGoals.map((goal) => {
-            const transactionsForSavings = transactionsMap[goal.id] || [];
-            const currentAmount = transactionsForSavings
-              .map((t) => t.amount)
-              .reduce((acc, curr) => acc + curr, 0);
-            const progress = (currentAmount / goal.targetAmount) * 100;
-            const daysLeft = Math.ceil(
-              (new Date(goal.deadline).getTime() - new Date().getTime()) /
-                (1000 * 60 * 60 * 24)
-            );
+          <>
+            {(maxDisplay
+              ? filteredGoals.slice(0, maxDisplay)
+              : filteredGoals
+            ).map((goal) => {
+              const transactionsForSavings = transactionsMap[goal.id] || [];
+              const currentAmount = transactionsForSavings
+                .map((t) => t.amount)
+                .reduce((acc, curr) => acc + curr, 0);
+              const progress = (currentAmount / goal.targetAmount) * 100;
+              const daysLeft = Math.ceil(
+                (new Date(goal.deadline).getTime() - new Date().getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
 
-            return (
-              <div
-                key={goal.id}
-                className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow dark:border-gray-500"
-              >
-                <DeleteGoalModal
-                  open={deleteModalOpen}
-                  setOpen={setDeleteModalOpen}
-                  goalId={goal.id}
-                  transactionsForSavingsIds={transactionsForSavings.map(
-                    (t) => t.id
-                  )}
-                />
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{goal.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      ${currentAmount.toFixed(2)} of $
-                      {goal.targetAmount.toFixed(2)}
-                    </p>
+              return (
+                <div
+                  key={goal.id}
+                  className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow dark:border-gray-500"
+                >
+                  <DeleteGoalModal
+                    open={deleteModalOpen}
+                    setOpen={setDeleteModalOpen}
+                    goalId={goal.id}
+                    transactionsForSavingsIds={transactionsForSavings.map(
+                      (t) => t.id
+                    )}
+                  />
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">{goal.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        ${currentAmount.toFixed(2)} of $
+                        {goal.targetAmount.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(goal)}
+                      >
+                        <Edit2 className="h-4 w-4 text-blue-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteModalOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(goal)}
+
+                  <Progress value={progress} className="h-2" />
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {progress.toFixed(0)}% complete
+                    </span>
+                    <span
+                      className={`font-medium ${
+                        daysLeft < 30 ? "text-amber-600" : "text-green-600"
+                      }`}
                     >
-                      <Edit2 className="h-4 w-4 text-blue-500" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleteModalOpen(true)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
+                      {daysLeft > 0 ? `${daysLeft} days left` : "Overdue"}
+                    </span>
                   </div>
                 </div>
-
-                <Progress value={progress} className="h-2" />
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {progress.toFixed(0)}% complete
-                  </span>
-                  <span
-                    className={`font-medium ${
-                      daysLeft < 30 ? "text-amber-600" : "text-green-600"
-                    }`}
-                  >
-                    {daysLeft > 0 ? `${daysLeft} days left` : "Overdue"}
-                  </span>
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </>
         )}
       </CardContent>
     </Card>

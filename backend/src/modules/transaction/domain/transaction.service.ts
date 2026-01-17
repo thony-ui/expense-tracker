@@ -22,6 +22,7 @@ export class TransactionService implements ITransactionService {
     converted_amount,
     exchange_rate,
     savingsGoalId,
+    budgetId,
   }: ITransaction) => {
     logger.info(
       `TransactionService: addTransactionToDatabase called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`
@@ -40,6 +41,7 @@ export class TransactionService implements ITransactionService {
       converted_amount,
       exchange_rate,
       savingsGoalId,
+      budgetId,
     });
   };
 

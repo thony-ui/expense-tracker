@@ -14,10 +14,16 @@ export interface ITransaction {
   exchange_rate: number;
 
   savingsGoalId?: string;
+  budgetId?: string;
 
   savings_goals?: {
     id: string;
     title: string;
+  };
+
+  budgets?: {
+    id: string;
+    name: string;
   };
 }
 
@@ -67,4 +73,36 @@ export interface IInvestmentAggregated {
   Anthony: number;
   Albert: number;
   Juliana: number;
+}
+
+export type PeriodType = "daily" | "weekly" | "monthly" | "yearly" | "custom";
+
+export interface IBudget {
+  id: string;
+  userId: string;
+  name: string;
+  amount: number;
+  periodType: PeriodType;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  spent: number;
+  remaining: number;
+  percentage: number;
+}
+
+export interface ICreateBudget {
+  name: string;
+  amount: number;
+  periodType: PeriodType;
+  startDate: string;
+  endDate: string;
+}
+
+export interface IUpdateBudget {
+  name?: string;
+  amount?: number;
+  periodType?: PeriodType;
+  startDate?: string;
+  endDate?: string;
 }

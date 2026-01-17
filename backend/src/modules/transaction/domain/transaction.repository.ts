@@ -34,6 +34,7 @@ export class TransactionRepository implements ITransactionService {
     converted_amount,
     exchange_rate,
     savingsGoalId,
+    budgetId,
   }: ITransaction) => {
     console.log(savingsGoalId);
     const { data, error } = await supabase
@@ -53,6 +54,7 @@ export class TransactionRepository implements ITransactionService {
           converted_amount,
           exchange_rate,
           savingsGoalId,
+          budgetId,
         },
       ])
       .select("*, users(name)");
@@ -81,6 +83,7 @@ export class TransactionRepository implements ITransactionService {
       converted_amount,
       exchange_rate,
       savingsGoalId,
+      budgetId,
     });
     logger.info(
       `TransactionRepository: addTransactionToDatabase success: ${data}`
@@ -164,6 +167,7 @@ export class TransactionRepository implements ITransactionService {
       .update({
         ...updatedTransaction,
         savingsGoalId: updatedTransaction.savingsGoalId || null, // Clear if not provided
+        budgetId: updatedTransaction.budgetId || null,
       })
       .eq("id", transactionId)
       .eq("userId", userId)
@@ -171,7 +175,9 @@ export class TransactionRepository implements ITransactionService {
 
     if (error) {
       logger.error(
-        `TransactionRepository: updateTransactionInDatabase error: ${error}`
+        `TransactionRepository: updateTransactionInDatabase error: ${JSON.stringify(
+          error
+        )}`
       );
       throw new Error("Error updating transaction in database");
     }
@@ -193,6 +199,7 @@ export class TransactionRepository implements ITransactionService {
       converted_amount: updatedTransactionData.converted_amount,
       exchange_rate: updatedTransactionData.exchange_rate,
       savingsGoalId: updatedTransactionData.savingsGoalId,
+      budgetId: updatedTransactionData.budgetId,
     };
 
     await updateGoogleSheetRowByTransactionId(

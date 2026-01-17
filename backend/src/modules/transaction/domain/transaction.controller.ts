@@ -34,6 +34,7 @@ export class TransactionController {
         converted_amount,
         exchange_rate,
         savingsGoalId,
+        budgetId,
         userId: id,
       } = validatePostTransaction({
         ...req.body,
@@ -56,6 +57,7 @@ export class TransactionController {
         converted_amount,
         exchange_rate,
         savingsGoalId,
+        budgetId,
       });
       res.status(201).send({ message: "Transaction added successfully" });
     } catch (error) {

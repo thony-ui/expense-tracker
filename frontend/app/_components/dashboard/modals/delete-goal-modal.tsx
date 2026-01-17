@@ -42,7 +42,7 @@ function DeleteGoalModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Transaction</DialogTitle>
+          <DialogTitle>Delete Goal</DialogTitle>
           <p className="text-sm text-gray-500">
             Are you sure you want to delete this goal? This action cannot be
             undone.
