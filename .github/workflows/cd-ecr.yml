@@ -2,7 +2,7 @@ name: Build & Push services to ECR
 
 on:
     push:
-        branches: [master]
+        branches: [main]
         paths:
             - "backend/**"
             - ".github/workflows/cd-ecr.yml"
