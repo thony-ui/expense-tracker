@@ -50,6 +50,7 @@ jobs:
               uses: docker/build-push-action@v6
               with:
                   context: ./${{ matrix.service.folder }}
+                  file: ./${{ matrix.service.folder }}/Dockerfile.prod.yml
                   platforms: linux/amd64
                   target: production
                   push: true
