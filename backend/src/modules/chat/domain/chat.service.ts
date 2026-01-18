@@ -21,7 +21,7 @@ export class ChatService implements IChatService {
       .eq("type", "expense");
     if (error) {
       logger.error(
-        `ChatService: Error fetching transactions: ${error.message}`
+        `ChatService: Error fetching transactions: ${error.message}`,
       );
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
@@ -34,7 +34,7 @@ export class ChatService implements IChatService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+        model: "deepseek/deepseek-r1-0528:free",
         messages: [
           { role: "system", content: llmPrompt },
           { role: "user", content: prompt },
@@ -43,11 +43,11 @@ export class ChatService implements IChatService {
       }),
     });
     logger.info(
-      `ChatService: getResponseFromLLM called with prompt: ${prompt}`
+      `ChatService: getResponseFromLLM called with prompt: ${prompt}`,
     );
     if (!response.ok || !response.body) {
       logger.error(
-        `ChatService: Error fetching response from LLM: ${response.statusText}`
+        `ChatService: Error fetching response from LLM: ${response.statusText}`,
       );
       throw new Error(`Error fetching response: ${response.statusText}`);
     }
@@ -57,7 +57,7 @@ export class ChatService implements IChatService {
   generateExpenseReport = async (
     userId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<string> => {
     const { data: transactions, error } = await supabase
       .from("transactions")
@@ -68,7 +68,7 @@ export class ChatService implements IChatService {
       .lte("date", endDate);
     if (error) {
       logger.error(
-        `ChatService: Error fetching transactions for report: ${error.message}`
+        `ChatService: Error fetching transactions for report: ${error.message}`,
       );
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
@@ -89,11 +89,11 @@ export class ChatService implements IChatService {
       }),
     });
     logger.info(
-      `ChatService: generateExpenseReport called for userId: ${userId}`
+      `ChatService: generateExpenseReport called for userId: ${userId}`,
     );
     if (!response.ok || !response.body) {
       logger.error(
-        `ChatService: Error generating expense report: ${response.statusText}`
+        `ChatService: Error generating expense report: ${response.statusText}`,
       );
       throw new Error(`Error generating report: ${response.statusText}`);
     }
@@ -111,7 +111,7 @@ export class ChatService implements IChatService {
   // Convert markdown to HTML with styling
   private convertMarkdownToHTML = async (
     markdown: string,
-    userId: string
+    userId: string,
   ): Promise<string> => {
     try {
       // Import the marked library for markdown conversion
@@ -169,7 +169,7 @@ export class ChatService implements IChatService {
   // Generate PDF from HTML
   generatePDFReport = async (
     html: string,
-    userId: string
+    userId: string,
   ): Promise<Uint8Array<ArrayBufferLike>> => {
     try {
       // Launch puppeteer and create PDF
@@ -200,7 +200,7 @@ export class ChatService implements IChatService {
 
   // Parse natural language transaction input using LLM
   parseTransactionFromNaturalLanguage = async (
-    text: string
+    text: string,
   ): Promise<{
     amount: number;
     date: string;
@@ -212,7 +212,7 @@ export class ChatService implements IChatService {
       const llmPrompt = getLLMPromptForTransactionParsing();
 
       logger.info(
-        `ChatService: parseTransactionFromNaturalLanguage called with text: ${text}`
+        `ChatService: parseTransactionFromNaturalLanguage called with text: ${text}`,
       );
 
       const response = await fetch(process.env.OPENROUTER_URL!, {
@@ -232,7 +232,7 @@ export class ChatService implements IChatService {
 
       if (!response.ok) {
         logger.error(
-          `ChatService: Error fetching response from LLM: ${response.statusText}`
+          `ChatService: Error fetching response from LLM: ${response.statusText}`,
         );
         throw new Error(`Error parsing transaction: ${response.statusText}`);
       }
@@ -257,8 +257,8 @@ export class ChatService implements IChatService {
 
       logger.info(
         `ChatService: Successfully parsed transaction: ${JSON.stringify(
-          parsedTransaction
-        )}`
+          parsedTransaction,
+        )}`,
       );
 
       // Validate the parsed transaction has all required fields
