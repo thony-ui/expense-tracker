@@ -217,7 +217,7 @@ export function SavingsGoalCard({
       </Dialog>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-xl font-semibold">
               Savings Goals
@@ -229,14 +229,6 @@ export function SavingsGoalCard({
                 </Button>
               </Link>
             )}
-            <div className="flex items-center gap-2 flex-wrap">
-              <ChartFilter
-                view={view}
-                onViewChange={setView}
-                date={date}
-                onDateChange={setDate}
-              />
-            </div>
           </div>
         </CardHeader>
         <CardContent
@@ -246,6 +238,14 @@ export function SavingsGoalCard({
               : "space-y-4"
           }
         >
+          <div className="flex items-center gap-2 flex-wrap">
+            <ChartFilter
+              view={view}
+              onViewChange={setView}
+              date={date}
+              onDateChange={setDate}
+            />
+          </div>
           {filteredGoals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
               <Target className="h-12 w-12 mb-2 opacity-50" />
