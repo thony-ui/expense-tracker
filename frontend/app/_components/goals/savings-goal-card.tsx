@@ -239,12 +239,14 @@ export function SavingsGoalCard({
           }
         >
           <div className="flex items-center gap-2 flex-wrap">
-            <ChartFilter
-              view={view}
-              onViewChange={setView}
-              date={date}
-              onDateChange={setDate}
-            />
+            {filteredGoals.length > 0 && (
+              <ChartFilter
+                view={view}
+                onViewChange={setView}
+                date={date}
+                onDateChange={setDate}
+              />
+            )}
           </div>
           {filteredGoals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center text-muted-foreground">

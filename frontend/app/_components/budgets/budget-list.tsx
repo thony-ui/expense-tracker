@@ -1,47 +1,33 @@
 "use client";
 
 import { useGetBudgets } from "@/app/queries/use-get-budgets";
-import { useDeleteBudget } from "@/app/mutations/use-delete-budget";
 import { BudgetCard } from "./budget-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateBudgetModal } from "./create-budget-modal";
 import { IBudget } from "@/lib/types";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { EditBudgetModal } from "./edit-budget-modal";
+import DeleteBudgetModal from "./delete-budget-modal";
 
 export function BudgetList() {
-  const queryClient = useQueryClient();
   const { data: budgets, isLoading } = useGetBudgets();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<IBudget | null>(null);
   const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
-
-  const { mutate: deleteBudget } = useDeleteBudget(deletingBudgetId || "");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const handleDelete = (budgetId: string) => {
-    if (confirm("Are you sure you want to delete this budget?")) {
-      setDeletingBudgetId(budgetId);
-      deleteBudget(undefined, {
-        onSuccess: () => {
-          toast.success("Budget deleted successfully!");
-          queryClient.invalidateQueries({ queryKey: ["/v1/budgets"] });
-          setDeletingBudgetId(null);
-        },
-        onError: (error: any) => {
-          toast.error(
-            error?.response?.data?.message || "Failed to delete budget"
-          );
-          setDeletingBudgetId(null);
-        },
-      });
-    }
+    setDeletingBudgetId(budgetId);
+    setDeleteModalOpen(true);
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading budgets...</div>;
+    return (
+      <div className="h-[90vh] w-full flex flex-col items-center justify-center">
+        Loading budgets...
+      </div>
+    );
   }
 
   return (
@@ -75,16 +61,19 @@ export function BudgetList() {
         </div>
       )}
 
-      <CreateBudgetModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-      />
-
       {editingBudget && (
         <EditBudgetModal
           budget={editingBudget}
           open={!!editingBudget}
           onClose={() => setEditingBudget(null)}
+        />
+      )}
+
+      {deletingBudgetId && (
+        <DeleteBudgetModal
+          open={deleteModalOpen}
+          setOpen={setDeleteModalOpen}
+          budgetId={deletingBudgetId}
         />
       )}
     </div>

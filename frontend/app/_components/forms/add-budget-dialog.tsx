@@ -20,13 +20,6 @@ import { Wallet } from "lucide-react";
 export function AddBudgetDialog() {
   const [open, setOpen] = useState(false);
 
-  const handleSuccess = () => {
-    setOpen(false);
-    toast("Budget added successfully!", { type: "success" });
-    invalidateTransactions();
-    invalidateBudgets();
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -39,7 +32,7 @@ export function AddBudgetDialog() {
         <DialogHeader>
           <DialogTitle>Add New Budget</DialogTitle>
         </DialogHeader>
-        <CreateBudgetModal onClose={() => {}} open={open} setOpen={setOpen} />
+        <CreateBudgetModal setOpen={setOpen} onClose={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
