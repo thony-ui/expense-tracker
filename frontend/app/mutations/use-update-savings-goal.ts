@@ -19,7 +19,7 @@ export function useUpdateSavingsGoal() {
     mutationFn: async ({ goalId, updatedGoal }: IUpdateSavingsGoal) => {
       const response = await axiosInstance.put(
         `${baseUrl}/${goalId}`,
-        updatedGoal
+        updatedGoal,
       );
       return response.data;
     },

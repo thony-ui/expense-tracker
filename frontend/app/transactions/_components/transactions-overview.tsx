@@ -28,13 +28,13 @@ export function TransactionsOverview() {
       return expenseTransactions.filter((transaction) =>
         transaction.description
           .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
+          .includes(searchTransaction.toLowerCase()),
       );
     } else if (dataType === "income") {
       return incomeTransactions.filter((transaction) =>
         transaction.description
           .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
+          .includes(searchTransaction.toLowerCase()),
       );
     }
     return [...expenseTransactions, ...incomeTransactions]
@@ -42,7 +42,7 @@ export function TransactionsOverview() {
       .filter((transaction) =>
         transaction.description
           .toLowerCase()
-          .includes(searchTransaction.toLowerCase())
+          .includes(searchTransaction.toLowerCase()),
       );
   }, [expenseTransactions, incomeTransactions, dataType, searchTransaction]);
   if (isLoadingExpenses || isLoadingIncome) {
@@ -56,7 +56,7 @@ export function TransactionsOverview() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           Your Transactions
         </h1>
         <p className="text-gray-600">Track your expenses and income</p>

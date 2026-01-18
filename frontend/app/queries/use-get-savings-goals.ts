@@ -1,5 +1,5 @@
 import axiosInstance from "@/lib/axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/query-client-provider";
 
 const baseUrl = "/v1/savings-goals";
@@ -26,7 +26,7 @@ export function useGetSavingsGoals() {
 
 export function useGetSavingsGoalById(goalId: string) {
   return useQuery<ISavingsGoal>({
-    queryKey: ["savings-goal", goalId],
+    queryKey: ["savings-goals", goalId],
     queryFn: async () => {
       const response = await axiosInstance.get(`${baseUrl}/${goalId}`);
       return response.data;
@@ -36,5 +36,7 @@ export function useGetSavingsGoalById(goalId: string) {
 }
 
 export function invalidateSavingsGoals() {
-  queryClient.invalidateQueries({ queryKey: ["savings-goals"] });
+  return queryClient.invalidateQueries({
+    queryKey: ["savings-goals"],
+  });
 }

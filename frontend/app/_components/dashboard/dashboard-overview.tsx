@@ -32,6 +32,7 @@ import {
 import { EditTransactionForm } from "../forms/edit-transaction-form";
 import DeleteTransactionModal from "./modals/delete-transaction-modal";
 import { AddTransactionDialog } from "../forms/add-transaction-dialog";
+import { SavingsGoalItem } from "../goals/savings-goal-item";
 
 export function DashboardOverview() {
   const { isLoading } = useUser();
@@ -77,7 +78,7 @@ export function DashboardOverview() {
       targetAmount?: number;
       deadline?: string;
       category?: string;
-    }
+    },
   ) => {
     try {
       await updateSavingsGoal({
@@ -228,7 +229,7 @@ export function DashboardOverview() {
         </Card>
 
         {/* Savings Goals */}
-        <SavingsGoalCard
+        <SavingsGoalItem
           goals={savingsGoals}
           onAddGoal={handleAddGoal}
           onEditGoal={handleEditGoal}

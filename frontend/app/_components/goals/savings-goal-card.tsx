@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Target, Plus, Edit2, Trash2 } from "lucide-react";
+import { Target, Edit2, Trash2, AlertCircle, Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
@@ -64,6 +64,7 @@ export function SavingsGoalCard({
     new Date().toISOString().split("T")[0],
   );
   const [view, setView] = useState<TView>("monthly");
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     targetAmount: "",
@@ -90,7 +91,8 @@ export function SavingsGoalCard({
   const filteredGoals = useMemo(() => {
     const selectedDate = new Date(date);
 
-    return goals.filter((goal) => {
+    // First filter by date/view
+    const dateFiltered = goals.filter((goal) => {
       const deadline = new Date(goal.deadline);
 
       switch (view) {
@@ -121,7 +123,18 @@ export function SavingsGoalCard({
           return true;
       }
     });
-  }, [goals, date, view]);
+
+    // Then filter by search query
+    if (!searchQuery.trim()) return dateFiltered;
+
+    const query = searchQuery.toLowerCase();
+    return dateFiltered.filter((goal) => {
+      return (
+        goal.title?.toLowerCase().includes(query) ||
+        goal.category?.toLowerCase().includes(query)
+      );
+    });
+  }, [goals, date, view, searchQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,127 +229,222 @@ export function SavingsGoalCard({
         </DialogContent>
       </Dialog>
 
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-xl font-semibold">
-              Savings Goals
-            </CardTitle>
-            {showViewAll && (
-              <Link href="/savings-goals">
-                <Button variant="ghost" size="sm">
-                  View All
-                </Button>
-              </Link>
-            )}
+      <div className="space-y-4">
+        {!showViewAll && goals.length > 0 && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search goals by title or category..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        </CardHeader>
-        <CardContent
-          className={
-            filteredGoals.length === 0
-              ? "flex items-center justify-center min-h-[400px]"
-              : "space-y-4"
-          }
-        >
-          <div className="flex items-center gap-2 flex-wrap">
-            {filteredGoals.length > 0 && (
-              <ChartFilter
-                view={view}
-                onViewChange={setView}
-                date={date}
-                onDateChange={setDate}
-              />
-            )}
+        )}
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <ChartFilter
+            view={view}
+            onViewChange={setView}
+            date={date}
+            onDateChange={setDate}
+          />
+        </div>
+
+        {showViewAll && (
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <CardTitle className="text-xl font-semibold">
+                  Savings Goals
+                </CardTitle>
+                <Link href="/savings-goals">
+                  <Button variant="ghost" size="sm">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+          </Card>
+        )}
+
+        {filteredGoals.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[400px] border-2 border-dashed rounded-lg py-12">
+            <Target className="h-12 w-12 mb-2 opacity-50" />
+            <p>No savings goals</p>
+            <p className="text-sm mt-1">
+              {goals.length === 0
+                ? "Create one to start tracking your progress!"
+                : "Try changing the date or view filter"}
+            </p>
           </div>
-          {filteredGoals.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-              <Target className="h-12 w-12 mb-2 opacity-50" />
-              <p>
-                No savings goals{" "}
-                {view !== "yearly" && `for this ${view.replace("ly", "")}`}
-              </p>
-              <p className="text-sm mt-1">
-                {goals.length === 0
-                  ? "Create one to start tracking your progress!"
-                  : "Try changing the date or view filter"}
-              </p>
-            </div>
-          ) : (
-            <>
-              {(maxDisplay
-                ? filteredGoals.slice(0, maxDisplay)
-                : filteredGoals
-              ).map((goal) => {
-                const transactionsForSavings = transactionsMap[goal.id] || [];
-                const currentAmount = transactionsForSavings
-                  .map((t) => t.amount)
-                  .reduce((acc, curr) => acc + curr, 0);
-                const progress = (currentAmount / goal.targetAmount) * 100;
-                const daysLeft = Math.ceil(
-                  (new Date(goal.deadline).getTime() - new Date().getTime()) /
-                    (1000 * 60 * 60 * 24),
-                );
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {(maxDisplay
+              ? filteredGoals.slice(0, maxDisplay)
+              : filteredGoals
+            ).map((goal) => {
+              const transactionsForSavings = transactionsMap[goal.id] || [];
+              const currentAmount = transactionsForSavings
+                .map((t) => t.amount)
+                .reduce((acc, curr) => acc + curr, 0);
+              const progress = (currentAmount / goal.targetAmount) * 100;
+              const daysLeft = Math.ceil(
+                (new Date(goal.deadline).getTime() - new Date().getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
 
-                return (
-                  <div
-                    key={goal.id}
-                    className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow dark:border-gray-500"
-                  >
-                    <DeleteGoalModal
-                      open={deleteModalOpen}
-                      setOpen={setDeleteModalOpen}
-                      goalId={goal.id}
-                      transactionsForSavingsIds={transactionsForSavings.map(
-                        (t) => t.id,
-                      )}
-                    />
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{goal.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          ${currentAmount.toFixed(2)} of $
-                          {goal.targetAmount.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(goal)}
-                        >
-                          <Edit2 className="h-4 w-4 text-blue-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteModalOpen(true)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </div>
+              const isNearDeadline = daysLeft < 30 && daysLeft > 0;
+              const isOverdue = daysLeft < 0;
+              const isComplete = progress >= 100;
 
-                    <Progress value={progress} className="h-2" />
+              const formatCurrency = (amount: number) => {
+                return new Intl.NumberFormat("en-SG", {
+                  style: "currency",
+                  currency: "SGD",
+                }).format(amount);
+              };
 
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        {progress.toFixed(0)}% complete
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          daysLeft < 30 ? "text-amber-600" : "text-green-600"
-                        }`}
+              const formatDate = (dateString: string) => {
+                return new Date(dateString).toLocaleDateString("en-SG", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                });
+              };
+
+              return (
+                <Card
+                  key={goal.id}
+                  className={
+                    isOverdue
+                      ? "border-red-500"
+                      : isNearDeadline
+                        ? "border-yellow-500"
+                        : isComplete
+                          ? "border-green-500"
+                          : ""
+                  }
+                >
+                  <DeleteGoalModal
+                    open={deleteModalOpen}
+                    setOpen={setDeleteModalOpen}
+                    goalId={goal.id}
+                    transactionsForSavingsIds={transactionsForSavings.map(
+                      (t) => t.id,
+                    )}
+                  />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-base font-medium">
+                      {goal.title}
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(goal)}
                       >
-                        {daysLeft > 0 ? `${daysLeft} days left` : "Overdue"}
-                      </span>
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteModalOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
                     </div>
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </CardContent>
-      </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Target</span>
+                        <span className="font-medium">
+                          {formatCurrency(goal.targetAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Current</span>
+                        <span
+                          className={
+                            isComplete ? "text-green-600 font-medium" : ""
+                          }
+                        >
+                          {formatCurrency(currentAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Remaining</span>
+                        <span
+                          className={
+                            goal.targetAmount - currentAmount <= 0
+                              ? "text-green-600 font-medium"
+                              : "font-medium"
+                          }
+                        >
+                          {formatCurrency(goal.targetAmount - currentAmount)}
+                        </span>
+                      </div>
+
+                      <Progress
+                        value={Math.min(progress, 100)}
+                        className={`h-2 ${
+                          isComplete
+                            ? "bg-green-100"
+                            : isNearDeadline
+                              ? "bg-yellow-100"
+                              : ""
+                        }`}
+                      />
+
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>{progress.toFixed(1)}% complete</span>
+                        <span
+                          className={
+                            isOverdue
+                              ? "text-red-600 font-medium"
+                              : isNearDeadline
+                                ? "text-amber-600 font-medium"
+                                : "text-green-600 font-medium"
+                          }
+                        >
+                          {daysLeft > 0 ? `${daysLeft} days left` : "Overdue"}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-muted-foreground pt-2">
+                        Deadline: {formatDate(goal.deadline)}
+                      </div>
+
+                      {(isNearDeadline || isOverdue || isComplete) && (
+                        <div
+                          className={`flex items-center gap-2 text-sm mt-2 ${
+                            isOverdue
+                              ? "text-red-600"
+                              : isComplete
+                                ? "text-green-600"
+                                : "text-amber-600"
+                          }`}
+                        >
+                          <AlertCircle className="h-4 w-4" />
+                          <span>
+                            {isOverdue
+                              ? "Goal deadline passed!"
+                              : isComplete
+                                ? "Goal achieved!"
+                                : "Deadline approaching"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </>
   );
 }

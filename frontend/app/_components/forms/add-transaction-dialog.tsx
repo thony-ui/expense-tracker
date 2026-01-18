@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
 import { invalidateBudgets } from "@/app/queries/use-get-budgets";
 import { invalidateSavingsGoals } from "@/app/queries/use-get-savings-goals";
+import { invalidateGetTransactionsBySavingsGoalId } from "@/app/queries/use-get-transaction";
 
 export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
@@ -25,6 +26,7 @@ export function AddTransactionDialog() {
     invalidateTransactions();
     invalidateBudgets();
     invalidateSavingsGoals();
+    invalidateGetTransactionsBySavingsGoalId();
   };
 
   return (
