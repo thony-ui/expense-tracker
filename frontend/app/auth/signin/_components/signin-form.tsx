@@ -34,7 +34,10 @@ export function SignInForm() {
     setIsLoading(true);
 
     try {
-      await signInAction(formData.email, formData.password);
+      const result = await signInAction(formData.email, formData.password);
+      if (result && !result.success) {
+        setError(result.error || "Something went wrong");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

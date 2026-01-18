@@ -39,8 +39,14 @@ export function SignUpForm() {
     setIsLoading(true);
 
     try {
-      await signUpAction(formData.email, formData.password, formData.name);
-      // Handle success (maybe redirect or show success message)
+      const result = await signUpAction(
+        formData.email,
+        formData.password,
+        formData.name
+      );
+      if (result && !result.success) {
+        setError(result.error || "Something went wrong");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

@@ -9,7 +9,7 @@ export async function signUpAction(
 ) {
   const res = await signUp(email, password, name);
   if (!res.success) {
-    redirect("/auth/signup");
+    return { success: false, error: res.error };
   }
 
   redirect("/");
