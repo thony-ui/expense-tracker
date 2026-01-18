@@ -28,9 +28,15 @@ import { toast } from "react-toastify";
 interface CreateBudgetModalProps {
   open: boolean;
   onClose: () => void;
+
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function CreateBudgetModal({ open, onClose }: CreateBudgetModalProps) {
+export function CreateBudgetModal({
+  open,
+  onClose,
+  setOpen,
+}: CreateBudgetModalProps) {
   const queryClient = useQueryClient();
   const { mutate: createBudget, isPending } = usePostBudget();
   const [periodType, setPeriodType] = useState<PeriodType>("monthly");
@@ -54,6 +60,9 @@ export function CreateBudgetModal({ open, onClose }: CreateBudgetModalProps) {
         queryClient.invalidateQueries({ queryKey: ["/v1/budgets"] });
         reset();
         onClose();
+        if (setOpen) {
+          setOpen(false);
+        }
       },
       onError: (error: any) => {
         toast.error(
@@ -66,6 +75,9 @@ export function CreateBudgetModal({ open, onClose }: CreateBudgetModalProps) {
   const handleClose = () => {
     reset();
     onClose();
+    if (setOpen) {
+      setOpen(false);
+    }
   };
 
   return (

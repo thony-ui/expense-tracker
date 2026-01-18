@@ -28,11 +28,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { EditTransactionForm } from "../forms/edit-transaction-form";
 import DeleteTransactionModal from "./modals/delete-transaction-modal";
+import { AddTransactionDialog } from "../forms/add-transaction-dialog";
 
 export function DashboardOverview() {
   const { isLoading } = useUser();
@@ -96,22 +95,6 @@ export function DashboardOverview() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteTransaction = async () => {
-    if (!deletingTransactionId) return;
-
-    try {
-      await deleteTransaction(deletingTransactionId);
-      toast.success("Transaction deleted!");
-      invalidateTransactions();
-      // Invalidate budgets as well since transaction affects budget spent amount
-      invalidateBudgets();
-      setIsDeleteModalOpen(false);
-      setDeletingTransactionId(null);
-    } catch (error) {
-      toast.error("Failed to delete transaction");
-    }
-  };
-
   const handleEditTransaction = (transactionId: string) => {
     setEditingTransactionId(transactionId);
     setIsEditModalOpen(true);
@@ -144,20 +127,6 @@ export function DashboardOverview() {
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
             Track your budgets, savings, and spending at a glance
           </p>
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <Link href="/budgets" className="flex-1 sm:flex-none">
-            <Button variant="outline" size="sm" className="w-full">
-              <Wallet className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Manage Budgets</span>
-            </Button>
-          </Link>
-          <Link href="/transactions" className="flex-1 sm:flex-none">
-            <Button size="sm" className="w-full">
-              <Plus className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Add Transaction</span>
-            </Button>
-          </Link>
         </div>
       </div>
 

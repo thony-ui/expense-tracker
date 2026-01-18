@@ -9,6 +9,8 @@ import { useState } from "react";
 import { GeneratingExpenseReportDialog } from "../generating-expense-report-modal";
 import ConfirmGenerateReportModal from "../dashboard/modals/confirm-generate-report-modal";
 import { DarkModeToggle } from "../dark-mode-toggle";
+import { CreateBudgetModal } from "../budgets/create-budget-modal";
+import { AddBudgetDialog } from "../forms/add-budget-dialog";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -38,6 +40,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         </button>
         <div className="flex gap-2 ">
           <AddTransactionDialog />
+          <AddBudgetDialog />
           {/* <Button
             className="flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white border border-zinc-100 dark:border-zinc-800"
             onClick={() => setIsOpenConfirmGenerationModal(true)}
