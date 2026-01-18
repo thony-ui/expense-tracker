@@ -45,70 +45,71 @@ export function SignInForm() {
     }
   };
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <div className="relative">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
           <Input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            value={formData.password}
+            id="email"
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
             onChange={handleChange}
             required
             disabled={isLoading}
-            className="pr-10"
           />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <EyeSlashIcon className="h-4 w-4 text-gray-400" />
-            ) : (
-              <EyeIcon className="h-4 w-4 text-gray-400" />
-            )}
-          </button>
         </div>
-      </div>
 
-      <div className="w-full">
-        <div className="text-sm flex justify-end">
-          <Link
-            href="/forgot-password"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            Forgot your password?
-          </Link>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="h-4 w-4 text-gray-400" />
+              ) : (
+                <EyeIcon className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign in"}
-      </Button>
+        <div className="w-full">
+          <div className="text-sm flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+        </div>
 
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Signing in..." : "Sign in"}
+        </Button>
+      </form>
       <div className="flex justify-center gap-2">
         <span className="text-sm text-gray-600 cursor-pointer dark:text-white">
           Don't have an account?{" "}
@@ -120,6 +121,6 @@ export function SignInForm() {
           Sign up
         </button>
       </div>
-    </form>
+    </div>
   );
 }
