@@ -13,9 +13,9 @@ export async function middleware(request: NextRequest) {
     "/",
     "/dashboard",
     "/transactions",
-    "/analytics",
-    "/categories",
-    "/settings",
+    "/investments",
+    "/savings-goals",
+    "/budgets",
   ];
   const publicRoutes = ["/auth/signin", "/auth/signup", "/forgot-password"];
 

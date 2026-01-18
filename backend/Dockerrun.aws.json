@@ -1,0 +1,14 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "820976530674.dkr.ecr.ap-southeast-1.amazonaws.com/expense-tracker-backend:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8000,
+      "HostPort": 8000
+    }
+  ],
+  "Logging": "/var/log/backend"
+}
