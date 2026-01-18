@@ -11,6 +11,7 @@ import ConfirmGenerateReportModal from "../dashboard/modals/confirm-generate-rep
 import { DarkModeToggle } from "../dark-mode-toggle";
 import { CreateBudgetModal } from "../budgets/create-budget-modal";
 import { AddBudgetDialog } from "../forms/add-budget-dialog";
+import { AddGoalDialog } from "../forms/add-goal-dialog";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -41,6 +42,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex gap-2 ">
           <AddTransactionDialog />
           <AddBudgetDialog />
+          <AddGoalDialog />
           {/* <Button
             className="flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white border border-zinc-100 dark:border-zinc-800"
             onClick={() => setIsOpenConfirmGenerationModal(true)}
@@ -48,11 +50,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DownloadIcon className="h-4 w-4" />
             <p className="hidden sm:block">Generate Report</p>
           </Button> */}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <DarkModeToggle />
-          <UserMenu />
         </div>
       </div>
     </div>

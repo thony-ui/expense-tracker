@@ -69,7 +69,7 @@ export function Transactions({
           {transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="dark:border-gray-500 flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors gap-4 flex-wrap"
+              className="dark:border-gray-500 flex flex-col items-start md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors gap-4 flex-wrap"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3">
