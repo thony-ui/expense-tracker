@@ -69,7 +69,7 @@ export function EditBudgetModal({
       },
       onError: (error: any) => {
         toast.error(
-          error?.response?.data?.message || "Failed to update budget"
+          error?.response?.data?.message || "Failed to update budget",
         );
       },
     });
@@ -152,14 +152,14 @@ export function EditBudgetModal({
             </div>
           </div>
 
-          <DialogFooter>
+          <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? "Updating..." : "Update Budget"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
