@@ -127,7 +127,6 @@ export function CreateBudgetModal({
           <Input
             id="startDate"
             type="date"
-            value={new Date().toISOString().split("T")[0]}
             {...register("startDate", {
               required: "Start date is required",
             })}
@@ -143,7 +142,6 @@ export function CreateBudgetModal({
           <Input
             id="endDate"
             type="date"
-            value={new Date().toISOString().split("T")[0]}
             {...register("endDate", { required: "End date is required" })}
             className="dark:border-gray-500"
           />
