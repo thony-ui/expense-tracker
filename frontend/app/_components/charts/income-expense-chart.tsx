@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetTransactions } from "@/app/queries/use-get-transactions";
 import { useMemo, useState } from "react";
 import {
+  getAllChartData,
   getDailyChartData,
   getMonthlyChartData,
   getWeeklyChartData,
@@ -33,7 +34,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type TDataKey = "day" | "month" | "year" | "week";
+type TDataKey = "day" | "month" | "year" | "week" | "all";
 
 type ChartViewConfig = {
   getChartData: (data: ITransaction[]) => unknown[];
@@ -44,7 +45,7 @@ type ChartViewConfig = {
 export function IncomeExpenseChart() {
   const [view, setView] = useState<TView>("monthly");
   const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const { data: transactions = [] } = useGetTransactions({
     date,
@@ -73,12 +74,17 @@ export function IncomeExpenseChart() {
         transactions: transactions,
         dataKey: "day",
       },
+      all: {
+        getChartData: getAllChartData,
+        transactions: transactions,
+        dataKey: "all",
+      },
     };
     return chartViewConfigMap;
   }, [view, transactions]);
 
   const chartData = transactionManager[view].getChartData(
-    transactionManager[view].transactions
+    transactionManager[view].transactions,
   );
   return (
     <Card>

@@ -13,7 +13,7 @@ interface SankeyLink {
 
 export function CashFlowSankey() {
   const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [view, setView] = useState<TView>("monthly");
   const { data: transactions = [] } = useGetTransactions({
@@ -41,11 +41,11 @@ export function CashFlowSankey() {
 
     const totalIncome = Object.values(incomeByCategory).reduce(
       (a, b) => a + b,
-      0
+      0,
     );
     const totalExpenses = Object.values(expensesByCategory).reduce(
       (a, b) => a + b,
-      0
+      0,
     );
 
     // Create links (income -> categories -> expenses)

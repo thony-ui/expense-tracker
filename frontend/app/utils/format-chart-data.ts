@@ -94,8 +94,10 @@ export function getYearlyChartData(yearlyTransactions: ITransaction[]) {
   // Get unique years from transactions
   const years = Array.from(
     new Set(
-      yearlyTransactions.map((tx) => new Date(tx.date).getFullYear().toString())
-    )
+      yearlyTransactions.map((tx) =>
+        new Date(tx.date).getFullYear().toString(),
+      ),
+    ),
   ).sort();
 
   // Initialize years
@@ -134,7 +136,7 @@ export function getWeeklyChartData(weeklyTransactions: ITransaction[]) {
     const date = new Date(dateStr);
     const weekStart = new Date(date);
     weekStart.setDate(
-      date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)
+      date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1),
     ); // Start from Monday
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
@@ -148,7 +150,7 @@ export function getWeeklyChartData(weeklyTransactions: ITransaction[]) {
 
   // Get unique weeks
   const weeks = Array.from(
-    new Set(weeklyTransactions.map((tx) => getWeekId(tx.date)))
+    new Set(weeklyTransactions.map((tx) => getWeekId(tx.date))),
   ).sort();
 
   // Initialize weeks
@@ -199,7 +201,7 @@ export function getDailyChartData(dailyTransactions: ITransaction[]) {
 
   // Get unique days
   const days = Array.from(
-    new Set(dailyTransactions.map((tx) => formatDay(tx.date)))
+    new Set(dailyTransactions.map((tx) => formatDay(tx.date))),
   ).sort();
 
   // Initialize days
@@ -234,4 +236,27 @@ export function getDailyChartData(dailyTransactions: ITransaction[]) {
 
       return parseInt(dateA) - parseInt(dateB);
     });
+}
+
+export function getAllChartData(transactions: ITransaction[]) {
+  if (!transactions) return [];
+
+  let income = 0;
+  let expense = 0;
+
+  transactions.forEach((tx) => {
+    if (tx.type === "income") {
+      income += tx.amount;
+    } else {
+      expense += tx.amount;
+    }
+  });
+
+  return [
+    {
+      category: "Total",
+      income,
+      expense,
+    },
+  ];
 }

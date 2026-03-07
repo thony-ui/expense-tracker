@@ -13,7 +13,7 @@ interface TTransactionOptions {
 
   date?: string;
 
-  type?: "yearly" | "monthly" | "weekly" | "daily";
+  type?: "yearly" | "monthly" | "weekly" | "daily" | "all";
 }
 
 export function useGetTransactions(options?: TTransactionOptions) {
