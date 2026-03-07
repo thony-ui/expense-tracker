@@ -9,6 +9,7 @@ import {
 import { IChatService } from "./chat.interface";
 import puppeteer from "puppeteer";
 import { marked } from "marked";
+import { LLM } from "../../../utils/llm/llm-utils";
 
 require("dotenv").config();
 
@@ -25,33 +26,17 @@ export class ChatService implements IChatService {
       );
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
+    const llm = new LLM();
     const formattedLLMContext = formatLLMContext(transactions);
     const llmPrompt = getLLMPromptForTransactions(formattedLLMContext);
-    const response = await fetch(process.env.OPENROUTER_URL!, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "deepseek/deepseek-r1-0528:free",
-        messages: [
-          { role: "system", content: llmPrompt },
-          { role: "user", content: prompt },
-        ],
-        stream: true,
-      }),
-    });
+
+    // Streaming response
+    const responseStream = await llm.generateResponseStream(llmPrompt, prompt);
+
     logger.info(
       `ChatService: getResponseFromLLM called with prompt: ${prompt}`,
     );
-    if (!response.ok || !response.body) {
-      logger.error(
-        `ChatService: Error fetching response from LLM: ${response.statusText}`,
-      );
-      throw new Error(`Error fetching response: ${response.statusText}`);
-    }
-    return response.body;
+    return responseStream;
   };
 
   generateExpenseReport = async (
@@ -72,38 +57,21 @@ export class ChatService implements IChatService {
       );
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
+    const llm = new LLM();
     const formattedLLMContext = formatLLMContext(transactions);
     const llmPrompt = getLLMPromptForExpenseReport(formattedLLMContext);
-    const response = await fetch(process.env.OPENROUTER_URL!, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
-        messages: [
-          { role: "system", content: llmPrompt },
-          { role: "user", content: "Generate an expense report." },
-        ],
-      }),
-    });
+    const response = await llm.generateResponseReport(llmPrompt);
     logger.info(
       `ChatService: generateExpenseReport called for userId: ${userId}`,
     );
-    if (!response.ok || !response.body) {
+    if (!response) {
       logger.error(
-        `ChatService: Error generating expense report: ${response.statusText}`,
+        `ChatService: Error generating expense report for prompt: ${llmPrompt}`,
       );
-      throw new Error(`Error generating report: ${response.statusText}`);
+      throw new Error(`Error generating report for prompt: ${llmPrompt}`);
     }
-
-    // Parse the response to get the markdown content
-    const responseData = await response.json();
-    const markdownContent = responseData.choices[0].message.content;
-
     // Convert markdown to HTML
-    const html = await this.convertMarkdownToHTML(markdownContent, userId);
+    const html = await this.convertMarkdownToHTML(response, userId);
 
     return html;
   };
@@ -215,34 +183,18 @@ export class ChatService implements IChatService {
         `ChatService: parseTransactionFromNaturalLanguage called with text: ${text}`,
       );
 
-      const response = await fetch(process.env.OPENROUTER_URL!, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
-          messages: [
-            { role: "system", content: llmPrompt },
-            { role: "user", content: text },
-          ],
-        }),
-      });
-
-      if (!response.ok) {
+      const llm = new LLM();
+      const response = await llm.autoAddExpenseOrIncome(llmPrompt);
+      if (!response) {
         logger.error(
-          `ChatService: Error fetching response from LLM: ${response.statusText}`,
+          `ChatService: Error fetching response from LLM for prompt: ${llmPrompt}`,
         );
-        throw new Error(`Error parsing transaction: ${response.statusText}`);
+        throw new Error(`Error parsing transaction for prompt: ${llmPrompt}`);
       }
-
-      const responseData = await response.json();
-      const content = responseData.choices[0].message.content;
 
       // Parse the JSON response from LLM
       // The LLM might wrap it in markdown code blocks, so we need to extract it
-      let jsonString = content.trim();
+      let jsonString = response.trim();
 
       // Remove markdown code block if present
       if (jsonString.startsWith("```json")) {

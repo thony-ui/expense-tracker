@@ -2,7 +2,7 @@ import { Response } from "express";
 import logger from "../logger";
 export async function sendChunkToClient(
   stream: ReadableStream<Uint8Array>,
-  res: Response
+  res: Response,
 ) {
   const decoder = new TextDecoder();
 

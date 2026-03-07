@@ -1,13 +1,20 @@
+import { ChatCompletionChunk } from "openai/resources";
+import { Stream } from "openai/streaming";
+
 export interface IChatService {
   getResponseFromLLM: (
     prompt: string,
-    userId: string
-  ) => Promise<ReadableStream<Uint8Array<ArrayBufferLike>>>;
+    userId: string,
+  ) => Promise<
+    Stream<ChatCompletionChunk> & {
+      _request_id?: string | null;
+    }
+  >;
 
   generateExpenseReport: (
     userId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
   ) => Promise<string>;
 
   parseTransactionFromNaturalLanguage: (text: string) => Promise<{

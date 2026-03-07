@@ -11,13 +11,13 @@ export class ChatController {
   getResponseFromLLM = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const userId = req.user.id;
     try {
       const { prompt } = validateGetPrompt(req.body);
       logger.info(
-        `ChatController: getResponseFromLLM called with prompt: ${prompt}`
+        `ChatController: getResponseFromLLM called with prompt: ${prompt}`,
       );
       res.writeHead(200, {
         "Content-Type": "text/plain; charset=utf-8",
@@ -25,14 +25,20 @@ export class ChatController {
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       });
-      const $stream = await this.chatService.getResponseFromLLM(prompt, userId);
-      if (!$stream) {
+      const response = await this.chatService.getResponseFromLLM(
+        prompt,
+        userId,
+      );
+      if (!response) {
         throw new Error("No response stream from LLM");
       }
       logger.info(
-        `ChatController: Successfully received response stream for prompt: ${prompt}`
+        `ChatController: Successfully received response stream for prompt: ${prompt}`,
       );
-      await sendChunkToClient($stream, res);
+
+      for await (const chunk of response) {
+        res.write(chunk.choices?.[0]?.delta?.content || "");
+      }
       res.end();
     } catch (error) {
       next(error);
@@ -41,33 +47,33 @@ export class ChatController {
   generateExpenseReport = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const userId = req.user.id;
     const { startDate, endDate } = req.body;
     try {
       logger.info(
-        `ChatController: generateExpenseReport called for userId: ${userId}`
+        `ChatController: generateExpenseReport called for userId: ${userId}`,
       );
       const htmlReport = await this.chatService.generateExpenseReport(
         userId,
         startDate,
-        endDate
+        endDate,
       );
       const pdfBuffer = await this.chatService.generatePDFReport(
         htmlReport,
-        userId
+        userId,
       );
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="expense_report_${req.params.userId}.pdf"`
+        `attachment; filename="expense_report_${req.params.userId}.pdf"`,
       );
 
       res.send(pdfBuffer);
     } catch (error) {
       logger.error(
-        `ChatController: Error generating expense report for userId ${userId}`
+        `ChatController: Error generating expense report for userId ${userId}`,
       );
       next(error);
     }
@@ -76,7 +82,7 @@ export class ChatController {
   parseTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const { text } = req.body;
@@ -93,8 +99,8 @@ export class ChatController {
 
       logger.info(
         `ChatController: Successfully parsed transaction: ${JSON.stringify(
-          parsedTransaction
-        )}`
+          parsedTransaction,
+        )}`,
       );
 
       res.json(parsedTransaction);
