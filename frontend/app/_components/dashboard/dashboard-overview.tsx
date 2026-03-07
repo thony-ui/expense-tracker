@@ -3,7 +3,6 @@
 import { StatsCards } from "./stats-cards";
 import { useUser } from "@/components/contexts/user-context";
 import { useGetTransactions } from "@/app/queries/use-get-transactions";
-import { SavingsGoalCard } from "../goals/savings-goal-card";
 import { toast } from "react-toastify";
 import {
   invalidateSavingsGoals,

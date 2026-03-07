@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export type TView = "monthly" | "yearly" | "weekly" | "daily";
+export type TView = "monthly" | "yearly" | "weekly" | "daily" | "all";
 
 interface ChartFilterProps {
   view: TView;
@@ -55,6 +55,7 @@ export function ChartFilter({
             <SelectItem value="monthly">Monthly</SelectItem>
             <SelectItem value="weekly">Weekly</SelectItem>
             <SelectItem value="daily">Daily</SelectItem>
+            <SelectItem value="all">All Time</SelectItem>
           </SelectContent>
         </Select>
       </div>

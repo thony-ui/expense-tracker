@@ -63,7 +63,7 @@ export function SavingsGoalItem({
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
-  const [view, setView] = useState<TView>("monthly");
+  const [view, setView] = useState<TView>("all");
   const [formData, setFormData] = useState({
     title: "",
     targetAmount: "",
@@ -216,7 +216,7 @@ export function SavingsGoalItem({
         </DialogContent>
       </Dialog>
 
-      <Card>
+      <Card className="flex flex-col">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-xl font-semibold">
@@ -231,25 +231,17 @@ export function SavingsGoalItem({
             )}
           </div>
         </CardHeader>
-        <CardContent
-          className={
-            filteredGoals.length === 0
-              ? "flex items-center justify-center min-h-[400px]"
-              : "space-y-4"
-          }
-        >
+        <CardContent className="flex flex-col gap-4 flex-1 flex-grow">
           <div className="flex items-center gap-2 flex-wrap">
-            {filteredGoals.length > 0 && (
-              <ChartFilter
-                view={view}
-                onViewChange={setView}
-                date={date}
-                onDateChange={setDate}
-              />
-            )}
+            <ChartFilter
+              view={view}
+              onViewChange={setView}
+              date={date}
+              onDateChange={setDate}
+            />
           </div>
           {filteredGoals.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
+            <div className="flex flex-col items-center justify-center text-center text-muted-foreground my-auto">
               <Target className="h-12 w-12 mb-2 opacity-50" />
               <p>
                 No savings goals{" "}

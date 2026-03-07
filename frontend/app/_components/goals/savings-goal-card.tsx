@@ -63,7 +63,7 @@ export function SavingsGoalCard({
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
-  const [view, setView] = useState<TView>("monthly");
+  const [view, setView] = useState<TView>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     title: "",
@@ -119,7 +119,7 @@ export function SavingsGoalCard({
           // Show goals with deadline in the selected year
           return deadline.getFullYear() === selectedDate.getFullYear();
 
-        default:
+        case "all":
           return true;
       }
     });

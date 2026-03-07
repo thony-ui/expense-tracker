@@ -11,10 +11,9 @@ import { useGetTransactions } from "@/app/queries/use-get-transactions";
 import { useMemo } from "react";
 
 function sumTransactions(transactions: ITransaction[]) {
-  return transactions.reduce(
-    (total, transaction) => total + transaction.amount,
-    0
-  );
+  return transactions
+    .filter((t) => !t.savingsGoalId)
+    .reduce((total, transaction) => total + transaction.amount, 0);
 }
 
 export function StatsCards() {
@@ -34,7 +33,7 @@ export function StatsCards() {
         sumTransactions(incomeTransactions) -
         sumTransactions(expenseTransactions),
     }),
-    [incomeTransactions, expenseTransactions]
+    [incomeTransactions, expenseTransactions],
   );
 
   const cards = [
