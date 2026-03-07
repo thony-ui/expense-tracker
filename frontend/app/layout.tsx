@@ -11,7 +11,7 @@ import { ThemeProvider } from "./providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Expense Tracker Dashboard",
+  title: "Expense Tracker",
   description: "Track and manage your expenses efficiently",
 };
 
