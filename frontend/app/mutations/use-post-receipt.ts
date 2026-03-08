@@ -2,6 +2,7 @@ import axiosInstance from "@/lib/axios";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { invalidateTransactions } from "../queries/use-get-transactions";
+import { createClient } from "@/lib/supabase/supabase-client";
 
 const baseUrl = "/v1/ocr";
 
@@ -12,11 +13,43 @@ interface IPostReceipt {
 export function usePostReceipt() {
   return useMutation({
     mutationFn: async (receipt: IPostReceipt) => {
-      const formData = new FormData();
-      formData.append("file", receipt.file);
-      // Don't set Content-Type header - let browser set it with boundary
-      const response = await axiosInstance.post(baseUrl, formData);
-      console.log(response.data);
+      const supabase = createClient();
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      const userId = session.user.id;
+
+      let fileExtension = "jpg";
+      if (receipt.file.type === "image/png") {
+        fileExtension = "png";
+      } else if (
+        receipt.file.type === "image/heic" ||
+        receipt.file.type === "image/heif"
+      ) {
+        fileExtension = "heic";
+      }
+
+      const fileName = `${userId}.${fileExtension}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("receipts")
+        .upload(fileName, receipt.file, {
+          contentType: receipt.file.type,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        throw new Error(`Failed to upload image: ${uploadError.message}`);
+      }
+
+      const response = await axiosInstance.post(baseUrl, {
+        imagePath: uploadData.path,
+      });
       return response.data;
     },
     onSuccess: () => {

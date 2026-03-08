@@ -7,6 +7,7 @@ import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
 import { ITransaction } from "../../transaction/domain/transaction.interface";
 import convert from "heic-convert";
+import supabase from "../../../lib/supabase-client";
 
 export class OCRController {
   constructor(
@@ -21,35 +22,49 @@ export class OCRController {
   ): Promise<void> => {
     const userId = req.user.id;
     try {
-      if (!req.file) {
-        res.status(400).send({ message: "No file uploaded" });
+      const { imagePath } = req.body;
+
+      if (!imagePath) {
+        res.status(400).send({ message: "No image path provided" });
         return;
       }
-      let { file, mimetype } = validateOCRRequest({
-        userId,
-        file: req.file.buffer,
-        mimetype: req.file.mimetype,
-      });
-      let imageBuffer = file;
-      if (mimetype === "image/heic" || mimetype === "image/heif") {
-        logger.info(
-          `Received HEIC/HEIF file for OCR processing for userId: ${userId}`,
-        );
-        const bufferData =
-          file.buffer instanceof ArrayBuffer
-            ? Buffer.from(file.buffer)
-            : file.buffer;
 
+      logger.info(
+        `OCRController: postOCR called with imagePath: ${imagePath} for userId: ${userId}`,
+      );
+
+      const bucketName = "receipts";
+      const { data: downloadData, error: downloadError } =
+        await supabase.storage.from(bucketName).download(imagePath);
+
+      if (downloadError) {
+        logger.error(
+          `Error downloading from Supabase: ${downloadError.message}`,
+        );
+        throw new Error(`Failed to download image: ${downloadError.message}`);
+      }
+
+      const arrayBuffer = await downloadData.arrayBuffer();
+      let imageBuffer = Buffer.from(arrayBuffer);
+
+      if (imagePath.endsWith(".heic") || imagePath.endsWith(".heif")) {
+        const bufferData =
+          imageBuffer.buffer instanceof ArrayBuffer
+            ? Buffer.from(imageBuffer.buffer)
+            : imageBuffer.buffer;
+        logger.info(
+          `Converting HEIC/HEIF file for OCR processing for userId: ${userId}`,
+        );
         const converted = await convert({
           buffer: bufferData as ArrayBufferLike,
-          format: "PNG",
+          format: "JPEG",
         });
         imageBuffer = Buffer.from(converted);
       }
-      logger.info(
-        `OCRController: postOCR called with file of type ${mimetype} for userId: ${userId}`,
-      );
 
+      logger.info(`Image downloaded successfully, processing OCR...`);
+
+      // Process OCR
       const llm = new LLM();
       const extractedData = await this.ocrService.processImage(imageBuffer);
       const llmPrompt = getLLMPromptForTransactionParsing(extractedData.text);
@@ -61,24 +76,27 @@ export class OCRController {
         userId,
         type: parsed.type ?? null,
         amount: parsed.amount ?? null,
-        name: parsed.name ?? null, // or use another field if 'name' is different
+        name: parsed.name ?? null,
         description: parsed.description ?? null,
         category: parsed.category ?? null,
         date: parsed.date ?? null,
-        base_currency: "Singapore Dollar", // or null if not available
+        base_currency: "Singapore Dollar",
         converted_currency: "Singapore Dollar",
         base_amount: parsed.amount ?? null,
         converted_amount: parsed.amount ?? null,
-        exchange_rate: 1, // or parsed.exchange_rate if available
-        savingsGoalId: undefined, // or parsed.savingsGoalId if available
-        budgetId: undefined, // or parsed.budgetId if available
+        exchange_rate: 1,
+        savingsGoalId: undefined,
+        budgetId: undefined,
       };
 
       await this.transactionRepository.addTransactionToDatabase(
         transactionData,
       );
 
-      res.status(200).send(extractedData);
+      res.status(200).send({
+        ...extractedData,
+        imageUrl: imagePath,
+      });
     } catch (error) {
       next(error);
     }
