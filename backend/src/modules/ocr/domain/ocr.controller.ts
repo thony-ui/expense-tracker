@@ -6,6 +6,8 @@ import { getLLMPromptForTransactionParsing } from "../../../utils/llm/llm-prompt
 import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
 import { ITransaction } from "../../transaction/domain/transaction.interface";
+import sharp from "sharp";
+import { preprocessOCRText } from "../../../utils/format-ocr";
 
 export class OCRController {
   constructor(
@@ -24,11 +26,12 @@ export class OCRController {
         res.status(400).send({ message: "No file uploaded" });
         return;
       }
-      const { file, mimetype } = validateOCRRequest({
+      let { file, mimetype } = validateOCRRequest({
         userId,
         file: req.file.buffer,
         mimetype: req.file.mimetype,
       });
+      file = await sharp(file).jpeg().toBuffer();
 
       logger.info(
         `OCRController: postOCR called with file of type ${mimetype} for userId: ${userId}`,

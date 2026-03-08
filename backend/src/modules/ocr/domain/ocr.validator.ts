@@ -4,7 +4,13 @@ import logger from "../../../logger";
 const OCRValidator = z.object({
   userId: z.string().uuid("Invalid user ID format"),
   file: z.instanceof(Buffer<ArrayBufferLike>),
-  mimetype: z.enum(["image/jpeg", "image/png", "image/jpg"]),
+  mimetype: z.enum([
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/heic",
+    "image/heif",
+  ]),
 });
 
 type TOCRValidator = z.infer<typeof OCRValidator>;
