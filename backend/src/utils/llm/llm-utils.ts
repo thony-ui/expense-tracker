@@ -25,7 +25,7 @@ export class LLM {
     }
 
     const stream = await this.openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // or another model you prefer
+      model: "gpt-4.1-mini", // or another model you prefer
       messages: [
         { role: "system", content: llmprompt },
         { role: "user", content: prompt },
@@ -41,9 +41,28 @@ export class LLM {
     }
 
     const response = await this.openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // or another model you prefer
+      model: "gpt-4.1-mini", // or another model you prefer
       messages: [
         { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: prompt },
+      ],
+    });
+    return response.choices?.[0]?.message?.content || "";
+  }
+
+  async enhanceOCRExtractedText(prompt: string) {
+    if (!this.enabled || !this.openai) {
+      throw new Error("OpenAI API not enabled or initialized.");
+    }
+
+    const response = await this.openai.chat.completions.create({
+      model: "gpt-4.1-mini", // or another model you prefer
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant that enhances OCR extracted text for better transaction parsing.",
+        },
         { role: "user", content: prompt },
       ],
     });
@@ -56,7 +75,7 @@ export class LLM {
     }
 
     const response = await this.openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // or another model you prefer
+      model: "gpt-4.1-mini", // or another model you prefer
       messages: [
         {
           role: "system",

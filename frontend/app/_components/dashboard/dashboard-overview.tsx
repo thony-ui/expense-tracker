@@ -32,6 +32,7 @@ import { EditTransactionForm } from "../forms/edit-transaction-form";
 import DeleteTransactionModal from "./modals/delete-transaction-modal";
 import { AddTransactionDialog } from "../forms/add-transaction-dialog";
 import { SavingsGoalItem } from "../goals/savings-goal-item";
+import PostReceipt from "./post-receipt";
 
 export function DashboardOverview() {
   const { isLoading } = useUser();

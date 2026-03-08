@@ -12,6 +12,7 @@ import { DarkModeToggle } from "../dark-mode-toggle";
 import { CreateBudgetModal } from "../budgets/create-budget-modal";
 import { AddBudgetDialog } from "../forms/add-budget-dialog";
 import { AddGoalDialog } from "../forms/add-goal-dialog";
+import PostReceipt from "../dashboard/post-receipt";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -40,6 +41,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Bars3Icon className="h-6 w-6" />
         </button>
         <div className="flex gap-2 ">
+          <PostReceipt />
           <AddTransactionDialog />
           <AddBudgetDialog />
           <AddGoalDialog />

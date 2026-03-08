@@ -10,7 +10,7 @@ export function defineChatRoutes(expressApp: Application) {
 
   chatRouter.post("/", chatController.getResponseFromLLM);
   // chatRouter.post("/generate-report", chatController.generateExpenseReport);
-  chatRouter.post("/parse-transaction", chatController.parseTransaction);
+  // chatRouter.post("/parse-transaction", chatController.parseTransaction);
 
   expressApp.use("/v1/chat", authenticateUser, chatRouter);
 }

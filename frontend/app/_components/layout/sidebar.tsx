@@ -83,30 +83,18 @@ function SidebarContent() {
             <Link
               key={item.name}
               href={item.href}
-              onClick={() => {
-                navigation.forEach((navItem) => {
-                  navItem.current = navItem.name === item.name;
-                });
-              }}
               className={cn(
                 "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                item.current
-                  ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400",
+                "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400",
               )}
             >
               <item.icon
                 className={cn(
                   "h-5 w-5 shrink-0 transition-colors",
-                  item.current
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : "text-gray-400 dark:text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
+                  "text-gray-400 dark:text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
                 )}
               />
               <span>{item.name}</span>
-              {item.current && (
-                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-              )}
             </Link>
           ))}
         </div>

@@ -43,13 +43,22 @@ ${context}
 `;
   return llmPrompt;
 };
+export const getLLMPromptForTransactionParsing = (context: string) => {
+  const today = new Date().toISOString().split("T")[0];
 
-export const getLLMPromptForTransactionParsing = () => {
-  const llmPrompt = `
-You are a transaction parsing AI that converts natural language descriptions into structured transaction data.
+  return `
+You are a transaction parsing AI that converts OCR receipt text or natural language descriptions into structured transaction data.
 
 ## Task
-Parse the user's natural language input and extract transaction details. The user will describe a financial transaction in conversational language.
+Parse the input and extract the most likely transaction details.
+
+## IMPORTANT DATE RULE
+You MUST ALWAYS use today's date.
+Today's date is: ${today}
+
+- NEVER infer a date from the text
+- NEVER generate another date
+- ALWAYS set the "date" field to "${today}"
 
 ## Categories (use EXACTLY one of these)
 - Food & Dining
@@ -68,56 +77,88 @@ Parse the user's natural language input and extract transaction details. The use
 - Refund
 
 ## Transaction Types
-- expense (for money spent)
-- income (for money received)
+- expense
+- income
 
-## Date Parsing Rules
-- "today" or no date specified = current date
-- "yesterday" = 1 day ago
-- "last week" or "a week ago" = 7 days ago
-- "last month" = 30 days ago
-- Specific dates like "January 15" or "15th" should be parsed accordingly
-- Default to current year if year not specified
+## General Rules
+- For receipts, assume the transaction type is "expense" unless the text clearly indicates income
+- "name" must be "Expense" if type is "expense"
+- "name" must be "Income" if type is "income"
+- Description should be short and clean
+- Merchant name is usually near the top of the receipt
+- Ignore receipt IDs, invoice numbers, table numbers, queue numbers, phone numbers, and card numbers
 
-## Amount Parsing
-- Extract numeric values from various formats ($50, 50 dollars, fifty dollars, etc.)
-- Convert text numbers to numeric values
-- Remove currency symbols
-- Always return as a number (e.g., 50.00)
+## CRITICAL AMOUNT RULE
+The "amount" must be the FINAL payable amount shown on the receipt.
+
+### Amount Selection Priority
+Use the following priority order:
+
+1. FIRST PRIORITY:
+If a line explicitly contains any of these labels, use the numeric value on that line:
+- total
+- grand total
+- net total
+- amount due
+- amount payable
+- payable
+- balance due
+
+2. SECOND PRIORITY:
+If multiple total-like labels exist, prefer the most final-looking one, usually:
+- lower on the receipt
+- labeled "grand total", "amount payable", or "net total"
+
+3. LAST RESORT:
+Only if there is NO explicit final total label anywhere, choose the most likely final paid amount.
+
+## VERY IMPORTANT RESTRICTIONS
+- DO NOT calculate the amount by adding subtotal + GST + service charge if an explicit total exists
+- DO NOT override an explicitly labeled TOTAL with your own arithmetic
+- DO NOT prefer a larger number over a labeled TOTAL
+- DO NOT ignore a line just because the OCR text around the word TOTAL looks messy
+- If a line contains the word TOTAL and a clear currency amount, treat it as a strong candidate
+- OCR text may be imperfect; still prioritize explicit final-payment labels
+
+## Negative Rules
+Do NOT use values from lines containing:
+- gst
+- tax
+- service charge
+- svc charge
+- subtotal
+- sub total
+- rounding
+- discount
+- change
+- cash
+- visa
+- mastercard
+
+unless that same line is also clearly the final total/payment line.
 
 ## Output Format
-You MUST respond ONLY with valid JSON in this exact structure:
+You MUST respond ONLY with valid JSON:
+
 {
   "amount": <number>,
-  "date": "<YYYY-MM-DD format>",
+  "date": "${today}",
   "category": "<one of the categories above>",
   "type": "<expense or income>",
-  "description": "<cleaned up description>"
+  "description": "<cleaned description>",
+  "name": "<Expense or Income>"
 }
 
-## Examples
-
-Input: "spent $50 on lunch today"
-Output: {"amount": 50, "date": "2025-10-19", "category": "Food & Dining", "type": "expense", "description": "lunch"}
-
-Input: "got my salary of $3000 yesterday"
-Output: {"amount": 3000, "date": "2025-10-18", "category": "Salary", "type": "income", "description": "salary"}
-
-Input: "bought groceries for 120 dollars last week"
-Output: {"amount": 120, "date": "2025-10-12", "category": "Food & Dining", "type": "expense", "description": "groceries"}
-
-Input: "paid 80 for uber to airport"
-Output: {"amount": 80, "date": "2025-10-19", "category": "Transportation", "type": "expense", "description": "uber to airport"}
-
-## Important Rules
-- ONLY return valid JSON, nothing else
-- DO NOT include markdown code blocks or backticks
-- DO NOT include explanations or additional text
-- If you cannot determine a field with certainty, make a reasonable guess based on context
-- Date must always be in YYYY-MM-DD format
+## Output Rules
+- ONLY return JSON
+- DO NOT include markdown
+- DO NOT include explanations
+- DO NOT include backticks
 - Amount must always be a number
-- Category must be one of the predefined categories
+- Date must always be "${today}"
+- Category must be exactly one of the allowed categories
 - Type must be either "expense" or "income"
-`;
-  return llmPrompt;
+
+${context ? `\n## Context\n${context}` : ""}
+`.trim();
 };

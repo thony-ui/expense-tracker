@@ -9,6 +9,7 @@ import { defineExchangeRateRouter } from "./modules/exchange-rate";
 import { defineSavingsGoalRoutes } from "./modules/savings-goal";
 import { defineInvestmentRoutes } from "./modules/investment";
 import { defineBudgetRoutes } from "./modules/budget";
+import { defineOCRRoutes } from "./modules/ocr";
 
 require("dotenv").config(); // Load environment variables from .env file
 
@@ -41,6 +42,7 @@ defineExchangeRateRouter(app);
 defineSavingsGoalRoutes(app);
 defineInvestmentRoutes(app);
 defineBudgetRoutes(app);
+defineOCRRoutes(app);
 
 const port = process.env.PORT || 8000;
 let server: Server;
