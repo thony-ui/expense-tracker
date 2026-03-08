@@ -14,9 +14,35 @@ const PostReceipt = () => {
   const mutation = usePostReceipt();
   const [open, setOpen] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null;
     if (!selectedFile) return;
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (selectedFile.size > maxSize) {
+      alert("File size exceeds 5MB. Please choose a smaller image.");
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/heic",
+      "image/heif",
+    ];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      alert("Please upload a JPG, PNG, or HEIC image file.");
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+      return;
+    }
 
     setOpen(true);
 
@@ -58,7 +84,7 @@ const PostReceipt = () => {
         ref={inputRef}
         id="receipt-upload"
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/jpg,image/png,image/heic,image/heif"
         capture="environment"
         className="hidden"
         onChange={handleFileChange}
@@ -112,11 +138,12 @@ const PostReceipt = () => {
 
             {mutation.isError && (
               <>
-                <AlertCircle className="h-8 w-8" />
+                <AlertCircle className="h-8 w-8 text-destructive" />
                 <div>
                   <p className="font-medium">Processing failed</p>
                   <p className="text-muted-foreground text-sm">
-                    There was a problem reading the receipt.
+                    {mutation.error?.response?.data?.message ||
+                      "There was a problem reading the receipt."}
                   </p>
                 </div>
               </>
