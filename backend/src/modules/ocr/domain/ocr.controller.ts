@@ -6,8 +6,7 @@ import { getLLMPromptForTransactionParsing } from "../../../utils/llm/llm-prompt
 import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
 import { ITransaction } from "../../transaction/domain/transaction.interface";
-import sharp from "sharp";
-import { preprocessOCRText } from "../../../utils/format-ocr";
+import convert from "heic-convert";
 
 export class OCRController {
   constructor(
@@ -31,14 +30,28 @@ export class OCRController {
         file: req.file.buffer,
         mimetype: req.file.mimetype,
       });
-      file = await sharp(file).jpeg().toBuffer();
+      let imageBuffer = file;
+      if (mimetype === "image/heic" || mimetype === "image/heif") {
+        logger.info(
+          `Received HEIC/HEIF file for OCR processing for userId: ${userId}`,
+        );
+        const bufferData =
+          file.buffer instanceof ArrayBuffer
+            ? Buffer.from(file.buffer)
+            : file.buffer;
 
+        const converted = await convert({
+          buffer: bufferData as ArrayBufferLike,
+          format: "PNG",
+        });
+        imageBuffer = Buffer.from(converted);
+      }
       logger.info(
         `OCRController: postOCR called with file of type ${mimetype} for userId: ${userId}`,
       );
 
       const llm = new LLM();
-      const extractedData = await this.ocrService.processImage(file);
+      const extractedData = await this.ocrService.processImage(imageBuffer);
       const llmPrompt = getLLMPromptForTransactionParsing(extractedData.text);
       const llmResponse = await llm.autoAddExpenseOrIncome(llmPrompt);
       logger.info(`LLM Response: ${llmResponse}`);
