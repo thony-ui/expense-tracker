@@ -71,7 +71,7 @@ export function AddTransactionForm({
     const transaction: Omit<ITransaction, "id"> = {
       name: formData.name,
       amount: Number(
-        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
+        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2),
       ),
       description: formData.description,
       category: formData.category,
@@ -81,7 +81,7 @@ export function AddTransactionForm({
       converted_currency: exchangeRate.targetCurrency,
       base_amount: Number.parseFloat(formData.amount),
       converted_amount: Number.parseFloat(
-        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2)
+        (Number.parseFloat(formData.amount) / exchangeRate.rate).toFixed(2),
       ),
       exchange_rate: exchangeRate.rate,
       savingsGoalId: formData.savingsGoalId || undefined,
@@ -146,7 +146,13 @@ export function AddTransactionForm({
           type="text"
           placeholder="Name"
           value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              name: e.target.value,
+              description: e.target.value,
+            })
+          }
           required
           className="dark:border-gray-500"
         />
