@@ -25,17 +25,21 @@ export function TransactionsOverview() {
   const [searchTransaction, setSearchTransaction] = useState<string>("");
   const transactions = useMemo(() => {
     if (dataType === "expense") {
-      return expenseTransactions.filter((transaction) =>
-        transaction.description
-          .toLowerCase()
-          .includes(searchTransaction.toLowerCase()),
-      );
+      return expenseTransactions
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .filter((transaction) =>
+          transaction.description
+            .toLowerCase()
+            .includes(searchTransaction.toLowerCase()),
+        );
     } else if (dataType === "income") {
-      return incomeTransactions.filter((transaction) =>
-        transaction.description
-          .toLowerCase()
-          .includes(searchTransaction.toLowerCase()),
-      );
+      return incomeTransactions
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .filter((transaction) =>
+          transaction.description
+            .toLowerCase()
+            .includes(searchTransaction.toLowerCase()),
+        );
     }
     return [...expenseTransactions, ...incomeTransactions]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
