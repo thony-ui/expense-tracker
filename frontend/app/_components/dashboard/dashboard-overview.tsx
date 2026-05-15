@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp, Wallet, Edit2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDeleteTransaction } from "@/app/mutations/use-delete-transaction";
 import { invalidateTransactions } from "@/app/queries/use-get-transactions";
 import {
@@ -35,15 +35,10 @@ import { SavingsGoalItem } from "../goals/savings-goal-item";
 import PostReceipt from "./post-receipt";
 import { createGradioClient } from "@/lib/gradio";
 
-type PredictedCategory = {
-  category: string;
-  predictedNextMonth: number;
-};
-
 type PredictedExpenses = {
-  nextMonth: string;
-  totalPredicted: number;
-  perCategory: PredictedCategory[];
+  forecastMonth: string;
+  currentMonthSpend: number;
+  forecastEndOfMonth: number;
 };
 
 export function DashboardOverview() {
@@ -53,6 +48,16 @@ export function DashboardOverview() {
   const { data: budgets = [] } = useGetBudgets();
   const { mutateAsync: postSavingsGoal } = usePostSavingsGoal();
   const { mutateAsync: updateSavingsGoal } = useUpdateSavingsGoal();
+  const { data: monthlyTransactions = [] } = useGetTransactions({
+    date: new Date().toISOString().split("T")[0],
+    type: "monthly",
+  });
+
+  const currentSpending = useMemo(() => {
+    return monthlyTransactions.reduce((sum, txn) => {
+      return txn.type === "expense" ? sum + txn.amount : sum;
+    }, 0);
+  }, [monthlyTransactions]);
 
   const [editingTransactionId, setEditingTransactionId] = useState<
     string | null
@@ -138,7 +143,7 @@ export function DashboardOverview() {
       try {
         const client = await createGradioClient();
         const result = await client!.predict("/run_prediction", {
-          username: user.name,
+          current_month_spend: currentSpending,
           window: 6,
         });
 
@@ -146,12 +151,9 @@ export function DashboardOverview() {
           ? result.data[0]
           : result.data;
         const payload = rawPayload as {
-          next_month: string;
-          total_predicted: number;
-          per_category: Array<{
-            Category: string;
-            PredictedNextMonth: number;
-          }>;
+          current_month_spend: number;
+          forecast_end_of_month: number;
+          forecast_month: string;
         };
 
         if (!isActive) {
@@ -159,12 +161,9 @@ export function DashboardOverview() {
         }
 
         setPredictedExpenses({
-          nextMonth: payload.next_month,
-          totalPredicted: payload.total_predicted,
-          perCategory: payload.per_category.map((entry) => ({
-            category: entry.Category,
-            predictedNextMonth: entry.PredictedNextMonth,
-          })),
+          forecastMonth: payload.forecast_month,
+          currentMonthSpend: payload.current_month_spend,
+          forecastEndOfMonth: payload.forecast_end_of_month,
         });
       } catch (error) {
         if (isActive) {
@@ -317,7 +316,7 @@ export function DashboardOverview() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-xl font-semibold">
-            Next Month Predicted Expenses
+            Current Month Predicted Expenses
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -329,28 +328,23 @@ export function DashboardOverview() {
                 <div>
                   <p className="text-sm text-gray-500">Forecast month</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {predictedExpenses.nextMonth}
-                  </p>
-                </div>
-                <div className="sm:text-right">
-                  <p className="text-sm text-gray-500">Total predicted</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${predictedExpenses.totalPredicted.toFixed(2)}
+                    {predictedExpenses.forecastMonth}
                   </p>
                 </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {predictedExpenses.perCategory.map((entry) => (
-                  <div
-                    key={entry.category}
-                    className="rounded-lg border border-gray-200 dark:border-gray-800 p-3"
-                  >
-                    <p className="text-sm text-gray-500">{entry.category}</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                      ${entry.predictedNextMonth.toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+                  <p className="text-sm text-gray-500">Current total</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    ${currentSpending.toFixed(2)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+                  <p className="text-sm text-gray-500">Forecast end of month</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    ${predictedExpenses.forecastEndOfMonth.toFixed(2)}
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
