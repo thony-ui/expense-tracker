@@ -41,7 +41,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Bars3Icon className="h-6 w-6" />
         </button>
         <div className="flex gap-2 ">
-          <PostReceipt />
+          {/* <PostReceipt /> */}
           <AddTransactionDialog />
           <AddBudgetDialog />
           <AddGoalDialog />
