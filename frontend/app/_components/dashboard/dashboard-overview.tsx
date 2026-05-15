@@ -144,7 +144,6 @@ export function DashboardOverview() {
         const client = await createGradioClient();
         const result = await client!.predict("/run_prediction", {
           current_month_spend: currentSpending,
-          window: 6,
         });
 
         const rawPayload = Array.isArray(result.data)
@@ -335,13 +334,13 @@ export function DashboardOverview() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
                   <p className="text-sm text-gray-500">Current total</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold text-green-500 dark:text-green-400">
                     ${currentSpending.toFixed(2)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
                   <p className="text-sm text-gray-500">Forecast end of month</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold text-red-500 dark:text-red-400">
                     ${predictedExpenses.forecastEndOfMonth.toFixed(2)}
                   </p>
                 </div>

@@ -9,6 +9,7 @@ import { IBudget } from "@/lib/types";
 import { EditBudgetModal } from "./edit-budget-modal";
 import DeleteBudgetModal from "./delete-budget-modal";
 import { Input } from "@/components/ui/input";
+import { CreateBudgetModal } from "./create-budget-modal";
 
 export function BudgetList() {
   const { data: budgets, isLoading } = useGetBudgets();
@@ -110,6 +111,12 @@ export function BudgetList() {
           open={deleteModalOpen}
           setOpen={setDeleteModalOpen}
           budgetId={deletingBudgetId}
+        />
+      )}
+      {createModalOpen && (
+        <CreateBudgetModal
+          setOpen={setCreateModalOpen}
+          onClose={() => setCreateModalOpen(false)}
         />
       )}
     </div>
