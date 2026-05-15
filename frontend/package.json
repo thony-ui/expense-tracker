@@ -46,6 +46,7 @@
     "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
+    "@gradio/client": "^2.2.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
