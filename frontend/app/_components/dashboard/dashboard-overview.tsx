@@ -70,7 +70,6 @@ export function DashboardOverview() {
   const [predictedExpenses, setPredictedExpenses] =
     useState<PredictedExpenses | null>(null);
   const [isPredictedLoading, setIsPredictedLoading] = useState(false);
-  const [predictedError, setPredictedError] = useState<string | null>(null);
 
   // Get budgets that are approaching limit (>80%) or over budget
   const alertBudgets = budgets.filter((b) => b.percentage >= 80);
@@ -138,7 +137,6 @@ export function DashboardOverview() {
 
     const fetchPredictions = async () => {
       setIsPredictedLoading(true);
-      setPredictedError(null);
 
       try {
         const client = await createGradioClient();
@@ -165,9 +163,6 @@ export function DashboardOverview() {
           forecastEndOfMonth: payload.forecast_end_of_month,
         });
       } catch (error) {
-        if (isActive) {
-          setPredictedError("Failed to load predicted expenses");
-        }
       } finally {
         if (isActive) {
           setIsPredictedLoading(false);
@@ -180,7 +175,7 @@ export function DashboardOverview() {
     return () => {
       isActive = false;
     };
-  }, [user?.name]);
+  }, [user?.name, currentSpending]);
 
   if (isLoading) {
     return (
