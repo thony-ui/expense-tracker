@@ -34,6 +34,8 @@ import { AddTransactionDialog } from "../forms/add-transaction-dialog";
 import { SavingsGoalItem } from "../goals/savings-goal-item";
 import PostReceipt from "./post-receipt";
 import { createGradioClient } from "@/lib/gradio";
+import { usePredictForecastExpense } from "@/app/hooks/use-predict-expense";
+import PredictedExpensesCard from "./predicted-expenses-card";
 
 type PredictedExpenses = {
   forecastMonth: string;
@@ -52,6 +54,7 @@ export function DashboardOverview() {
     date: new Date().toISOString().split("T")[0],
     type: "monthly",
   });
+  console.log("Monthly transactions:", monthlyTransactions);
 
   const currentSpending = useMemo(() => {
     return monthlyTransactions.reduce((sum, txn) => {
@@ -67,9 +70,6 @@ export function DashboardOverview() {
   >(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [predictedExpenses, setPredictedExpenses] =
-    useState<PredictedExpenses | null>(null);
-  const [isPredictedLoading, setIsPredictedLoading] = useState(false);
 
   // Get budgets that are approaching limit (>80%) or over budget
   const alertBudgets = budgets.filter((b) => b.percentage >= 80);
@@ -128,54 +128,10 @@ export function DashboardOverview() {
     invalidateSavingsGoals();
   };
 
-  useEffect(() => {
-    if (!user?.name) {
-      return;
-    }
-
-    let isActive = true;
-
-    const fetchPredictions = async () => {
-      setIsPredictedLoading(true);
-
-      try {
-        const client = await createGradioClient();
-        const result = await client!.predict("/run_prediction", {
-          current_month_spend: currentSpending,
-        });
-
-        const rawPayload = Array.isArray(result.data)
-          ? result.data[0]
-          : result.data;
-        const payload = rawPayload as {
-          current_month_spend: number;
-          forecast_end_of_month: number;
-          forecast_month: string;
-        };
-
-        if (!isActive) {
-          return;
-        }
-
-        setPredictedExpenses({
-          forecastMonth: payload.forecast_month,
-          currentMonthSpend: payload.current_month_spend,
-          forecastEndOfMonth: payload.forecast_end_of_month,
-        });
-      } catch (error) {
-      } finally {
-        if (isActive) {
-          setIsPredictedLoading(false);
-        }
-      }
-    };
-
-    fetchPredictions();
-
-    return () => {
-      isActive = false;
-    };
-  }, [user?.name, currentSpending]);
+  const { isPredictedLoading, predictedExpenses } = usePredictForecastExpense(
+    user,
+    currentSpending,
+  );
 
   if (isLoading) {
     return (
@@ -307,48 +263,11 @@ export function DashboardOverview() {
       </div>
 
       {/* Predicted Expenses */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-semibold">
-            Current Month Predicted Expenses
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isPredictedLoading ? (
-            <p className="text-sm text-gray-500">Loading prediction...</p>
-          ) : predictedExpenses ? (
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <p className="text-sm text-gray-500">Forecast month</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {predictedExpenses.forecastMonth}
-                  </p>
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
-                  <p className="text-sm text-gray-500">Current total</p>
-                  <p className="text-2xl font-bold text-green-500 dark:text-green-400">
-                    ${currentSpending.toFixed(2)}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
-                  <p className="text-sm text-gray-500">Forecast end of month</p>
-                  <p className="text-2xl font-bold text-red-500 dark:text-red-400">
-                    ${predictedExpenses.forecastEndOfMonth.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">
-              No prediction data available.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
+      <PredictedExpensesCard
+        isPredictedLoading={isPredictedLoading}
+        predictedExpenses={predictedExpenses}
+        currentSpending={currentSpending}
+      />
       {/* Recent Activity */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
