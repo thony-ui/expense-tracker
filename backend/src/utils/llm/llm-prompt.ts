@@ -43,7 +43,7 @@ ${context}
 `;
   return llmPrompt;
 };
-export const getLLMPromptForTransactionParsing = () => {
+export const getLLMPromptForTransactionParsing = (budgetsContext: string) => {
   const today = new Date().toISOString().split("T")[0];
 
   return `
@@ -146,7 +146,8 @@ You MUST respond ONLY with valid JSON:
   "category": "<one of the categories above>",
   "type": "<expense or income>",
   "description": "<cleaned description>",
-  "name": "<Expense or Income>"
+  "name": "<Expense or Income>",
+  "budgetId": "<optional budget ID if it can be inferred>"
 }
 
 ## Output Rules
@@ -158,6 +159,12 @@ You MUST respond ONLY with valid JSON:
 - Date must always be "${today}"
 - Category must be exactly one of the allowed categories
 - Type must be either "expense" or "income"
+
+## Context on budgets:
+If the receipt text contains a clear reference to a known budget category or name, you MAY include the corresponding "budgetId" in the output JSON. However, if there is any ambiguity, it is safer to omit the "budgetId" rather than risk an incorrect inference.
+
+Here are the user's budgets that you can reference for potential "budgetId" inference:
+${budgetsContext}
 
 `.trim();
 };

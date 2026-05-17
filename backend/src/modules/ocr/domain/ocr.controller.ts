@@ -8,11 +8,14 @@ import { TransactionRepository } from "../../transaction/domain/transaction.repo
 import { ITransaction } from "../../transaction/domain/transaction.interface";
 import convert from "heic-convert";
 import supabase from "../../../lib/supabase-client";
+import { BudgetRepository } from "../../budget/domain/budget.repository";
 
 export class OCRController {
   constructor(
     private ocrService: OCRService,
     private transactionRepository: TransactionRepository,
+
+    private budgetRepository: BudgetRepository,
   ) {}
 
   postOCR = async (
@@ -66,7 +69,11 @@ export class OCRController {
 
       // Process OCR
       const llm = new LLM();
-      const llmPrompt = getLLMPromptForTransactionParsing();
+      const budgets = await this.budgetRepository.getBudgets(userId);
+      const mappedBudgetsContext = JSON.stringify(
+        Object.fromEntries(budgets.map((budget) => [budget.id, budget.name])),
+      );
+      const llmPrompt = getLLMPromptForTransactionParsing(mappedBudgetsContext);
       const llmResponse = await llm.autoAddExpenseOrIncome(
         llmPrompt,
         imageBuffer,
@@ -89,7 +96,7 @@ export class OCRController {
         converted_amount: parsed.amount ?? null,
         exchange_rate: 1,
         savingsGoalId: undefined,
-        budgetId: undefined,
+        budgetId: parsed.budgetId ?? null,
       };
 
       await this.transactionRepository.addTransactionToDatabase(

@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { invalidateBudgets } from "@/app/queries/use-get-budgets";
 
 const PostReceipt = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -63,6 +64,7 @@ const PostReceipt = () => {
       const timeout = setTimeout(() => {
         setOpen(false);
         mutation.reset();
+        invalidateBudgets();
       }, 1200);
 
       return () => clearTimeout(timeout);
