@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../../logger";
 import { validateOCRRequest } from "./ocr.validator";
-import { OCRService } from "./ocr.service";
 import { getLLMPromptForTransactionParsing } from "../../../utils/llm/llm-prompt";
 import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
@@ -12,7 +11,6 @@ import { BudgetRepository } from "../../budget/domain/budget.repository";
 
 export class OCRController {
   constructor(
-    private ocrService: OCRService,
     private transactionRepository: TransactionRepository,
 
     private budgetRepository: BudgetRepository,
