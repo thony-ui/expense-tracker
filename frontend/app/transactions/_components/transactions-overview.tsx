@@ -63,7 +63,9 @@ export function TransactionsOverview() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           Your Transactions
         </h1>
-        <p className="text-gray-600">Track your expenses and income</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Track your expenses and income
+        </p>
       </div>
       <Pagination
         currentPage={currentPage}
