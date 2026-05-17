@@ -43,7 +43,7 @@ ${context}
 `;
   return llmPrompt;
 };
-export const getLLMPromptForTransactionParsing = (context: string) => {
+export const getLLMPromptForTransactionParsing = () => {
   const today = new Date().toISOString().split("T")[0];
 
   return `
@@ -159,6 +159,5 @@ You MUST respond ONLY with valid JSON:
 - Category must be exactly one of the allowed categories
 - Type must be either "expense" or "income"
 
-${context ? `\n## Context\n${context}` : ""}
 `.trim();
 };

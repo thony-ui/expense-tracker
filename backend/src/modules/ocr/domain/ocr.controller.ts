@@ -66,9 +66,12 @@ export class OCRController {
 
       // Process OCR
       const llm = new LLM();
-      const extractedData = await this.ocrService.processImage(imageBuffer);
-      const llmPrompt = getLLMPromptForTransactionParsing(extractedData.text);
-      const llmResponse = await llm.autoAddExpenseOrIncome(llmPrompt);
+      const llmPrompt = getLLMPromptForTransactionParsing();
+      const llmResponse = await llm.autoAddExpenseOrIncome(
+        llmPrompt,
+        imageBuffer,
+        downloadData.type,
+      );
       logger.info(`LLM Response: ${llmResponse}`);
       const parsed = JSON.parse(llmResponse);
 
@@ -93,9 +96,8 @@ export class OCRController {
         transactionData,
       );
 
-      res.status(200).send({
-        ...extractedData,
-        imageUrl: imagePath,
+      res.status(201).send({
+        message: "Transaction added successfully",
       });
     } catch (error) {
       next(error);

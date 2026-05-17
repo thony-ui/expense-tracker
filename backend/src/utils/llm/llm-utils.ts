@@ -69,10 +69,15 @@ export class LLM {
     return response.choices?.[0]?.message?.content || "";
   }
 
-  async autoAddExpenseOrIncome(prompt: string) {
+  async autoAddExpenseOrIncome(
+    prompt: string,
+    fileBuffer: Buffer,
+    mimeType: string,
+  ) {
     if (!this.enabled || !this.openai) {
       throw new Error("OpenAI API not enabled or initialized.");
     }
+    const base64 = fileBuffer.toString("base64");
 
     const response = await this.openai.chat.completions.create({
       model: "gpt-4.1-mini", // or another model you prefer
@@ -82,7 +87,21 @@ export class LLM {
           content:
             "You are a helpful assistant that extracts transaction details from user input.",
         },
-        { role: "user", content: prompt },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${base64}`,
+              },
+            },
+          ],
+        },
       ],
     });
     return response.choices?.[0]?.message?.content || "";
