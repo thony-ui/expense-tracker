@@ -54,7 +54,6 @@ export function DashboardOverview() {
     date: new Date().toISOString().split("T")[0],
     type: "monthly",
   });
-  console.log("Monthly transactions:", monthlyTransactions);
 
   const currentSpending = useMemo(() => {
     return monthlyTransactions.reduce((sum, txn) => {

@@ -19,7 +19,16 @@ export function usePredictForecastExpense(
     useState<IPredictedExpenses | null>(null);
 
   useEffect(() => {
-    if (!user?.name) {
+    if (!user?.name) return;
+
+    const today = new Date().toDateString();
+
+    const cacheKey = `forecast:${user.name}:${today}:${currentSpending}`;
+
+    const cached = localStorage.getItem(cacheKey);
+
+    if (cached) {
+      setPredictedExpenses(JSON.parse(cached));
       return;
     }
 
@@ -30,6 +39,7 @@ export function usePredictForecastExpense(
 
       try {
         const client = await createGradioClient();
+
         const result = await client!.predict("/run_prediction", {
           current_month_spend: currentSpending,
         });
@@ -37,21 +47,24 @@ export function usePredictForecastExpense(
         const rawPayload = Array.isArray(result.data)
           ? result.data[0]
           : result.data;
+
         const payload = rawPayload as {
           current_month_spend: number;
           forecast_end_of_month: number;
           forecast_month: string;
         };
 
-        if (!isActive) {
-          return;
-        }
-
-        setPredictedExpenses({
+        const forecast: IPredictedExpenses = {
           forecastMonth: payload.forecast_month,
           currentMonthSpend: payload.current_month_spend,
           forecastEndOfMonth: payload.forecast_end_of_month,
-        });
+        };
+
+        localStorage.setItem(cacheKey, JSON.stringify(forecast));
+
+        if (isActive) {
+          setPredictedExpenses(forecast);
+        }
       } catch (error) {
       } finally {
         if (isActive) {
