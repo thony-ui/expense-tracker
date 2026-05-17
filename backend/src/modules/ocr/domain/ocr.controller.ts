@@ -56,7 +56,7 @@ export class OCRController {
           `Converting HEIC/HEIF file for OCR processing for userId: ${userId}`,
         );
         const converted = await convert({
-          buffer: bufferData as ArrayBufferLike,
+          buffer: bufferData as unknown as ArrayBufferLike,
           format: "JPEG",
         });
         imageBuffer = Buffer.from(converted);
