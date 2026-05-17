@@ -14,5 +14,5 @@ export function defineOCRRoutes(expressApp: Application) {
 
   ocrRouter.post("/", ocrController.postOCR);
 
-  expressApp.use("/v1/ocr", authenticateUser, ocrRouter);
+  // expressApp.use("/v1/ocr", authenticateUser, ocrRouter);
 }
