@@ -34,36 +34,27 @@ export class TransactionRepository implements ITransactionService {
     converted_amount,
     exchange_rate,
     savingsGoalId,
-    budgetId,
+    budgetIds,
   }: ITransaction) => {
-    console.log(savingsGoalId);
     const { data, error } = await supabase
       .from("transactions")
-      .insert([
-        {
-          type,
-          amount,
-          name,
-          description,
-          category,
-          date,
-          userId,
-          base_currency,
-          converted_currency,
-          base_amount,
-          converted_amount,
-          exchange_rate,
-          savingsGoalId,
-          budgetId,
-        },
-      ])
+      .insert({
+        userId,
+        type,
+        amount,
+        name,
+        description,
+        category,
+        date,
+        base_currency,
+        converted_currency,
+        base_amount,
+        converted_amount,
+        exchange_rate,
+        savingsGoalId: savingsGoalId || null, // Set to null if not provided
+        budgetId: null, // Use the first budget ID if provided
+      })
       .select("*, users(name)");
-    if (error) {
-      logger.error(
-        `TransactionRepository: addTransactionToDatabase error: ${error}`
-      );
-      throw new Error("Error adding expense to database");
-    }
     const insertedTransaction = data?.[0]; // Get the inserted row
     const transactionId = insertedTransaction?.id; // This is the UUID or auto-ID
 
@@ -83,11 +74,25 @@ export class TransactionRepository implements ITransactionService {
       converted_amount,
       exchange_rate,
       savingsGoalId,
-      budgetId,
+      budgetId: "",
     });
-    logger.info(
-      `TransactionRepository: addTransactionToDatabase success: ${data}`
-    );
+    for (const budgetId of budgetIds || []) {
+      const { data: transactionBudgetData, error } = await supabase
+        .from("transaction_budget")
+        .insert({
+          transaction_id: data?.[0]?.id,
+          budget_id: budgetId,
+        });
+      if (error) {
+        logger.error(
+          `TransactionRepository: addTransactionToDatabase error: ${error}`,
+        );
+        throw new Error("Error adding expense to database");
+      }
+      logger.info(
+        `TransactionRepository: addTransactionToDatabase success: ${data}`,
+      );
+    }
   };
 
   getTransactionsFromDatabase = async (
@@ -96,12 +101,12 @@ export class TransactionRepository implements ITransactionService {
     limit?: number,
     offSet?: number,
     categoryType?: string,
-    dateToFilter?: string
+    dateToFilter?: string,
   ) => {
     let query = supabase
       .from("transactions")
       .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savings_goals(id, title), savingsGoalId"
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savings_goals(id, title), savingsGoalId",
       )
       .eq("userId", userId);
 
@@ -119,7 +124,7 @@ export class TransactionRepository implements ITransactionService {
     if (categoryType && dateToFilter) {
       const { startDate, endDate } = getDateBasedOnCategoryType(
         categoryType,
-        dateToFilter
+        dateToFilter,
       );
       query = query.gte("date", startDate).lte("date", endDate);
     }
@@ -137,8 +142,14 @@ export class TransactionRepository implements ITransactionService {
 
   deleteTransactionFromDatabase = async (
     transactionId: string,
-    userId: string
+    userId: string,
   ) => {
+    const { error: budgetError } = await supabase
+      .from("transaction_budget")
+      .delete()
+      .eq("transaction_id", transactionId);
+
+    if (budgetError) throw budgetError;
     const { data, error } = await supabase
       .from("transactions")
       .delete()
@@ -147,27 +158,48 @@ export class TransactionRepository implements ITransactionService {
 
     if (error) {
       logger.error(
-        `TransactionRepository: deleteTransactionFromDatabase error: ${error}`
+        `TransactionRepository: deleteTransactionFromDatabase error: ${error}`,
       );
       throw new Error("Error deleting transaction from database");
     }
     await deleteRowFromGoogleSheet(transactionId);
 
     logger.info(
-      `TransactionRepository: deleteTransactionFromDatabase success: ${data}`
+      `TransactionRepository: deleteTransactionFromDatabase success: ${data}`,
     );
   };
   updateTransactionInDatabase = async (
     transactionId: string,
     userId: string,
-    updatedTransaction: Omit<ITransaction, "userId">
+    updatedTransaction: Omit<ITransaction, "userId">,
   ) => {
+    const { data: deletedRows, error: deleteError } = await supabase
+      .from("transaction_budget")
+      .delete()
+      .eq("transaction_id", transactionId);
+    const budgetIds = updatedTransaction.budgetIds || [];
+    const transactionData = {
+      type: updatedTransaction.type,
+      amount: updatedTransaction.amount,
+      name: updatedTransaction.name,
+      description: updatedTransaction.description,
+      category: updatedTransaction.category,
+      date: updatedTransaction.date,
+      base_currency: updatedTransaction.base_currency,
+      converted_currency: updatedTransaction.converted_currency,
+      base_amount: updatedTransaction.base_amount,
+      converted_amount: updatedTransaction.converted_amount,
+      exchange_rate: updatedTransaction.exchange_rate,
+    };
+
+    logger.info(`Incoming budgetId: ${JSON.stringify(budgetIds)}`);
+
     const { data, error } = await supabase
       .from("transactions")
       .update({
-        ...updatedTransaction,
-        savingsGoalId: updatedTransaction.savingsGoalId || null, // Clear if not provided
-        budgetId: updatedTransaction.budgetId || null,
+        ...transactionData,
+        savingsGoalId: updatedTransaction.savingsGoalId || null,
+        budgetId: null,
       })
       .eq("id", transactionId)
       .eq("userId", userId)
@@ -175,14 +207,18 @@ export class TransactionRepository implements ITransactionService {
 
     if (error) {
       logger.error(
-        `TransactionRepository: updateTransactionInDatabase error: ${JSON.stringify(
-          error
-        )}`
+        `TransactionRepository: updateTransactionInDatabase error: ${JSON.stringify(error)}`,
       );
       throw new Error("Error updating transaction in database");
     }
-    const updatedTransactionData = data?.[0];
 
+    const updatedTransactionData = data?.[0];
+    if (!updatedTransactionData) {
+      logger.error(
+        `TransactionRepository: updateTransactionInDatabase error: No transaction found after update for transactionId: ${transactionId} and userId: ${userId}`,
+      );
+      throw new Error("Transaction not found after update");
+    }
     const updatedTransactionDataWithName = {
       id: updatedTransactionData.id,
       userId: updatedTransactionData.userId,
@@ -199,30 +235,71 @@ export class TransactionRepository implements ITransactionService {
       converted_amount: updatedTransactionData.converted_amount,
       exchange_rate: updatedTransactionData.exchange_rate,
       savingsGoalId: updatedTransactionData.savingsGoalId,
-      budgetId: updatedTransactionData.budgetId,
+      budgetIds,
     };
 
     await updateGoogleSheetRowByTransactionId(
       transactionId,
-      updatedTransactionDataWithName
+      updatedTransactionDataWithName,
     );
 
     logger.info(
-      `TransactionRepository: updateTransactionInDatabase success: ${data}`
+      `Deleted old budget links: ${JSON.stringify(deletedRows)}, error: ${JSON.stringify(deleteError)}`,
     );
+
+    if (deleteError) {
+      logger.error(
+        `TransactionRepository: updateTransactionInDatabase error deleting old budget links: ${JSON.stringify(deleteError)}`,
+      );
+      throw new Error("Error updating transaction budgets in database");
+    }
+
+    if (budgetIds.length > 0) {
+      const rows = budgetIds.map((budgetId) => ({
+        transaction_id: transactionId,
+        budget_id: budgetId,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("transaction_budget")
+        .insert(rows);
+
+      if (insertError) {
+        logger.error(
+          `TransactionRepository: updateTransactionInDatabase error inserting new budget links: ${JSON.stringify(insertError)}`,
+        );
+        throw new Error("Error updating transaction budgets in database");
+      }
+    }
   };
   getTransactionByIdFromDatabase = async (
     transactionId: string,
-    userId: string
+    userId: string,
   ) => {
     const { data, error } = await supabase
       .from("transactions")
       .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savings_goals(id, title)"
+        `
+    *,
+    transaction_budget (
+      budget_id
+    )
+  `,
       )
       .eq("id", transactionId)
       .eq("userId", userId)
       .single();
+
+    if (error) throw error;
+
+    const budgetIds = data.transaction_budget.map(
+      (item: { budget_id: string }) => item.budget_id,
+    );
+
+    const transaction = {
+      ...data,
+      budgetIds,
+    };
 
     if (error) {
       logger.error(`TransactionRepository: getTransactionById error: ${error}`);
@@ -230,17 +307,17 @@ export class TransactionRepository implements ITransactionService {
     }
 
     logger.info(`TransactionRepository: getTransactionById success: ${data}`);
-    return data;
+    return transaction;
   };
 
   getTransactionsBySavingsGoalIdFromDatabase = async (
     savingsGoalIds: string[],
-    userId: string
+    userId: string,
   ) => {
     const { data, error } = await supabase
       .from("transactions")
       .select(
-        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savingsGoalId"
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savingsGoalId",
       )
       .in("savingsGoalId", savingsGoalIds)
       .eq("userId", userId)
@@ -248,21 +325,21 @@ export class TransactionRepository implements ITransactionService {
 
     if (error) {
       logger.error(
-        `TransactionRepository: getTransactionsBySavingsGoalId error: ${error}`
+        `TransactionRepository: getTransactionsBySavingsGoalId error: ${error}`,
       );
       throw new Error(
-        "Error fetching transactions by savings goal ID from database"
+        "Error fetching transactions by savings goal ID from database",
       );
     }
 
     logger.info(
-      `TransactionRepository: getTransactionsBySavingsGoalId success: ${data}`
+      `TransactionRepository: getTransactionsBySavingsGoalId success: ${data}`,
     );
     return data;
   };
   updateMultipleTransactionsInDatabase: (
     transactionIds: number[],
-    userId: string
+    userId: string,
   ) => Promise<void> = async (transactionIds, userId) => {
     const { data, error } = await supabase
       .from("transactions")
@@ -273,7 +350,7 @@ export class TransactionRepository implements ITransactionService {
 
     if (error) {
       logger.error(
-        `TransactionRepository: updateMultipleTransactionsInDatabase error: ${error}`
+        `TransactionRepository: updateMultipleTransactionsInDatabase error: ${error}`,
       );
       throw new Error("Error updating multiple transactions in database");
     }
@@ -301,13 +378,13 @@ export class TransactionRepository implements ITransactionService {
 
         await updateGoogleSheetRowByTransactionId(
           updatedTransactionData.id,
-          updatedTransactionDataWithName
+          updatedTransactionDataWithName,
         );
       }
     }
 
     logger.info(
-      `TransactionRepository: updateMultipleTransactionsInDatabase success: ${data}`
+      `TransactionRepository: updateMultipleTransactionsInDatabase success: ${data}`,
     );
   };
 }

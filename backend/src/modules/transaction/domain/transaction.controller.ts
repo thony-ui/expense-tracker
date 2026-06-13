@@ -17,7 +17,7 @@ export class TransactionController {
   postTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     try {
@@ -34,14 +34,14 @@ export class TransactionController {
         converted_amount,
         exchange_rate,
         savingsGoalId,
-        budgetId,
+        budgetIds,
         userId: id,
       } = validatePostTransaction({
         ...req.body,
         userId,
       });
       logger.info(
-        `TransactionController: postTransaction called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`
+        `TransactionController: postTransaction called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`,
       );
       await this.transactionService.addTransactionToDatabase({
         userId: id,
@@ -57,7 +57,7 @@ export class TransactionController {
         converted_amount,
         exchange_rate,
         savingsGoalId,
-        budgetId,
+        budgetIds,
       });
       res.status(201).send({ message: "Transaction added successfully" });
     } catch (error) {
@@ -67,7 +67,7 @@ export class TransactionController {
   getTransactions = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     const {
@@ -94,7 +94,7 @@ export class TransactionController {
         date: txnDate,
       });
       logger.info(
-        `TransactionController: getTransactions called for userId: ${userId} and transactionType: ${type} and limit: ${maxLimit} and offSet: ${maxOffSet}`
+        `TransactionController: getTransactions called for userId: ${userId} and transactionType: ${type} and limit: ${maxLimit} and offSet: ${maxOffSet}`,
       );
       const transactions =
         await this.transactionService.getTransactionsFromDatabase(
@@ -103,7 +103,7 @@ export class TransactionController {
           maxLimit,
           maxOffSet,
           categoryType,
-          dateToFilter
+          dateToFilter,
         );
       res.status(200).send(transactions);
     } catch (error) {
@@ -114,7 +114,7 @@ export class TransactionController {
   deleteTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     const { transactionId } = req.params;
@@ -124,7 +124,7 @@ export class TransactionController {
         userId,
       });
       logger.info(
-        `TransactionController: deleteTransaction called for transactionId: ${id} and userId: ${uid}`
+        `TransactionController: deleteTransaction called for transactionId: ${id} and userId: ${uid}`,
       );
       await this.transactionService.deleteTransactionFromDatabase(id, uid);
       res.status(200).send({ message: "Transaction deleted successfully" });
@@ -135,7 +135,7 @@ export class TransactionController {
   updateTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     const { transactionId } = req.params;
@@ -151,12 +151,12 @@ export class TransactionController {
         ...updatedTransaction,
       });
       logger.info(
-        `TransactionController: updateTransaction called for transactionId: ${id} and userId: ${uid}`
+        `TransactionController: updateTransaction called for transactionId: ${id} and userId: ${uid}`,
       );
       await this.transactionService.updateTransactionInDatabase(
         id,
         uid,
-        updatedTransactionForDatabase
+        updatedTransactionForDatabase,
       );
       res.status(200).send({ message: "Transaction updated successfully" });
     } catch (error) {
@@ -166,7 +166,7 @@ export class TransactionController {
   getTransactionById = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     const { transactionId } = req.params;
@@ -176,7 +176,7 @@ export class TransactionController {
         transactionId,
       });
       logger.info(
-        `TransactionController: getTransactionById called for transactionId: ${id} and userId: ${uid}`
+        `TransactionController: getTransactionById called for transactionId: ${id} and userId: ${uid}`,
       );
       const transaction =
         await this.transactionService.getTransactionByIdFromDatabase(id, uid);
@@ -189,7 +189,7 @@ export class TransactionController {
   getTransactionBySavingsGoalId = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     let { savingsGoalIds } = req.query;
@@ -203,12 +203,12 @@ export class TransactionController {
           savingsGoalIds,
         });
       logger.info(
-        `TransactionController: getTransactionBySavingsGoalId called for savingsGoalId: ${ids} and userId: ${uid}`
+        `TransactionController: getTransactionBySavingsGoalId called for savingsGoalId: ${ids} and userId: ${uid}`,
       );
       const transactions =
         await this.transactionService.getTransactionsBySavingsGoalIdFromDatabase(
           ids,
-          uid
+          uid,
         );
       res.status(200).send(transactions);
     } catch (error) {
@@ -219,7 +219,7 @@ export class TransactionController {
   updateMultipleTransactions = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
     const { transactionIds } = req.body;
@@ -230,11 +230,11 @@ export class TransactionController {
           transactionIds,
         });
       logger.info(
-        `TransactionController: updateMultipleTransactions called for transactionIds: ${transactionIds} and userId: ${userId}`
+        `TransactionController: updateMultipleTransactions called for transactionIds: ${transactionIds} and userId: ${userId}`,
       );
       await this.transactionService.updateMultipleTransactionsInDatabase(
         ids,
-        uid
+        uid,
       );
       res.status(200).send({ message: "Transactions updated successfully" });
     } catch (error) {

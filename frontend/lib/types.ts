@@ -14,7 +14,7 @@ export interface ITransaction {
   exchange_rate: number;
 
   savingsGoalId?: string;
-  budgetId?: string;
+  budgetIds?: string[];
 
   savings_goals?: {
     id: string;

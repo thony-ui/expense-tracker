@@ -18,12 +18,14 @@ async function GoogleSheetClient() {
 }
 
 export async function addRowToGoogleSheet(
-  values: ITransaction & { transactionId: string } & { username: string },
-  range = "Transactions!A:B"
+  values: ITransaction & { transactionId: string } & { username: string } & {
+    budgetId: string;
+  },
+  range = "Transactions!A:B",
 ) {
   const sheets = await GoogleSheetClient();
   logger.info(
-    `Appending row to Google Sheet with values: ${JSON.stringify(values)}`
+    `Appending row to Google Sheet with values: ${JSON.stringify(values)}`,
   );
   await sheets.spreadsheets.values.append({
     spreadsheetId: process.env.SPREADSHEET_ID,
@@ -38,7 +40,7 @@ export async function addRowToGoogleSheet(
 
 export async function updateGoogleSheetRowByTransactionId(
   transactionId: string,
-  updatedTransaction: ITransaction
+  updatedTransaction: ITransaction,
 ) {
   const rowIndex = await findRowIndexByTransactionId(transactionId.toString());
 
@@ -50,8 +52,8 @@ export async function updateGoogleSheetRowByTransactionId(
   const updateRange = `Transactions!A${rowIndex}:P${rowIndex}`; // Full row
   logger.info(
     `Updating row ${rowIndex} in Google Sheet with values: ${JSON.stringify(
-      updatedTransaction
-    )}`
+      updatedTransaction,
+    )}`,
   );
 
   await sheets.spreadsheets.values.update({
@@ -64,6 +66,7 @@ export async function updateGoogleSheetRowByTransactionId(
   });
 
   logger.info(`Updated row ${rowIndex} with new values.`);
+  return;
 }
 
 export async function deleteRowFromGoogleSheet(transactionId: string) {
@@ -71,7 +74,7 @@ export async function deleteRowFromGoogleSheet(transactionId: string) {
 
   if (rowIndex === null) {
     throw new Error(
-      `Transaction ID ${transactionId} not found in Google Sheet`
+      `Transaction ID ${transactionId} not found in Google Sheet`,
     );
   }
 
@@ -98,7 +101,7 @@ export async function deleteRowFromGoogleSheet(transactionId: string) {
   logger.info(`Deleted row ${rowIndex} from Google Sheet`);
 }
 async function findRowIndexByTransactionId(
-  transactionId: string
+  transactionId: string,
 ): Promise<number | null> {
   const sheets = await GoogleSheetClient();
   const range = "Transactions!A2:A"; // Only the ID column

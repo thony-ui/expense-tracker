@@ -15,13 +15,13 @@ const postTransactionValidator = z.object({
   converted_amount: z.number().min(0),
   exchange_rate: z.number(),
   savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
-  budgetId: z.string().uuid("Invalid budget ID format").optional(),
+  budgetIds: z.array(z.string().uuid("Invalid budget ID format")).optional(),
 });
 
 type TPostTransactionValidator = z.infer<typeof postTransactionValidator>;
 
 export function validatePostTransaction(
-  data: unknown
+  data: unknown,
 ): TPostTransactionValidator {
   try {
     const parsed = postTransactionValidator.parse(data);
@@ -31,10 +31,10 @@ export function validatePostTransaction(
       logger.error(
         `TransactionValidator: validatePostTransaction error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error; // rethrow unexpected errors
@@ -57,7 +57,7 @@ const getTransactionsValidator = z.object({
 });
 type TGetTransactionsValidator = z.infer<typeof getTransactionsValidator>;
 export function validateGetTransactions(
-  data: unknown
+  data: unknown,
 ): TGetTransactionsValidator {
   try {
     const parsed = getTransactionsValidator.parse(data);
@@ -67,10 +67,10 @@ export function validateGetTransactions(
       logger.error(
         `TransactionValidator: validateGetTransactions error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error; // rethrow unexpected errors
@@ -83,7 +83,7 @@ const deleteTransactionValidator = z.object({
 });
 type TDeleteTransactionValidator = z.infer<typeof deleteTransactionValidator>;
 export function validateDeleteTransaction(
-  data: unknown
+  data: unknown,
 ): TDeleteTransactionValidator {
   try {
     const parsed = deleteTransactionValidator.parse(data);
@@ -93,10 +93,10 @@ export function validateDeleteTransaction(
       logger.error(
         `TransactionValidator: validateDeleteTransaction error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error; // rethrow unexpected errors
@@ -118,12 +118,12 @@ const updateTransactionValidator = z.object({
     converted_amount: z.number().min(0),
     exchange_rate: z.number(),
     savingsGoalId: z.string().uuid("Invalid savings goal ID format").optional(),
-    budgetId: z.string().uuid("Invalid budget ID format").optional(),
+    budgetIds: z.array(z.string().uuid("Invalid budget ID format")).optional(),
   }),
 });
 type TUpdateTransactionValidator = z.infer<typeof updateTransactionValidator>;
 export function validateUpdateTransaction(
-  data: unknown
+  data: unknown,
 ): TUpdateTransactionValidator {
   try {
     const parsed = updateTransactionValidator.parse(data);
@@ -133,10 +133,10 @@ export function validateUpdateTransaction(
       logger.error(
         `TransactionValidator: validateUpdateTransaction error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error; // rethrow unexpected errors
@@ -149,7 +149,7 @@ const getTransactionByIdValidator = z.object({
 });
 type TGetTransactionByIdValidator = z.infer<typeof getTransactionByIdValidator>;
 export function validateGetTransactionById(
-  data: unknown
+  data: unknown,
 ): TGetTransactionByIdValidator {
   try {
     const parsed = getTransactionByIdValidator.parse(data);
@@ -159,10 +159,10 @@ export function validateGetTransactionById(
       logger.error(
         `TransactionValidator: validateGetTransactionById error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error;
@@ -177,7 +177,7 @@ type TGetTransactionsBySavingsGoalIdValidator = z.infer<
   typeof getTransactionsBySavingsGoalIdValidator
 >;
 export function validateGetTransactionsBySavingsGoalId(
-  data: unknown
+  data: unknown,
 ): TGetTransactionsBySavingsGoalIdValidator {
   try {
     const parsed = getTransactionsBySavingsGoalIdValidator.parse(data);
@@ -187,10 +187,10 @@ export function validateGetTransactionsBySavingsGoalId(
       logger.error(
         `TransactionValidator: validateGetTransactionsBySavingsGoalId error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error;
@@ -205,7 +205,7 @@ type TUpdateMultipleTransactionsValidator = z.infer<
   typeof updateMultipleTransactionsValidator
 >;
 export function validateUpdateMultipleTransactions(
-  data: unknown
+  data: unknown,
 ): TUpdateMultipleTransactionsValidator {
   try {
     const parsed = updateMultipleTransactionsValidator.parse(data);
@@ -215,10 +215,10 @@ export function validateUpdateMultipleTransactions(
       logger.error(
         `TransactionValidator: validateUpdateMultipleTransactions error: ${error.errors
           .map((e) => e.message)
-          .join(", ")}`
+          .join(", ")}`,
       );
       throw new Error(
-        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
       );
     }
     throw error;

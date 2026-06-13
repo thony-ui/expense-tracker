@@ -11,7 +11,7 @@ import {
 export class BudgetRepository implements IBudgetRepository {
   async createBudget(budget: ICreateBudget): Promise<void> {
     logger.info(
-      `BudgetRepository: createBudget called with name: ${budget.name}, amount: ${budget.amount}, userId: ${budget.userId}`
+      `BudgetRepository: createBudget called with name: ${budget.name}, amount: ${budget.amount}, userId: ${budget.userId}`,
     );
 
     const { error } = await supabaseClient.from("budgets").insert({
@@ -51,25 +51,25 @@ export class BudgetRepository implements IBudgetRepository {
         const spent = await this.getBudgetSpent(
           budget.id,
           budget.start_date,
-          budget.end_date
+          budget.end_date,
         );
 
         return this.mapBudgetWithSpent(budget, spent);
-      })
+      }),
     );
 
     logger.info(
-      `BudgetRepository: getBudgets successful, found ${budgetsWithSpent.length} budgets`
+      `BudgetRepository: getBudgets successful, found ${budgetsWithSpent.length} budgets`,
     );
     return budgetsWithSpent;
   }
 
   async getBudgetById(
     budgetId: string,
-    userId: string
+    userId: string,
   ): Promise<IBudgetWithSpent | null> {
     logger.info(
-      `BudgetRepository: getBudgetById called for budgetId: ${budgetId}, userId: ${userId}`
+      `BudgetRepository: getBudgetById called for budgetId: ${budgetId}, userId: ${userId}`,
     );
 
     const { data, error } = await supabaseClient
@@ -91,7 +91,7 @@ export class BudgetRepository implements IBudgetRepository {
     const spent = await this.getBudgetSpent(
       data.id,
       data.start_date,
-      data.end_date
+      data.end_date,
     );
 
     logger.info("BudgetRepository: getBudgetById successful");
@@ -100,7 +100,7 @@ export class BudgetRepository implements IBudgetRepository {
 
   async updateBudget(budget: IUpdateBudget): Promise<void> {
     logger.info(
-      `BudgetRepository: updateBudget called for budgetId: ${budget.budgetId}`
+      `BudgetRepository: updateBudget called for budgetId: ${budget.budgetId}`,
     );
 
     const updateData: any = {};
@@ -128,7 +128,7 @@ export class BudgetRepository implements IBudgetRepository {
 
   async deleteBudget(budgetId: string, userId: string): Promise<void> {
     logger.info(
-      `BudgetRepository: deleteBudget called for budgetId: ${budgetId}, userId: ${userId}`
+      `BudgetRepository: deleteBudget called for budgetId: ${budgetId}, userId: ${userId}`,
     );
 
     const { error } = await supabaseClient
@@ -148,28 +148,73 @@ export class BudgetRepository implements IBudgetRepository {
   async getBudgetSpent(
     budgetId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<number> {
     logger.info(
-      `BudgetRepository: getBudgetSpent called for budgetId: ${budgetId}`
+      `BudgetRepository: getBudgetSpent called for budgetId: ${budgetId}`,
     );
 
-    const { data, error } = await supabaseClient
-      .from("transactions")
-      .select("amount")
-      .eq("budgetId", budgetId)
-      .eq("type", "expense")
-      .gte("date", startDate)
-      .lte("date", endDate);
+    // Old functionality: transactions.budgetId
+    const { data: directTransactions, error: directError } =
+      await supabaseClient
+        .from("transactions")
+        .select("id, amount")
+        .eq("budgetId", budgetId)
+        .eq("type", "expense")
+        .gte("date", startDate)
+        .lte("date", endDate);
 
-    if (error) {
-      logger.error(`BudgetRepository: getBudgetSpent error: ${error.message}`);
-      throw new Error(error.message);
+    if (directError) {
+      logger.error(
+        `BudgetRepository: getBudgetSpent direct error: ${directError.message}`,
+      );
+      throw new Error(directError.message);
     }
 
-    const spent = (data || []).reduce(
-      (sum, transaction) => sum + transaction.amount,
-      0
+    // New functionality: transaction_budget join table
+    const { data: joinedTransactions, error: joinedError } =
+      await supabaseClient
+        .from("transaction_budget")
+        .select(
+          `
+      transaction_id,
+      transactions!inner (
+        id,
+        amount,
+        type,
+        date
+      )
+    `,
+        )
+        .eq("budget_id", budgetId)
+        .eq("transactions.type", "expense")
+        .gte("transactions.date", startDate)
+        .lte("transactions.date", endDate);
+
+    if (joinedError) {
+      logger.error(
+        `BudgetRepository: getBudgetSpent joined error: ${joinedError.message}`,
+      );
+      throw new Error(joinedError.message);
+    }
+
+    // Avoid double-counting if same transaction exists in both old and new systems
+    const transactionMap = new Map<string, number>();
+
+    directTransactions?.forEach((tx) => {
+      transactionMap.set(tx.id, tx.amount);
+    });
+
+    joinedTransactions?.forEach((row: any) => {
+      const tx = row.transactions;
+      if (tx) {
+        transactionMap.set(tx.id, tx.amount);
+      }
+    });
+
+    const spent = Array.from(transactionMap.values()).reduce(
+      (sum, amount) => sum + amount,
+      0,
     );
 
     logger.info(`BudgetRepository: getBudgetSpent successful, spent: ${spent}`);

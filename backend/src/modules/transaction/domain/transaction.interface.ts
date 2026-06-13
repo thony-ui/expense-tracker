@@ -14,7 +14,7 @@ export interface ITransaction {
   exchange_rate: number;
 
   savingsGoalId?: string;
-  budgetId?: string;
+  budgetIds?: string[];
 }
 
 export interface IGetTransactions {
@@ -48,30 +48,30 @@ export interface ITransactionService {
     limit?: number,
     offSet?: number,
     categoryType?: string,
-    dateToFilter?: string
+    dateToFilter?: string,
   ) => Promise<IGetTransactions[]>;
 
   deleteTransactionFromDatabase: (
     transactionId: string,
-    userId: string
+    userId: string,
   ) => Promise<void>;
   updateTransactionInDatabase: (
     transactionId: string,
     userId: string,
-    updatedTransaction: ITransaction
+    updatedTransaction: ITransaction,
   ) => Promise<void>;
   getTransactionByIdFromDatabase: (
     transactionId: string,
-    userId: string
+    userId: string,
   ) => Promise<IGetTransactions>;
 
   getTransactionsBySavingsGoalIdFromDatabase: (
     savingsGoalIds: string[],
-    userId: string
+    userId: string,
   ) => Promise<IGetTransactions[]>;
 
   updateMultipleTransactionsInDatabase: (
     transactionIds: number[],
-    userId: string
+    userId: string,
   ) => Promise<void>;
 }

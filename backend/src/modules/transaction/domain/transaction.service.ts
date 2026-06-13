@@ -22,10 +22,10 @@ export class TransactionService implements ITransactionService {
     converted_amount,
     exchange_rate,
     savingsGoalId,
-    budgetId,
+    budgetIds,
   }: ITransaction) => {
     logger.info(
-      `TransactionService: addTransactionToDatabase called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`
+      `TransactionService: addTransactionToDatabase called with type: ${type}, amount: ${amount}, name: ${name}, description: ${description}, category: ${category}, date: ${date}, userId: ${userId}`,
     );
     await this.transactionRepository.addTransactionToDatabase({
       userId,
@@ -41,7 +41,7 @@ export class TransactionService implements ITransactionService {
       converted_amount,
       exchange_rate,
       savingsGoalId,
-      budgetId,
+      budgetIds,
     });
   };
 
@@ -51,10 +51,10 @@ export class TransactionService implements ITransactionService {
     limit?: number,
     offSet?: number,
     categoryType?: string,
-    dateToFilter?: string
+    dateToFilter?: string,
   ) => {
     logger.info(
-      `TransactionService: getTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`
+      `TransactionService: getTransactionsFromDatabase called for userId: ${userId}, transactionType: ${transactionType}`,
     );
     const transactions =
       await this.transactionRepository.getTransactionsFromDatabase(
@@ -63,82 +63,82 @@ export class TransactionService implements ITransactionService {
         limit,
         offSet,
         categoryType,
-        dateToFilter
+        dateToFilter,
       );
     return transactions;
   };
 
   deleteTransactionFromDatabase = async (
     transactionId: string,
-    userId: string
+    userId: string,
   ) => {
     logger.info(
-      `TransactionService: deleteTransactionFromDatabase called for transactionId: ${transactionId}, userId: ${userId}`
+      `TransactionService: deleteTransactionFromDatabase called for transactionId: ${transactionId}, userId: ${userId}`,
     );
     await this.transactionRepository.deleteTransactionFromDatabase(
       transactionId,
-      userId
+      userId,
     );
   };
   updateTransactionInDatabase = async (
     transactionId: string,
     userId: string,
-    updatedTransaction: Omit<ITransaction, "userId">
+    updatedTransaction: Omit<ITransaction, "userId">,
   ) => {
     logger.info(
       `TransactionService: updateTransactionInDatabase called for transactionId: ${transactionId}, userId: ${userId}, updatedTransaction: ${JSON.stringify(
-        updatedTransaction
-      )}`
+        updatedTransaction,
+      )}`,
     );
     await this.transactionRepository.updateTransactionInDatabase(
       transactionId,
       userId,
-      updatedTransaction
+      updatedTransaction,
     );
   };
   getTransactionByIdFromDatabase = async (
     transactionId: string,
-    userId: string
+    userId: string,
   ): Promise<IGetTransactions> => {
     logger.info(
-      `TransactionService: getTransactionById called for transactionId: ${transactionId}, userId: ${userId}`
+      `TransactionService: getTransactionById called for transactionId: ${transactionId}, userId: ${userId}`,
     );
     const transaction =
       await this.transactionRepository.getTransactionByIdFromDatabase(
         transactionId,
-        userId
+        userId,
       );
     return transaction;
   };
 
   getTransactionsBySavingsGoalIdFromDatabase = async (
     savingsGoalIds: string[],
-    userId: string
+    userId: string,
   ): Promise<IGetTransactions[]> => {
     logger.info(
       `TransactionService: getTransactionsBySavingsGoalId called for savingsGoalIds: ${savingsGoalIds.join(
-        ", "
-      )}, userId: ${userId}`
+        ", ",
+      )}, userId: ${userId}`,
     );
     const transactions =
       await this.transactionRepository.getTransactionsBySavingsGoalIdFromDatabase(
         savingsGoalIds,
-        userId
+        userId,
       );
     return transactions;
   };
   updateMultipleTransactionsInDatabase = async (
     transactionIds: number[],
-    userId: string
+    userId: string,
   ): Promise<void> => {
     logger.info(
       `TransactionService: updateMultipleTransactionsInDatabase called for transactionIds: ${transactionIds.join(
-        ", "
-      )}, userId: ${userId}`
+        ", ",
+      )}, userId: ${userId}`,
     );
     await this.transactionRepository.updateMultipleTransactionsInDatabase(
       transactionIds,
-      userId
+      userId,
     );
   };
 }

@@ -25,6 +25,12 @@ import { ArrowBigRight } from "lucide-react";
 
 import PopoverExchangeRateData from "../popover-exchange-rate-data";
 import { toast } from "react-toastify";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AddTransactionFormProps {
   onSuccess: () => void;
@@ -44,7 +50,7 @@ export function AddTransactionForm({
     date: new Date().toISOString().split("T")[0],
     type: "expense" as "income" | "expense",
     savingsGoalId: "",
-    budgetId: "",
+    budgetIds: [] as string[],
     allocateToGoal: false,
     allocateToBudget: false,
   });
@@ -85,7 +91,7 @@ export function AddTransactionForm({
       ),
       exchange_rate: exchangeRate.rate,
       savingsGoalId: formData.savingsGoalId || undefined,
-      budgetId: formData.budgetId || undefined,
+      budgetIds: formData.budgetIds || undefined,
     };
 
     await postTransaction(transaction);
@@ -285,29 +291,49 @@ export function AddTransactionForm({
 
           {formData.allocateToBudget && (
             <div>
-              <p className="text-xs mb-2 font-bold">Select Budget</p>
-              <Select
-                value={formData.budgetId}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, budgetId: value })
-                }
-              >
-                <SelectTrigger className="dark:border-gray-500">
-                  <SelectValue placeholder="Choose a budget..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgets.map((budget) => (
-                    <SelectItem key={budget.id} value={budget.id}>
-                      <div className="flex justify-between items-center w-full">
-                        <span className="font-medium">{budget.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          ${budget.remaining.toFixed(2)} remaining
+              <p className="text-xs mb-2 font-bold">Select Budgets</p>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline">
+                    {formData.budgetIds.length > 0
+                      ? `${formData.budgetIds.length} budgets selected`
+                      : "Choose budgets"}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-72">
+                  <div className="space-y-2">
+                    {budgets.map((budget) => (
+                      <div
+                        key={budget.id}
+                        className="flex items-center justify-between"
+                      >
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={formData.budgetIds.includes(budget.id)}
+                            onCheckedChange={(checked) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                budgetIds: checked
+                                  ? [...prev.budgetIds, budget.id]
+                                  : prev.budgetIds.filter(
+                                      (id) => id !== budget.id,
+                                    ),
+                              }));
+                            }}
+                          />
+                          {budget.name}
+                        </label>
+
+                        <span className="text-xs text-muted-foreground">
+                          ${budget.remaining.toFixed(2)}
                         </span>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
         </div>
