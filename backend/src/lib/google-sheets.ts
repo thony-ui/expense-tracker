@@ -43,7 +43,10 @@ export async function updateGoogleSheetRowByTransactionId(
   updatedTransaction: ITransaction,
 ) {
   const rowIndex = await findRowIndexByTransactionId(transactionId.toString());
-
+  const finalUpdatedTransaction = {
+    ...updatedTransaction,
+    budgetIds: "None",
+  };
   if (rowIndex === null) {
     throw new Error(`Transaction ID ${transactionId} not found.`);
   }
@@ -52,7 +55,7 @@ export async function updateGoogleSheetRowByTransactionId(
   const updateRange = `Transactions!A${rowIndex}:P${rowIndex}`; // Full row
   logger.info(
     `Updating row ${rowIndex} in Google Sheet with values: ${JSON.stringify(
-      updatedTransaction,
+      finalUpdatedTransaction,
     )}`,
   );
 
@@ -61,7 +64,7 @@ export async function updateGoogleSheetRowByTransactionId(
     range: updateRange,
     valueInputOption: "RAW",
     requestBody: {
-      values: [Object.values(updatedTransaction)],
+      values: [Object.values(finalUpdatedTransaction)],
     },
   });
 

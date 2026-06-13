@@ -235,7 +235,6 @@ export class TransactionRepository implements ITransactionService {
       converted_amount: updatedTransactionData.converted_amount,
       exchange_rate: updatedTransactionData.exchange_rate,
       savingsGoalId: updatedTransactionData.savingsGoalId,
-      budgetIds,
     };
 
     await updateGoogleSheetRowByTransactionId(
