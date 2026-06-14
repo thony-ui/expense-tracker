@@ -94,7 +94,7 @@ export class OCRController {
         converted_amount: parsed.amount ?? null,
         exchange_rate: 1,
         savingsGoalId: undefined,
-        budgetIds: [parsed.budgetId ?? null],
+        budgetIds: parsed.budgetId ? [parsed.budgetId] : [],
       };
 
       await this.transactionRepository.addTransactionToDatabase(
