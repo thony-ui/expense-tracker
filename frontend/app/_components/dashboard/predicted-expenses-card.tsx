@@ -48,9 +48,12 @@ function PredictedExpensesCard({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">
-              No prediction data available.
-            </p>
+            <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+              <p className="text-sm text-gray-500">Current total</p>
+              <p className="text-2xl font-bold text-green-500 dark:text-green-400">
+                ${currentSpending.toFixed(2)}
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
