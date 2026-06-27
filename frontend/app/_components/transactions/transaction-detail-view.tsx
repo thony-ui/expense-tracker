@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, PiggyBank, Wallet } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Edit2,
+  PiggyBank,
+  Trash2,
+  Wallet,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +20,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import EditTransactionModal from "../dashboard/modals/edit-transaction-modal";
+import DeleteTransactionModal from "../dashboard/modals/delete-transaction-modal";
 import {
   Select,
   SelectContent,
@@ -65,6 +74,12 @@ export function TransactionDetailView({
   const [searchQuery, setSearchQuery] = useState("");
   const [transactionType, setTransactionType] =
     useState<TransactionTypeFilter>("all");
+  const [editingTransactionId, setEditingTransactionId] = useState<
+    string | null
+  >(null);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<
+    string | null
+  >(null);
 
   const filteredTransactions = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -231,6 +246,28 @@ export function TransactionDetailView({
                         {transaction.base_currency} at rate{" "}
                         {transaction.exchange_rate}
                       </span>
+                      <div className="mt-2 flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setEditingTransactionId(transaction.id)
+                          }
+                        >
+                          <Edit2 className="h-4 w-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() =>
+                            setDeletingTransactionId(transaction.id)
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -239,6 +276,26 @@ export function TransactionDetailView({
           )}
         </CardContent>
       </Card>
+
+      {editingTransactionId ? (
+        <EditTransactionModal
+          open={!!editingTransactionId}
+          setOpen={(open) => {
+            if (!open) setEditingTransactionId(null);
+          }}
+          transactionId={editingTransactionId}
+        />
+      ) : null}
+
+      {deletingTransactionId ? (
+        <DeleteTransactionModal
+          open={!!deletingTransactionId}
+          setOpen={(open) => {
+            if (!open) setDeletingTransactionId(null);
+          }}
+          transactionId={deletingTransactionId}
+        />
+      ) : null}
     </div>
   );
 }
