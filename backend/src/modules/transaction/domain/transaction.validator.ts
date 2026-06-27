@@ -224,3 +224,31 @@ export function validateUpdateMultipleTransactions(
     throw error;
   }
 }
+
+const getTransactionsByBudgetIdValidator = z.object({
+  budgetId: z.string().uuid("Invalid budget ID format"),
+  userId: z.string().uuid("Invalid user ID format"),
+});
+type TGetTransactionsByBudgetIdValidator = z.infer<
+  typeof getTransactionsByBudgetIdValidator
+>;
+export function validateGetTransactionsByBudgetId(
+  data: unknown,
+): TGetTransactionsByBudgetIdValidator {
+  try {
+    const parsed = getTransactionsByBudgetIdValidator.parse(data);
+    return parsed;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error(
+        `TransactionValidator: validateGetTransactionsByBudgetId error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`,
+      );
+      throw new Error(
+        `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+      );
+    }
+    throw error;
+  }
+}

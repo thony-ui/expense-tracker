@@ -9,6 +9,7 @@ import {
   validateGetTransactionById,
   validateGetTransactionsBySavingsGoalId,
   validateUpdateMultipleTransactions,
+  validateGetTransactionsByBudgetId,
 } from "./transaction.validator";
 
 export class TransactionController {
@@ -186,7 +187,7 @@ export class TransactionController {
     }
   };
 
-  getTransactionBySavingsGoalId = async (
+  getTransactionsBySavingsGoalId = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -237,6 +238,30 @@ export class TransactionController {
         uid,
       );
       res.status(200).send({ message: "Transactions updated successfully" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getTransactionsByBudgetId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const userId = req.user.id;
+    const { budgetId } = req.params;
+    const { budgetId: validatedBudgetId, userId: validatedUserId } =
+      validateGetTransactionsByBudgetId({ budgetId, userId });
+    try {
+      logger.info(
+        `TransactionController: getTransactionsByBudgetId called for budgetId: ${validatedBudgetId} and userId: ${validatedUserId}`,
+      );
+      const transactions =
+        await this.transactionService.getTransactionsByBudgetIdFromDatabase(
+          validatedBudgetId,
+          validatedUserId,
+        );
+      res.status(200).send(transactions);
     } catch (error) {
       next(error);
     }

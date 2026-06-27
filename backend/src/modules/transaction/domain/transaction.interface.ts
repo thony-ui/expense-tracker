@@ -74,4 +74,8 @@ export interface ITransactionService {
     transactionIds: number[],
     userId: string,
   ) => Promise<void>;
+  getTransactionsByBudgetIdFromDatabase: (
+    budgetId: string,
+    userId: string,
+  ) => Promise<IGetTransactions[]>;
 }

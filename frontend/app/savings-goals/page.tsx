@@ -35,7 +35,7 @@ export default function SavingsGoalsPage() {
       targetAmount?: number;
       deadline?: string;
       category?: string;
-    }
+    },
   ) => {
     try {
       await updateSavingsGoal({
@@ -64,6 +64,7 @@ export default function SavingsGoalsPage() {
           goals={savingsGoals}
           onAddGoal={handleAddGoal}
           onEditGoal={handleEditGoal}
+          detailHrefBuilder={(goalId) => `/savings-goals/${goalId}`}
         />
       </div>
     </DashBoardAndTransactionLayout>

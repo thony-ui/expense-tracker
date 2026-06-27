@@ -15,21 +15,25 @@ export function defineTransactionRoutes(expressApp: Application) {
 
   transactionRouter.delete(
     "/:transactionId",
-    transactionController.deleteTransaction
+    transactionController.deleteTransaction,
   );
   transactionRouter.put(
     "/:transactionId",
-    transactionController.updateTransaction
+    transactionController.updateTransaction,
   );
 
   transactionRouter.put("/", transactionController.updateMultipleTransactions);
   transactionRouter.get(
     "/savings-goal",
-    transactionController.getTransactionBySavingsGoalId
+    transactionController.getTransactionsBySavingsGoalId,
   );
   transactionRouter.get(
     "/:transactionId",
-    transactionController.getTransactionById
+    transactionController.getTransactionById,
+  );
+  transactionRouter.get(
+    "/budgets/:budgetId",
+    transactionController.getTransactionsByBudgetId,
   );
 
   expressApp.use("/v1/transactions", authenticateUser, transactionRouter);

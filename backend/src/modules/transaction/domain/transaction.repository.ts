@@ -10,7 +10,11 @@ import {
   getCurrentWeekStart,
   getDateBasedOnCategoryType,
 } from "../../../utils/formate-date";
-import { ITransaction, ITransactionService } from "./transaction.interface";
+import {
+  IGetTransactions,
+  ITransaction,
+  ITransactionService,
+} from "./transaction.interface";
 
 type TTransactionWithUser = ITransaction & {
   id: string;
@@ -384,6 +388,90 @@ export class TransactionRepository implements ITransactionService {
 
     logger.info(
       `TransactionRepository: updateMultipleTransactionsInDatabase success: ${data}`,
+    );
+  };
+  getTransactionsByBudgetIdFromDatabase = async (
+    budgetId: string,
+    userId: string,
+  ) => {
+    type TTransactionWithId = IGetTransactions & { id: string };
+
+    const { data: directTransactions, error: directError } = await supabase
+      .from("transactions")
+      .select(
+        "type, amount, name, description, category, date, id, base_currency, converted_currency, base_amount, converted_amount, exchange_rate, savingsGoalId",
+      )
+      .eq("budgetId", budgetId)
+      .eq("userId", userId)
+      .order("date", { ascending: false });
+
+    if (directError) {
+      logger.error(
+        `TransactionRepository: getTransactionsByBudgetId direct error: ${directError}`,
+      );
+      throw new Error("Error fetching transactions by budget ID from database");
+    }
+
+    const { data: joinedTransactions, error: joinedError } = await supabase
+      .from("transaction_budget")
+      .select(
+        `
+      transaction_id,
+      transactions!inner (
+        type,
+        amount,
+        name,
+        description,
+        category,
+        date,
+        id,
+        base_currency,
+        converted_currency,
+        base_amount,
+        converted_amount,
+        exchange_rate,
+        savingsGoalId
+      )
+    `,
+      )
+      .eq("budget_id", budgetId)
+      .eq("transactions.userId", userId)
+      .order("transaction_id", { ascending: false });
+
+    if (joinedError) {
+      logger.error(
+        `TransactionRepository: getTransactionsByBudgetId joined error: ${joinedError}`,
+      );
+      throw new Error("Error fetching transactions by budget ID from database");
+    }
+
+    const transactionMap = new Map<string, TTransactionWithId>();
+
+    directTransactions?.forEach((transaction: TTransactionWithId) => {
+      transactionMap.set(transaction.id, transaction);
+    });
+
+    (joinedTransactions ?? []).forEach(
+      (row: { transactions?: IGetTransactions | IGetTransactions[] }) => {
+        const transactions = (Array.isArray(row.transactions)
+          ? row.transactions
+          : row.transactions
+            ? [row.transactions]
+            : []) as TTransactionWithId[];
+
+        transactions.forEach((transaction) => {
+          transactionMap.set(transaction.id, transaction);
+        });
+      },
+    );
+
+    logger.info(
+      `TransactionRepository: getTransactionsByBudgetIdFromDatabase success: ${JSON.stringify(
+        Array.from(transactionMap.values()),
+      )}`,
+    );
+    return Array.from(transactionMap.values()).sort(
+      (left, right) => new Date(right.date).getTime() - new Date(left.date).getTime(),
     );
   };
 }

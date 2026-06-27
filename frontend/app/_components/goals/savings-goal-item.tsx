@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Target, Plus, Edit2, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ interface SavingsGoalCardProps {
   ) => void;
   showViewAll?: boolean;
   maxDisplay?: number;
+  detailHrefBuilder?: (goalId: string) => string;
 }
 
 export function SavingsGoalItem({
@@ -56,7 +58,9 @@ export function SavingsGoalItem({
   onEditGoal,
   showViewAll = false,
   maxDisplay,
+  detailHrefBuilder,
 }: SavingsGoalCardProps) {
+  const router = useRouter();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -158,6 +162,12 @@ export function SavingsGoalItem({
       targetAmount: "",
       deadline: "",
     });
+  };
+
+  const handleGoalClick = (goalId: string) => {
+    if (detailHrefBuilder) {
+      router.push(detailHrefBuilder(goalId));
+    }
   };
 
   return (
@@ -273,6 +283,16 @@ export function SavingsGoalItem({
                   <div
                     key={goal.id}
                     className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow dark:border-gray-500"
+                    onClick={() => handleGoalClick(goal.id)}
+                    role={detailHrefBuilder ? "link" : undefined}
+                    tabIndex={detailHrefBuilder ? 0 : undefined}
+                    onKeyDown={(event) => {
+                      if (!detailHrefBuilder) return;
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleGoalClick(goal.id);
+                      }
+                    }}
                   >
                     <DeleteGoalModal
                       open={deleteModalOpen}
@@ -284,7 +304,16 @@ export function SavingsGoalItem({
                     />
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-semibold">{goal.title}</h4>
+                        {detailHrefBuilder ? (
+                          <Link
+                            href={detailHrefBuilder(goal.id)}
+                            className="font-semibold hover:underline"
+                          >
+                            {goal.title}
+                          </Link>
+                        ) : (
+                          <h4 className="font-semibold">{goal.title}</h4>
+                        )}
                         <p className="text-sm text-muted-foreground">
                           ${currentAmount.toFixed(2)} of $
                           {goal.targetAmount.toFixed(2)}
@@ -294,14 +323,20 @@ export function SavingsGoalItem({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleEdit(goal)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleEdit(goal);
+                          }}
                         >
                           <Edit2 className="h-4 w-4 text-blue-500" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setDeleteModalOpen(true)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setDeleteModalOpen(true);
+                          }}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

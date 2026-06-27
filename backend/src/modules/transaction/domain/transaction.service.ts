@@ -141,4 +141,18 @@ export class TransactionService implements ITransactionService {
       userId,
     );
   };
+  getTransactionsByBudgetIdFromDatabase = async (
+    budgetId: string,
+    userId: string,
+  ): Promise<IGetTransactions[]> => {
+    logger.info(
+      `TransactionService: getTransactionsByBudgetIdFromDatabase called for budgetId: ${budgetId}, userId: ${userId}`,
+    );
+    const transactions =
+      await this.transactionRepository.getTransactionsByBudgetIdFromDatabase(
+        budgetId,
+        userId,
+      );
+    return transactions;
+  };
 }

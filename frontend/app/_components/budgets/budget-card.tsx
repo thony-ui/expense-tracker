@@ -1,18 +1,27 @@
 "use client";
 
+import type React from "react";
 import { IBudget } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Edit2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface BudgetCardProps {
   budget: IBudget;
   onEdit?: (budget: IBudget) => void;
   onDelete?: (budgetId: string) => void;
+  detailHref?: string;
 }
 
-export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+export function BudgetCard({
+  budget,
+  onEdit,
+  onDelete,
+  detailHref,
+}: BudgetCardProps) {
+  const router = useRouter();
   const isNearLimit = budget.percentage >= 90;
   const isOverBudget = budget.percentage >= 100;
 
@@ -31,17 +40,43 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
     });
   };
 
+  const handleCardClick = () => {
+    if (detailHref) {
+      router.push(detailHref);
+    }
+  };
+
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!detailHref) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      router.push(detailHref);
+    }
+  };
+
   return (
     <Card
-      className={
+      onClick={detailHref ? handleCardClick : undefined}
+      onKeyDown={detailHref ? handleCardKeyDown : undefined}
+      role={detailHref ? "link" : undefined}
+      tabIndex={detailHref ? 0 : undefined}
+      className={`${detailHref ? "cursor-pointer transition-shadow hover:shadow-md" : ""} ${
         isOverBudget ? "border-red-500" : isNearLimit ? "border-yellow-500" : ""
-      }
+      }`}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-medium">{budget.name}</CardTitle>
         <div className="flex gap-2">
           {onEdit && (
-            <Button variant="ghost" size="icon" onClick={() => onEdit(budget)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(budget);
+              }}
+            >
               <Edit2 className="h-4 w-4" />
             </Button>
           )}
@@ -49,7 +84,10 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onDelete(budget.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(budget.id);
+              }}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>

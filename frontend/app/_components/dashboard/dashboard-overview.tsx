@@ -236,7 +236,11 @@ export function DashboardOverview() {
             ) : (
               <div className="space-y-3">
                 {budgets.slice(0, 3).map((budget) => (
-                  <BudgetCard key={budget.id} budget={budget} />
+                  <BudgetCard
+                    key={budget.id}
+                    budget={budget}
+                    detailHref={`/budgets/${budget.id}`}
+                  />
                 ))}
                 {budgets.length > 3 && (
                   <Link href="/budgets">
@@ -258,6 +262,7 @@ export function DashboardOverview() {
           onEditGoal={handleEditGoal}
           showViewAll={true}
           maxDisplay={3}
+          detailHrefBuilder={(goalId) => `/savings-goals/${goalId}`}
         />
       </div>
 

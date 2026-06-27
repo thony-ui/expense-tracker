@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Target, Edit2, Trash2, AlertCircle, Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ interface SavingsGoalCardProps {
   ) => void;
   showViewAll?: boolean;
   maxDisplay?: number;
+  detailHrefBuilder?: (goalId: string) => string;
 }
 
 export function SavingsGoalCard({
@@ -56,7 +58,9 @@ export function SavingsGoalCard({
   onEditGoal,
   showViewAll = false,
   maxDisplay,
+  detailHrefBuilder,
 }: SavingsGoalCardProps) {
+  const router = useRouter();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -171,6 +175,12 @@ export function SavingsGoalCard({
       targetAmount: "",
       deadline: "",
     });
+  };
+
+  const handleGoalClick = (goalId: string) => {
+    if (detailHrefBuilder) {
+      router.push(detailHrefBuilder(goalId));
+    }
   };
 
   return (
@@ -326,6 +336,16 @@ export function SavingsGoalCard({
                           ? "border-green-500"
                           : ""
                   }
+                  onClick={() => handleGoalClick(goal.id)}
+                  role={detailHrefBuilder ? "link" : undefined}
+                  tabIndex={detailHrefBuilder ? 0 : undefined}
+                  onKeyDown={(event) => {
+                    if (!detailHrefBuilder) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleGoalClick(goal.id);
+                    }
+                  }}
                 >
                   <DeleteGoalModal
                     open={deleteModalOpen}
@@ -336,21 +356,36 @@ export function SavingsGoalCard({
                     )}
                   />
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-base font-medium">
-                      {goal.title}
-                    </CardTitle>
+                    {detailHrefBuilder ? (
+                      <Link
+                        href={detailHrefBuilder(goal.id)}
+                        className="text-base font-medium hover:underline"
+                      >
+                        {goal.title}
+                      </Link>
+                    ) : (
+                      <CardTitle className="text-base font-medium">
+                        {goal.title}
+                      </CardTitle>
+                    )}
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleEdit(goal)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleEdit(goal);
+                        }}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setDeleteModalOpen(true)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDeleteModalOpen(true);
+                        }}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>

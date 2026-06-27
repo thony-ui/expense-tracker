@@ -91,6 +91,7 @@ export function BudgetList() {
             <BudgetCard
               key={budget.id}
               budget={budget}
+              detailHref={`/budgets/${budget.id}`}
               onEdit={setEditingBudget}
               onDelete={handleDelete}
             />
