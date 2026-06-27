@@ -453,11 +453,13 @@ export class TransactionRepository implements ITransactionService {
 
     (joinedTransactions ?? []).forEach(
       (row: { transactions?: IGetTransactions | IGetTransactions[] }) => {
-        const transactions = (Array.isArray(row.transactions)
-          ? row.transactions
-          : row.transactions
-            ? [row.transactions]
-            : []) as TTransactionWithId[];
+        const transactions = (
+          Array.isArray(row.transactions)
+            ? row.transactions
+            : row.transactions
+              ? [row.transactions]
+              : []
+        ) as TTransactionWithId[];
 
         transactions.forEach((transaction) => {
           transactionMap.set(transaction.id, transaction);
@@ -471,7 +473,8 @@ export class TransactionRepository implements ITransactionService {
       )}`,
     );
     return Array.from(transactionMap.values()).sort(
-      (left, right) => new Date(right.date).getTime() - new Date(left.date).getTime(),
+      (left, right) =>
+        new Date(right.date).getTime() - new Date(left.date).getTime(),
     );
   };
 }
