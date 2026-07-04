@@ -131,6 +131,18 @@ export class BudgetRepository implements IBudgetRepository {
       `BudgetRepository: deleteBudget called for budgetId: ${budgetId}, userId: ${userId}`,
     );
 
+    const { error: transactionBudgetError } = await supabaseClient
+      .from("transaction_budget")
+      .delete()
+      .eq("budget_id", budgetId);
+
+    if (transactionBudgetError) {
+      logger.error(
+        `BudgetRepository: deleteBudget transaction_budget error: ${transactionBudgetError.message}`,
+      );
+      throw new Error(transactionBudgetError.message);
+    }
+
     const { error } = await supabaseClient
       .from("budgets")
       .delete()
