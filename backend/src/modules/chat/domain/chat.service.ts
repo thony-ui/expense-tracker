@@ -1,38 +1,62 @@
 import supabase from "../../../lib/supabase-client";
 import logger from "../../../logger";
+
 import { formatLLMContext } from "../../../utils/llm/format-llm-context";
+
 import {
   getLLMPromptForExpenseReport,
   getLLMPromptForTransactions,
-  getLLMPromptForTransactionParsing,
 } from "../../../utils/llm/llm-prompt";
+
 import { IChatService } from "./chat.interface";
+
 import puppeteer from "puppeteer";
 import { marked } from "marked";
+
 import { LLM } from "../../../utils/llm/llm-utils";
 
-require("dotenv").config();
-
 export class ChatService implements IChatService {
-  getResponseFromLLM = async (prompt: string, userId: string, signal?: AbortSignal) => {
+  private readonly llm: LLM;
+
+  constructor() {
+    this.llm = new LLM();
+  }
+
+  getResponseFromLLM = async (
+    prompt: string,
+    userId: string,
+    signal?: AbortSignal,
+  ): Promise<ReadableStream<Uint8Array>> => {
     const { data: transactions, error } = await supabase
       .from("transactions")
       .select("*")
       .eq("userId", userId)
       .eq("type", "expense");
+
     if (error) {
       logger.error(
         `ChatService: Error fetching transactions: ${error.message}`,
       );
+
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
-    const llm = new LLM();
-    const formattedLLMContext = formatLLMContext(transactions);
+
+    const formattedLLMContext = formatLLMContext(transactions ?? []);
+
     const llmPrompt = getLLMPromptForTransactions(formattedLLMContext);
 
-    // Streaming response
-    const responseStream = await llm.generateResponseStream(llmPrompt, prompt, signal);
-    return responseStream;
+    logger.info(`ChatService: Starting chat stream for userId: ${userId}`);
+
+    try {
+      return await this.llm.generateResponseStream(llmPrompt, prompt, signal);
+    } catch (error) {
+      logger.error(
+        `ChatService: LLM streaming request failed for userId ${userId}`,
+        error,
+      );
+
+      throw error;
+    }
   };
 
   generateExpenseReport = async (
@@ -47,46 +71,53 @@ export class ChatService implements IChatService {
       .eq("type", "expense")
       .gte("date", startDate)
       .lte("date", endDate);
+
     if (error) {
       logger.error(
         `ChatService: Error fetching transactions for report: ${error.message}`,
       );
+
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
-    const llm = new LLM();
-    const formattedLLMContext = formatLLMContext(transactions);
-    const llmPrompt = getLLMPromptForExpenseReport(formattedLLMContext);
-    const response = await llm.generateResponseReport(llmPrompt);
-    logger.info(
-      `ChatService: generateExpenseReport called for userId: ${userId}`,
-    );
-    if (!response) {
-      logger.error(
-        `ChatService: Error generating expense report for prompt: ${llmPrompt}`,
-      );
-      throw new Error(`Error generating report for prompt: ${llmPrompt}`);
-    }
-    // Convert markdown to HTML
-    const html = await this.convertMarkdownToHTML(response, userId);
 
-    return html;
+    const formattedLLMContext = formatLLMContext(transactions ?? []);
+
+    const llmPrompt = getLLMPromptForExpenseReport(formattedLLMContext);
+
+    try {
+      const response = await this.llm.generateResponseReport(llmPrompt);
+
+      logger.info(
+        `ChatService: Expense report generated for userId: ${userId}`,
+      );
+
+      return this.convertMarkdownToHTML(response, userId);
+    } catch (error) {
+      logger.error(
+        `ChatService: Error generating expense report for userId ${userId}`,
+        error,
+      );
+
+      throw error;
+    }
   };
 
-  // Convert markdown to HTML with styling
-  private convertMarkdownToHTML = async (
+  private convertMarkdownToHTML = (
     markdown: string,
     userId: string,
-  ): Promise<string> => {
-    try {
-      // Import the marked library for markdown conversion
+  ): string => {
+    const renderedMarkdown = marked.parse(markdown);
 
-      // Create styled HTML document
-      const html = `
-        <!DOCTYPE html>
-        <html>
+    return `
+      <!DOCTYPE html>
+      <html>
         <head>
           <meta charset="UTF-8">
-          <title>Expense Report - User ${userId}</title>
+
+          <title>
+            Expense Report - User ${userId}
+          </title>
+
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -95,56 +126,63 @@ export class ChatService implements IChatService {
               margin: 0 auto;
               padding: 20px;
             }
-            h1, h2, h3 {
+
+            h1,
+            h2,
+            h3 {
               color: #333;
             }
+
             table {
               width: 100%;
               border-collapse: collapse;
               margin: 20px 0;
             }
-            th, td {
+
+            th,
+            td {
               padding: 12px;
               border: 1px solid #ddd;
               text-align: left;
             }
+
             th {
               background-color: #f2f2f2;
             }
+
             .summary {
               margin-top: 30px;
               font-weight: bold;
             }
           </style>
         </head>
-        <body>
-          ${marked.parse(markdown)}
-        </body>
-        </html>
-      `;
 
-      return html;
-    } catch (error) {
-      logger.error(`Error converting markdown to HTML: ${error}`);
-      throw new Error(`Error converting markdown to HTML: ${error}`);
-    }
+        <body>
+          ${renderedMarkdown}
+        </body>
+      </html>
+    `;
   };
 
-  // Generate PDF from HTML
   generatePDFReport = async (
     html: string,
     userId: string,
   ): Promise<Uint8Array<ArrayBufferLike>> => {
-    try {
-      // Launch puppeteer and create PDF
-      const browser = await puppeteer.launch({ headless: true });
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: "networkidle0" });
+    const browser = await puppeteer.launch({
+      headless: true,
+    });
 
-      // Generate PDF as buffer instead of saving to file
+    try {
+      const page = await browser.newPage();
+
+      await page.setContent(html, {
+        waitUntil: "networkidle0",
+      });
+
       const pdfBuffer = await page.pdf({
         format: "A4",
         printBackground: true,
+
         margin: {
           top: "20mm",
           right: "20mm",
@@ -153,14 +191,20 @@ export class ChatService implements IChatService {
         },
       });
 
-      await browser.close();
-      logger.info(`PDF generated successfully for user: ${userId}`);
+      logger.info(
+        `ChatService: PDF generated successfully for userId: ${userId}`,
+      );
+
       return pdfBuffer;
     } catch (error) {
-      logger.error(`Error generating PDF: ${error}`);
-      throw new Error(`Error generating PDF: ${error}`);
+      logger.error(
+        `ChatService: Error generating PDF for userId ${userId}`,
+        error,
+      );
+
+      throw error;
+    } finally {
+      await browser.close();
     }
   };
-
-  // Parse natural language transaction input using LLM
 }
