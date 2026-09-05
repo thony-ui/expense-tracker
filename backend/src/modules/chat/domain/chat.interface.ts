@@ -5,6 +5,7 @@ export interface IChatService {
   getResponseFromLLM: (
     prompt: string,
     userId: string,
+    signal?: AbortSignal,
   ) => Promise<
     Stream<ChatCompletionChunk> & {
       _request_id?: string | null;

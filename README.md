@@ -97,6 +97,34 @@ Make sure not to commit your `.env` files to version control.
 
 ---
 
+## Backend deployment on the shared EC2 server
+
+The backend can share the existing Springboot/Aster EC2 server. From the
+Springboot checkout, run:
+
+```bash
+cd infra/aws
+./deploy-linked-backend.sh "$HOME/expense-tracker"
+```
+
+This deploys only this repository's backend under the shared server deployment
+lock. Caddy configuration is managed separately by `./deploy-proxy.sh` in the
+Springboot checkout, so deploying either app cannot overwrite the other's routes.
+The backend URL is `https://ai-expense-tracker.duckdns.org/linked-expense-tracker`;
+`/health` returns `OK` and API routes start at `/v1/` under that URL. The existing
+Spring Boot API remains at `/api/` on the same hostname.
+
+For the separately hosted frontend, use this value when rebuilding it:
+
+```env
+NEXT_PUBLIC_API_URL=https://ai-expense-tracker.duckdns.org/linked-expense-tracker
+```
+
+Runtime secrets come from `backend/.env` and are excluded from the Docker image.
+The deployment helper handles quoted dotenv values and Google private-key
+newlines. The production image skips the browser download because PDF report
+routes are currently disabled.
+
 ## 📄 License
 
 MIT License

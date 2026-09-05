@@ -145,6 +145,7 @@ const PostReceipt = () => {
                   <p className="font-medium">Processing failed</p>
                   <p className="text-muted-foreground text-sm">
                     {mutation.error?.response?.data?.message ||
+                      mutation.error?.message ||
                       "There was a problem reading the receipt."}
                   </p>
                 </div>

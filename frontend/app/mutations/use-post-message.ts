@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axios";
 import { useMutation } from "@tanstack/react-query";
+import { readChatStream } from "@/lib/read-chat-stream";
 
 const baseUrl = "/v1/chat";
 
@@ -8,16 +9,21 @@ export function usePostMessage() {
     mutationFn: async ({
       prompt,
       onChunk,
+      signal,
     }: {
       prompt: string;
       onChunk: (chunk: string) => void;
+      signal?: AbortSignal;
     }) => {
-      const response = await axiosInstance.post(
+      const response = await axiosInstance.post<ReadableStream<Uint8Array>>(
         baseUrl,
         { prompt },
         {
           responseType: "stream",
           adapter: "fetch",
+          headers: { Accept: "text/event-stream" },
+          signal,
+          validateStatus: () => true,
         }
       );
 
@@ -25,18 +31,11 @@ export function usePostMessage() {
         throw new Error("No response body");
       }
 
-      const reader = response.data.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        onChunk(chunk);
+      if (response.status < 200 || response.status >= 300) {
+        const error = await new Response(response.data).json().catch(() => null);
+        throw new Error(error?.message || "The AI request failed. Please try again.");
       }
-
+      await readChatStream(response.data, String(response.headers["content-type"] || ""), onChunk);
       return "Stream completed";
     },
   });

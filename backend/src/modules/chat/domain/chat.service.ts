@@ -14,7 +14,7 @@ import { LLM } from "../../../utils/llm/llm-utils";
 require("dotenv").config();
 
 export class ChatService implements IChatService {
-  getResponseFromLLM = async (prompt: string, userId: string) => {
+  getResponseFromLLM = async (prompt: string, userId: string, signal?: AbortSignal) => {
     const { data: transactions, error } = await supabase
       .from("transactions")
       .select("*")
@@ -31,11 +31,7 @@ export class ChatService implements IChatService {
     const llmPrompt = getLLMPromptForTransactions(formattedLLMContext);
 
     // Streaming response
-    const responseStream = await llm.generateResponseStream(llmPrompt, prompt);
-
-    logger.info(
-      `ChatService: getResponseFromLLM called with prompt: ${prompt}`,
-    );
+    const responseStream = await llm.generateResponseStream(llmPrompt, prompt, signal);
     return responseStream;
   };
 

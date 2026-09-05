@@ -1,6 +1,7 @@
 import { Application, Router } from "express";
 import { authenticateUser } from "../../../../middleware/authorization";
 import { OCRController } from "../../domain/ocr.controller";
+import { handleAIError } from "../../../../utils/llm/ai-error";
 import { TransactionService } from "../../../transaction/domain/transaction.service";
 import { TransactionRepository } from "../../../transaction/domain/transaction.repository";
 import { BudgetRepository } from "../../../budget/domain/budget.repository";
@@ -17,5 +18,6 @@ export function defineOCRRoutes(expressApp: Application) {
 
   ocrRouter.post("/", ocrController.postOCR);
 
+  ocrRouter.use(handleAIError);
   expressApp.use("/v1/ocr", authenticateUser, ocrRouter);
 }

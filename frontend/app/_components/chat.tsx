@@ -26,6 +26,10 @@ export default function ChatWidget() {
   const { mutateAsync: postMessage, isPending } = usePostMessage();
   const fullResponseRef = useRef<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sendingRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,14 +38,18 @@ export default function ChatWidget() {
   const handleChunk = useCallback((chunk: string) => {
     fullResponseRef.current += chunk;
     setMessages((prev) => {
-      const newMessages = [...prev];
-      newMessages[newMessages.length - 1].content = fullResponseRef.current;
-      return newMessages;
+      return prev.map((message, index) => index === prev.length - 1
+        ? { ...message, content: fullResponseRef.current }
+        : message);
     });
   }, []);
 
-  const sendMessage = async () => {
-    if (!currentMessage.trim() || isPending) return;
+  const sendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!currentMessage.trim() || sendingRef.current) return;
+    sendingRef.current = true;
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     const userMessage: IMessage = { role: "user", content: currentMessage };
     setMessages((prev) => [...prev, userMessage]);
@@ -58,14 +66,17 @@ export default function ChatWidget() {
       await postMessage({
         prompt: messageToSend,
         onChunk: handleChunk,
+        signal: controller.signal,
       });
     } catch (error) {
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1].content =
-          "Sorry, something went wrong.";
-        return newMessages;
-      });
+      if (controller.signal.aborted) return;
+      const message = error instanceof Error ? error.message : "The AI request failed. Please try again.";
+      setMessages(prev => prev.map((item, index) => index === prev.length - 1
+        ? { ...item, content: [fullResponseRef.current, message].filter(Boolean).join("\n\n") }
+        : item));
+    } finally {
+      sendingRef.current = false;
+      abortRef.current = null;
     }
   };
   useEffect(() => {
@@ -145,7 +156,7 @@ export default function ChatWidget() {
                   disabled={isPending}
                 />
                 <Button
-                  onClick={sendMessage}
+                  type="submit"
                   disabled={!currentMessage.trim() || isPending}
                   className="h-9 w-10"
                 >

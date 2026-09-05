@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../../logger";
-import { validateOCRRequest } from "./ocr.validator";
+import { z } from "zod";
 import { getLLMPromptForTransactionParsing } from "../../../utils/llm/llm-prompt";
 import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
 import { ITransaction } from "../../transaction/domain/transaction.interface";
-import convert from "heic-convert";
+import { parseReceiptTransaction, prepareReceiptImage } from "./receipt";
+import { AIError } from "../../../utils/llm/ai-error";
 import supabase from "../../../lib/supabase-client";
 import { BudgetRepository } from "../../budget/domain/budget.repository";
 
@@ -23,47 +24,23 @@ export class OCRController {
   ): Promise<void> => {
     const userId = req.user.id;
     try {
-      const { imagePath } = req.body;
-
-      if (!imagePath) {
-        res.status(400).send({ message: "No image path provided" });
-        return;
+      const { imagePath } = z.object({ imagePath: z.string().min(1).max(500) }).parse(req.body);
+      const ownedPath = imagePath.startsWith(`${userId}/`) ||
+        ["jpg", "jpeg", "png", "heic", "heif", "webp"].some(ext => imagePath === `${userId}.${ext}`);
+      if (!ownedPath || imagePath.includes("..") || imagePath.includes("\\")) {
+        throw new AIError(403, "You can only scan your own uploaded receipts.");
       }
-
-      logger.info(
-        `OCRController: postOCR called with imagePath: ${imagePath} for userId: ${userId}`,
-      );
 
       const bucketName = "receipts";
       const { data: downloadData, error: downloadError } =
         await supabase.storage.from(bucketName).download(imagePath);
 
       if (downloadError) {
-        logger.error(
-          `Error downloading from Supabase: ${downloadError.message}`,
-        );
-        throw new Error(`Failed to download image: ${downloadError.message}`);
+        throw new AIError(400, "The uploaded receipt could not be downloaded. Please upload it again.");
       }
 
       const arrayBuffer = await downloadData.arrayBuffer();
-      let imageBuffer = Buffer.from(arrayBuffer);
-
-      if (imagePath.endsWith(".heic") || imagePath.endsWith(".heif")) {
-        const bufferData =
-          imageBuffer.buffer instanceof ArrayBuffer
-            ? Buffer.from(imageBuffer.buffer)
-            : imageBuffer.buffer;
-        logger.info(
-          `Converting HEIC/HEIF file for OCR processing for userId: ${userId}`,
-        );
-        const converted = await convert({
-          buffer: bufferData as unknown as ArrayBufferLike,
-          format: "JPEG",
-        });
-        imageBuffer = Buffer.from(converted);
-      }
-
-      logger.info(`Image downloaded successfully, processing OCR...`);
+      const image = await prepareReceiptImage(Buffer.from(arrayBuffer), imagePath, downloadData.type);
 
       // Process OCR
       const llm = new LLM();
@@ -74,24 +51,24 @@ export class OCRController {
       const llmPrompt = getLLMPromptForTransactionParsing(mappedBudgetsContext);
       const llmResponse = await llm.autoAddExpenseOrIncome(
         llmPrompt,
-        imageBuffer,
-        downloadData.type,
+        image.buffer,
+        image.mimeType,
       );
-      logger.info(`LLM Response: ${llmResponse}`);
-      const parsed = JSON.parse(llmResponse);
+      const allowedBudgetIds = new Set(budgets.map(budget => budget.id).filter((id): id is string => !!id));
+      const parsed = parseReceiptTransaction(llmResponse, allowedBudgetIds);
 
       const transactionData: ITransaction = {
         userId,
-        type: parsed.type ?? null,
-        amount: parsed.amount ?? null,
-        name: parsed.name ?? null,
-        description: parsed.description ?? null,
-        category: parsed.category ?? null,
-        date: parsed.date ?? null,
+        type: parsed.type,
+        amount: parsed.amount,
+        name: parsed.name,
+        description: parsed.description,
+        category: parsed.category,
+        date: parsed.date,
         base_currency: "Singapore Dollar",
         converted_currency: "Singapore Dollar",
-        base_amount: parsed.amount ?? null,
-        converted_amount: parsed.amount ?? null,
+        base_amount: parsed.amount,
+        converted_amount: parsed.amount,
         exchange_rate: 1,
         savingsGoalId: undefined,
         budgetIds: parsed.budgetId ? [parsed.budgetId] : [],

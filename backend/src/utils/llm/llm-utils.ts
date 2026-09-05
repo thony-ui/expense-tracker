@@ -1,62 +1,51 @@
 import OpenAI from "openai";
-import logger from "../../logger";
+import { AIError } from "./ai-error";
 
 export class LLM {
-  private openai: OpenAI | null = null;
-  private enabled: boolean;
+  private readonly openai: OpenAI;
+  private readonly chatModel: string;
+  private readonly visionModel: string;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
-    this.enabled = !!apiKey;
-
-    if (this.enabled) {
-      this.openai = new OpenAI({ apiKey });
-      logger.info("QueryExpansionService: Initialized with OpenAI");
-    } else {
-      logger.warn(
-        "QueryExpansionService: OPENAI_API_KEY not set, query expansion disabled",
-      );
-    }
+    const apiKey = process.env.SOCLAAS_API_KEY?.trim();
+    if (!apiKey) throw new AIError(503, "The AI service is not configured.");
+    this.chatModel = process.env.SOCLAAS_CHAT_MODEL?.trim() || "default";
+    this.visionModel = process.env.SOCLAAS_VISION_MODEL?.trim() || "advanced-vision";
+    this.openai = new OpenAI({
+      apiKey,
+      baseURL: process.env.SOCLAAS_BASE_URL?.trim() || "https://soclaas-api.comp.nus.edu.sg/v1",
+      timeout: 180_000,
+      maxRetries: 0,
+    });
   }
 
-  async generateResponseStream(llmprompt: string, prompt: string) {
-    if (!this.enabled || !this.openai) {
-      throw new Error("OpenAI API not enabled or initialized.");
-    }
-
+  async generateResponseStream(llmprompt: string, prompt: string, signal?: AbortSignal) {
     const stream = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini", // or another model you prefer
+      model: this.chatModel,
       messages: [
         { role: "system", content: llmprompt },
         { role: "user", content: prompt },
       ],
       stream: true,
-    });
+      max_tokens: 2048,
+    }, { signal });
     return stream;
   }
 
   async generateResponseReport(prompt: string) {
-    if (!this.enabled || !this.openai) {
-      throw new Error("OpenAI API not enabled or initialized.");
-    }
-
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini", // or another model you prefer
+      model: this.chatModel,
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: prompt },
       ],
     });
-    return response.choices?.[0]?.message?.content || "";
+    return this.requireContent(response.choices?.[0]?.message?.content);
   }
 
   async enhanceOCRExtractedText(prompt: string) {
-    if (!this.enabled || !this.openai) {
-      throw new Error("OpenAI API not enabled or initialized.");
-    }
-
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini", // or another model you prefer
+      model: this.chatModel,
       messages: [
         {
           role: "system",
@@ -66,7 +55,7 @@ export class LLM {
         { role: "user", content: prompt },
       ],
     });
-    return response.choices?.[0]?.message?.content || "";
+    return this.requireContent(response.choices?.[0]?.message?.content);
   }
 
   async autoAddExpenseOrIncome(
@@ -74,13 +63,12 @@ export class LLM {
     fileBuffer: Buffer,
     mimeType: string,
   ) {
-    if (!this.enabled || !this.openai) {
-      throw new Error("OpenAI API not enabled or initialized.");
-    }
     const base64 = fileBuffer.toString("base64");
 
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini", // or another model you prefer
+      model: this.visionModel,
+      temperature: 0,
+      max_tokens: 2048,
       messages: [
         {
           role: "system",
@@ -104,6 +92,11 @@ export class LLM {
         },
       ],
     });
-    return response.choices?.[0]?.message?.content || "";
+    return this.requireContent(response.choices?.[0]?.message?.content);
+  }
+
+  private requireContent(content: string | null | undefined): string {
+    if (!content?.trim()) throw new AIError(502, "The AI service returned an empty response. Please try again.");
+    return content;
   }
 }

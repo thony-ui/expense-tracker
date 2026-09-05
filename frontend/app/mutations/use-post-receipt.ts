@@ -58,7 +58,7 @@ export function usePostReceipt() {
     },
     onError: (error: any) => {
       const message =
-        error.response?.data?.message || "Failed to process receipt";
+        error.response?.data?.message || error.message || "Failed to process receipt";
       toast.error(message);
     },
   });

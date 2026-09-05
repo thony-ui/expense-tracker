@@ -59,6 +59,9 @@ export class TransactionRepository implements ITransactionService {
         budgetId: null, // Use the first budget ID if provided
       })
       .select("*, users(name)");
+    if (error || !data?.[0]) {
+      throw new Error("The transaction could not be saved to the database.");
+    }
     const insertedTransaction = data?.[0]; // Get the inserted row
     const transactionId = insertedTransaction?.id; // This is the UUID or auto-ID
 

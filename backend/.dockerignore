@@ -1,0 +1,14 @@
+node_modules
+dist
+builds
+coverage
+logs
+.cache
+.env
+.env.*
+*.pem
+*.key
+*service-account*.json
+.git
+.DS_Store
+dump.rdb
