@@ -18,6 +18,7 @@ export function usePostReceipt() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       if (!session?.user?.id) {
         throw new Error("User not authenticated");
       }
@@ -25,22 +26,33 @@ export function usePostReceipt() {
       const userId = session.user.id;
 
       let fileExtension = "jpg";
+
       if (receipt.file.type === "image/png") {
         fileExtension = "png";
-      } else if (
-        receipt.file.type === "image/heic" ||
-        receipt.file.type === "image/heif"
-      ) {
+      } else if (receipt.file.type === "image/webp") {
+        fileExtension = "webp";
+      } else if (receipt.file.type === "image/heic") {
         fileExtension = "heic";
+      } else if (receipt.file.type === "image/heif") {
+        fileExtension = "heif";
+      } else if (receipt.file.type === "image/jpeg") {
+        fileExtension = "jpg";
       }
 
-      const fileName = `${userId}.${fileExtension}`;
+      /*
+       * IMPORTANT:
+       * Every receipt gets its own object.
+       *
+       * Example:
+       * user123/4f0c9f90-....heic
+       */
+      const fileName = `${userId}/${crypto.randomUUID()}.${fileExtension}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("receipts")
         .upload(fileName, receipt.file, {
           contentType: receipt.file.type,
-          upsert: true,
+          upsert: false,
         });
 
       if (uploadError) {
@@ -50,15 +62,22 @@ export function usePostReceipt() {
       const response = await axiosInstance.post(baseUrl, {
         imagePath: uploadData.path,
       });
+
       return response.data;
     },
+
     onSuccess: () => {
       toast.success("Receipt uploaded successfully!");
+
       invalidateTransactions();
     },
+
     onError: (error: any) => {
       const message =
-        error.response?.data?.message || error.message || "Failed to process receipt";
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to process receipt";
+
       toast.error(message);
     },
   });
