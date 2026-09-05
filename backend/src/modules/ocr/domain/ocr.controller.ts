@@ -1,19 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../../logger";
-import { z } from "zod";
 import { getLLMPromptForTransactionParsing } from "../../../utils/llm/llm-prompt";
 import { LLM } from "../../../utils/llm/llm-utils";
 import { TransactionRepository } from "../../transaction/domain/transaction.repository";
 import { ITransaction } from "../../transaction/domain/transaction.interface";
-import { parseReceiptTransaction, prepareReceiptImage } from "./receipt";
-import { AIError } from "../../../utils/llm/ai-error";
+import convert from "heic-convert";
 import supabase from "../../../lib/supabase-client";
 import { BudgetRepository } from "../../budget/domain/budget.repository";
 
 export class OCRController {
   constructor(
     private transactionRepository: TransactionRepository,
-
     private budgetRepository: BudgetRepository,
   ) {}
 
@@ -23,54 +20,109 @@ export class OCRController {
     next: NextFunction,
   ): Promise<void> => {
     const userId = req.user.id;
+
     try {
-      const { imagePath } = z.object({ imagePath: z.string().min(1).max(500) }).parse(req.body);
-      const ownedPath = imagePath.startsWith(`${userId}/`) ||
-        ["jpg", "jpeg", "png", "heic", "heif", "webp"].some(ext => imagePath === `${userId}.${ext}`);
-      if (!ownedPath || imagePath.includes("..") || imagePath.includes("\\")) {
-        throw new AIError(403, "You can only scan your own uploaded receipts.");
+      const { imagePath } = req.body;
+
+      if (!imagePath) {
+        res.status(400).send({
+          message: "No image path provided",
+        });
+        return;
       }
 
+      logger.info(
+        `OCRController: postOCR called with imagePath: ${imagePath} for userId: ${userId}`,
+      );
+
       const bucketName = "receipts";
+
       const { data: downloadData, error: downloadError } =
         await supabase.storage.from(bucketName).download(imagePath);
 
       if (downloadError) {
-        throw new AIError(400, "The uploaded receipt could not be downloaded. Please upload it again.");
+        logger.error(
+          `Error downloading from Supabase: ${downloadError.message}`,
+        );
+
+        throw new Error(`Failed to download image: ${downloadError.message}`);
       }
 
       const arrayBuffer = await downloadData.arrayBuffer();
-      const image = await prepareReceiptImage(Buffer.from(arrayBuffer), imagePath, downloadData.type);
 
-      // Process OCR
+      let imageBuffer = Buffer.from(arrayBuffer);
+      let mimeType = downloadData.type || "image/jpeg";
+
+      const lowerPath = imagePath.toLowerCase();
+
+      const isHeic =
+        lowerPath.endsWith(".heic") ||
+        lowerPath.endsWith(".heif") ||
+        mimeType === "image/heic" ||
+        mimeType === "image/heif";
+
+      if (isHeic) {
+        logger.info(`Converting HEIC/HEIF image to JPEG for userId: ${userId}`);
+
+        const bufferData =
+          imageBuffer.buffer instanceof ArrayBuffer
+            ? Buffer.from(imageBuffer.buffer)
+            : imageBuffer.buffer;
+
+        const converted = await convert({
+          buffer: bufferData as unknown as ArrayBufferLike,
+          format: "JPEG",
+        });
+
+        imageBuffer = Buffer.from(converted);
+
+        // IMPORTANT:
+        // bytes are now JPEG, so MIME type must also become JPEG
+        mimeType = "image/jpeg";
+
+        logger.info(`HEIC/HEIF conversion completed for userId: ${userId}`);
+      }
+
+      logger.info(`Image ready for OCR. MIME type: ${mimeType}`);
+
       const llm = new LLM();
+
       const budgets = await this.budgetRepository.getBudgets(userId);
+
       const mappedBudgetsContext = JSON.stringify(
         Object.fromEntries(budgets.map((budget) => [budget.id, budget.name])),
       );
+
       const llmPrompt = getLLMPromptForTransactionParsing(mappedBudgetsContext);
+
       const llmResponse = await llm.autoAddExpenseOrIncome(
         llmPrompt,
-        image.buffer,
-        image.mimeType,
+        imageBuffer,
+        mimeType,
       );
-      const allowedBudgetIds = new Set(budgets.map(budget => budget.id).filter((id): id is string => !!id));
-      const parsed = parseReceiptTransaction(llmResponse, allowedBudgetIds);
+
+      logger.info(`OCRController: LLM response received for userId: ${userId}`);
+
+      const parsed = JSON.parse(llmResponse);
 
       const transactionData: ITransaction = {
         userId,
-        type: parsed.type,
-        amount: parsed.amount,
-        name: parsed.name,
-        description: parsed.description,
-        category: parsed.category,
-        date: parsed.date,
+        type: parsed.type ?? null,
+        amount: parsed.amount ?? null,
+        name: parsed.name ?? null,
+        description: parsed.description ?? null,
+        category: parsed.category ?? null,
+        date: parsed.date ?? null,
+
         base_currency: "Singapore Dollar",
         converted_currency: "Singapore Dollar",
-        base_amount: parsed.amount,
-        converted_amount: parsed.amount,
+
+        base_amount: parsed.amount ?? null,
+        converted_amount: parsed.amount ?? null,
+
         exchange_rate: 1,
         savingsGoalId: undefined,
+
         budgetIds: parsed.budgetId ? [parsed.budgetId] : [],
       };
 
@@ -82,6 +134,8 @@ export class OCRController {
         message: "Transaction added successfully",
       });
     } catch (error) {
+      logger.error(`OCRController: OCR failed for userId ${userId}`, error);
+
       next(error);
     }
   };
